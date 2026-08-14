@@ -1,0 +1,21 @@
+{
+  "name": "ai-subscribe-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "11.15.1"
+  },
+  "scripts": {
+    "format:check": "pnpm --filter @ai-subscribe/windows format:check",
+    "lint": "pnpm --filter @ai-subscribe/windows lint",
+    "typecheck": "pnpm --filter @ai-subscribe/windows typecheck",
+    "test": "pnpm --filter @ai-subscribe/windows test",
+    "build": "pnpm --filter @ai-subscribe/windows build",
+    "test:e2e": "set PLAYWRIGHT_BROWSERS_PATH=.toolchains\\playwright-browsers&& playwright test",
+    "test:e2e:install": "set PLAYWRIGHT_BROWSERS_PATH=.toolchains\\playwright-browsers&& playwright install chromium --no-shell"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}

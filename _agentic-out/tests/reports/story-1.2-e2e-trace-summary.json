@@ -1,0 +1,17 @@
+{
+  "story": "1.2",
+  "scope": "windows-first",
+  "generated_at": "2026-08-14T12:10:00+08:00",
+  "total_items": 7,
+  "full": 5,
+  "partial": 2,
+  "none": 0,
+  "full_percentage": 71,
+  "p0": { "total": 5, "full": 5, "percentage": 100 },
+  "waived_items": ["AC1.2-webview2-health-uia", "UX1.2-runtime-matrix"],
+  "test_inventory": {
+    "frontend_files": 5,
+    "frontend_tests": 14,
+    "windows_rust_tests": 8
+  }
+}

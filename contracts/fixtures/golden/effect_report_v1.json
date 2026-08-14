@@ -1,0 +1,1 @@
+{"scenario":"effect_report_v1","input":{"effect_id":"effect:opaque-1","first":"delivered","repeat":"delivered","conflict":"failed"},"expected":{"first":"applied","repeat":"already_applied","conflict":"conflict.effect_already_reported"},"forbidden_fields":[]}

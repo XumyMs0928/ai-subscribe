@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>AI Subscribe · 可交互体验原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <div class="prototype-notice" role="note">体验原型 · 所有内容与服务状态均为本地模拟，不访问网络</div>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">信</span>
+        <span><strong>AI Subscribe</strong><small>冷静决策台</small></span>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-item is-active" type="button" data-view="feed" aria-current="page"><span aria-hidden="true">▤</span> 主情报流</button>
+        <button class="nav-item" type="button" data-view="rules"><span aria-hidden="true">⌁</span> 雷达规则</button>
+        <button class="nav-item" type="button" data-view="status"><span aria-hidden="true">◉</span> 同步与诊断</button>
+      </nav>
+      <p class="device-note">仅影响当前设备<br>无云备份或跨设备同步</p>
+    </aside>
+
+    <main id="main-content" tabindex="-1">
+      <section id="view-feed" class="view is-active" aria-labelledby="feed-heading">
+        <div id="health-banner" class="health-banner" role="status" aria-live="polite"></div>
+        <div class="feed-layout">
+          <section id="feed-pane" class="feed-pane" aria-labelledby="feed-heading">
+            <header class="pane-header">
+              <div>
+                <p class="eyebrow">演示数据 · 当前设备</p>
+                <h1 id="feed-heading" tabindex="-1">主情报流</h1>
+                <p id="last-sync" class="meta">最后同步：今天 09:42</p>
+              </div>
+              <button id="sync-button" class="button quiet" type="button">模拟同步</button>
+            </header>
+
+            <div class="search-area" role="search" aria-label="搜索当前情报流">
+              <label for="search-input">搜索当前情报流</label>
+              <div class="input-action">
+                <input id="search-input" type="search" autocomplete="off" placeholder="标题、摘录或来源">
+                <button id="clear-search" class="button quiet compact" type="button">清除</button>
+              </div>
+              <div class="filter-grid">
+                <label>重要度
+                  <select id="importance-filter">
+                    <option value="all">全部</option>
+                    <option value="critical">重大动态</option>
+                    <option value="high">高价值</option>
+                    <option value="normal">普通候选</option>
+                  </select>
+                </label>
+                <label>赛道
+                  <select id="track-filter">
+                    <option value="all">全部赛道</option>
+                    <option value="model">基础模型</option>
+                    <option value="tooling">开发工具</option>
+                    <option value="policy">政策合规</option>
+                  </select>
+                </label>
+              </div>
+              <div id="active-filters" class="filter-chips" aria-label="当前筛选条件"></div>
+            </div>
+
+            <div id="feed-loading" class="local-state" hidden aria-live="polite"><span class="spinner" aria-hidden="true"></span> 正在合并本地模拟结果，现有内容保持可用…</div>
+            <div id="feed-results-summary" class="results-summary" aria-live="polite"></div>
+            <div id="feed-list" class="feed-list" role="listbox" aria-label="情报列表"></div>
+            <div id="empty-state" class="empty-state" hidden>
+              <h2>当前条件没有结果</h2>
+              <p id="empty-description"></p>
+              <button id="reset-filters-empty" class="button primary" type="button">恢复默认</button>
+            </div>
+          </section>
+
+          <article id="detail-pane" class="detail-pane" aria-labelledby="detail-title" tabindex="-1">
+            <button id="mobile-back" class="button quiet mobile-back" type="button">← 返回情报流</button>
+            <div id="detail-content"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-rules" class="view single-view" aria-labelledby="rules-heading" hidden>
+        <header class="page-header">
+          <p class="eyebrow">设备本地配置</p>
+          <h1 id="rules-heading" tabindex="-1">雷达规则校准</h1>
+          <p>修改只影响当前设备；保存后在下一轮模拟同步生效，不改写历史情报、收藏或反馈。</p>
+        </header>
+        <form id="rule-form" novalidate>
+          <div class="rule-grid">
+            <section class="panel" aria-labelledby="rule-editor-heading">
+              <h2 id="rule-editor-heading">规则输入</h2>
+              <label for="rule-keywords">关注关键词</label>
+              <input id="rule-keywords" value="推理, agent, 开源模型" aria-describedby="keyword-help keyword-error">
+              <p id="keyword-help" class="help">使用逗号分隔；至少保留一个关键词。</p>
+              <p id="keyword-error" class="field-error" hidden></p>
+
+              <label for="rule-exclusions">排除词</label>
+              <input id="rule-exclusions" value="招聘, 融资传闻" aria-describedby="exclusion-help exclusion-error">
+              <p id="exclusion-help" class="help">与关注关键词冲突时将阻止保存。</p>
+              <p id="exclusion-error" class="field-error" hidden></p>
+
+              <label for="rule-threshold">提醒阈值：<output id="threshold-output" for="rule-threshold">72</output></label>
+              <input id="rule-threshold" type="range" min="50" max="95" value="72">
+              <p class="help">阈值越高，提醒越少；超过 88 可能漏掉高价值变化。</p>
+
+              <label class="check-row"><input id="simulate-save-failure" type="checkbox"> 模拟下一次保存失败</label>
+              <div class="form-actions">
+                <button id="reset-rules" class="button quiet" type="button">撤销修改</button>
+                <button id="save-rules" class="button primary" type="submit">保存规则</button>
+              </div>
+              <p id="rule-save-status" class="persistent-status" role="status" aria-live="polite"></p>
+            </section>
+
+            <aside class="panel impact-preview" aria-labelledby="impact-heading">
+              <h2 id="impact-heading">影响预览</h2>
+              <dl>
+                <div><dt>修改摘要</dt><dd id="impact-summary">尚未修改</dd></div>
+                <div><dt>预计命中</dt><dd id="impact-count">每日约 5 条</dd></div>
+                <div><dt>冲突</dt><dd id="impact-conflict">未发现</dd></div>
+                <div><dt>生效时间</dt><dd>下一轮模拟同步</dd></div>
+                <div><dt>历史数据</dt><dd>不会改写</dd></div>
+              </dl>
+              <div id="rule-warning" class="inline-alert warning" hidden>
+                <strong>漏报风险</strong>
+                <p>当前阈值较窄，可能遗漏非即时但有价值的变化。</p>
+                <label class="check-row"><input id="confirm-risk" type="checkbox"> 我已了解此风险并继续</label>
+              </div>
+            </aside>
+          </div>
+        </form>
+      </section>
+
+      <section id="view-status" class="view single-view" aria-labelledby="status-heading" hidden>
+        <header class="page-header">
+          <p class="eyebrow">确定性模拟</p>
+          <h1 id="status-heading" tabindex="-1">同步与诊断</h1>
+          <p>切换故障场景可验证缓存可用、影响范围与幂等恢复。不会发起网络请求。</p>
+        </header>
+        <div class="status-grid">
+          <section class="panel">
+            <label for="scenario-select">模拟场景</label>
+            <select id="scenario-select">
+              <option value="healthy">全部成功</option>
+              <option value="offline">离线可用</option>
+              <option value="partial">部分成功</option>
+              <option value="rate">Vendor RSS 限流</option>
+              <option value="ai">AI 等待</option>
+            </select>
+            <div id="sync-health-card" class="sync-health-card" aria-live="polite"></div>
+            <button id="retry-button" class="button primary" type="button">重试有效任务</button>
+          </section>
+          <section class="panel" aria-labelledby="source-results-heading">
+            <h2 id="source-results-heading">来源结果</h2>
+            <div id="source-results"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal-backdrop" class="modal-backdrop" hidden>
+    <section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-header"><h2 id="modal-title">反馈</h2><button id="modal-close" class="icon-button" type="button" aria-label="关闭对话框">×</button></header>
+      <div id="modal-body"></div>
+      <footer id="modal-actions" class="modal-actions"></footer>
+    </section>
+  </div>
+
+  <div id="snackbar" class="snackbar" role="status" aria-live="polite" hidden>
+    <span id="snackbar-message"></span>
+    <button id="snackbar-action" type="button">撤销</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

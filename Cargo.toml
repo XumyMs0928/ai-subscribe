@@ -1,0 +1,26 @@
+[workspace]
+members = [
+    "crates/radar-core",
+    "crates/radar-ffi",
+    "crates/xtask",
+    "apps/windows/src-tauri",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+rust-version = "1.97.1"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "deny"
+
+[patch.crates-io]
+# Compile the official SQLite 3.53.4 amalgamation required by the
+# architecture's WAL-reset safety floor through the locked wrapper.
+libsqlite3-sys = { path = "vendor/libsqlite3-sys" }

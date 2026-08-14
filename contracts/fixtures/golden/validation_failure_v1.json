@@ -1,0 +1,1 @@
+{"scenario":"validation_failure_v1","input":{"effect_id":""},"expected":{"contract_version":1,"code":"validation.effect_id","category":"validation"},"forbidden_fields":[]}

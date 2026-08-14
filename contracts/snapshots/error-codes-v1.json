@@ -1,0 +1,7 @@
+{
+  "generator": "radar-core-contracts-v1",
+  "contract_version": 1,
+  "categories": ["validation", "not_found", "conflict", "permission", "network", "rate_limited", "source_format", "provider", "storage", "migration", "cancelled", "internal"],
+  "retryability": ["never", "manual", "automatic", "after"],
+  "codes": ["validation.effect_id", "validation.idempotency_key", "validation.rfc3339_utc", "validation.effect_status", "validation.secret_lease", "conflict.effect_already_reported", "conflict.secret_lease_consumed", "internal.unexpected"]
+}

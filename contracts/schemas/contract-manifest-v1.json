@@ -1,0 +1,30 @@
+{
+  "generator": "radar-core-contracts-v1",
+  "contract_version": 1,
+  "compatibility": "wire-additive-only-within-v1",
+  "dtos": {
+    "health_status": ["contract_version", "status", "checked_at"],
+    "app_error": ["contract_version", "code", "category", "message_key", "retryability", "source_id", "task_id", "details_allowlisted", "correlation_id"],
+    "platform_effect": ["contract_version", "effect_id", "idempotency_key", "kind", "payload_version", "expires_at", "status"],
+    "secret_lease_input": ["contract_version", "secret_ref", "secret_bytes_non_serializable"],
+    "demo_catalog": ["contract_version", "dataset_id", "items"],
+    "demo_page": ["contract_version", "dataset_id", "items", "next_cursor"],
+    "demo_item": ["id", "data_origin", "publisher", "title", "track", "summary", "original_url", "published_at", "collected_at"]
+  },
+  "demo_fixture": {"dataset_id": "demo-v1", "item_count": 3, "fingerprint": "6fcee158d6a34c87"},
+  "effect_kind": ["contract_probe"],
+  "effect_status": {
+    "all": ["pending", "delivered", "denied", "expired", "failed"],
+    "initial": "pending",
+    "terminal": ["delivered", "denied", "expired", "failed"],
+    "same_terminal_report": "already_applied",
+    "different_terminal_report": "conflict.effect_already_reported"
+  },
+  "report_result": ["applied", "already_applied"],
+  "field_rules": {
+    "ids": "ascii_opaque_token_1_to_128",
+    "time_input": "rfc3339_utc_t_or_T_z_or_Z_or_plus_00_announced_leap_second",
+    "time": "canonical_rfc3339_utc_uppercase_z_max_64",
+    "missing": "explicit_null"
+  }
+}

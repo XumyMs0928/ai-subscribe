@@ -1,0 +1,8 @@
+packages:
+  - apps/windows
+
+minimumReleaseAgeExclude:
+  - globals@17.11.0
+
+onlyBuiltDependencies:
+  - esbuild

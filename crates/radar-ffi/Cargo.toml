@@ -1,0 +1,16 @@
+[package]
+name = "radar-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "radar_ffi"
+path = "src/lib.rs"
+
+[dependencies]
+radar-core = { path = "../radar-core" }
+
+[lints]
+workspace = true

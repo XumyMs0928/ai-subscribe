@@ -1,0 +1,25 @@
+{
+  "story": "1.1",
+  "detected_stack": "backend",
+  "execution_mode": "integrated",
+  "worker_mode": "subagent",
+  "generated_tests": 18,
+  "total_suite_tests": 27,
+  "api_tests": 0,
+  "backend_tests": 18,
+  "generated_files": 4,
+  "fixtures_created": 1,
+  "priority_coverage": {
+    "P0": 12,
+    "P1": 6,
+    "P2": 0,
+    "P3": 0
+  },
+  "validation": {
+    "rustfmt": "pass",
+    "clippy": "pass",
+    "workspace_tests": "27 passed, 0 failed",
+    "contract_gate": "pass",
+    "burn_in": "5/5 passed"
+  }
+}

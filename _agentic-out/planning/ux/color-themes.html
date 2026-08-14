@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="signal">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ai-subscribe · shadcn/ui 主题比较</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      color-scheme: light;
+      --radius: 6px;
+      --bg: oklch(0.985 0.004 240);
+      --fg: oklch(0.19 0.012 240);
+      --surface: oklch(1 0 0);
+      --surface-2: oklch(0.955 0.006 240);
+      --muted-fg: oklch(0.47 0.015 240);
+      --primary: oklch(0.50 0.105 188);
+      --primary-fg: oklch(0.985 0.004 188);
+      --accent: oklch(0.93 0.03 188);
+      --border: oklch(0.89 0.008 240);
+      --ring: oklch(0.56 0.12 188);
+      --destructive: oklch(0.57 0.22 27);
+      --warning: oklch(0.72 0.14 78);
+      --success: oklch(0.56 0.12 155);
+      --critical: oklch(0.58 0.19 35);
+      --chart-1: oklch(0.58 0.12 188);
+      --chart-2: oklch(0.67 0.12 215);
+      --chart-3: oklch(0.69 0.12 125);
+      --shadow: 0 14px 38px rgb(15 23 42 / 0.14);
+    }
+    html[data-theme="ink"] {
+      --bg: oklch(0.98 0.006 255); --fg: oklch(0.20 0.025 255);
+      --surface: oklch(0.995 0.003 255); --surface-2: oklch(0.945 0.012 255);
+      --muted-fg: oklch(0.47 0.028 255); --primary: oklch(0.47 0.14 255);
+      --primary-fg: oklch(0.985 0.004 255); --accent: oklch(0.92 0.035 255);
+      --border: oklch(0.86 0.018 255); --ring: oklch(0.56 0.15 255);
+      --chart-1: oklch(0.53 0.15 255); --chart-2: oklch(0.62 0.12 225); --chart-3: oklch(0.67 0.10 285);
+    }
+    html[data-theme="amber"] {
+      --bg: oklch(0.982 0.010 85); --fg: oklch(0.22 0.025 65);
+      --surface: oklch(0.995 0.006 85); --surface-2: oklch(0.95 0.025 85);
+      --muted-fg: oklch(0.48 0.035 70); --primary: oklch(0.54 0.13 70);
+      --primary-fg: oklch(0.99 0.005 85); --accent: oklch(0.92 0.06 82);
+      --border: oklch(0.86 0.028 80); --ring: oklch(0.62 0.15 70);
+      --chart-1: oklch(0.62 0.15 70); --chart-2: oklch(0.62 0.11 150); --chart-3: oklch(0.58 0.13 30);
+    }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-size: 14px; }
+    button, input, select { font: inherit; color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .page { min-height: 100vh; }
+    .theme-bar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 12px 20px; background: color-mix(in oklch, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .theme-title { display: flex; gap: 10px; align-items: center; }
+    .mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--primary); color: var(--primary-fg); font-weight: 750; }
+    .theme-title strong { display: block; font-size: 14px; }
+    .theme-title span { display: block; color: var(--muted-fg); font-size: 12px; }
+    .switcher { display: flex; gap: 6px; padding: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; }
+    .switcher button { border: 0; background: transparent; padding: 6px 10px; border-radius: 5px; cursor: pointer; }
+    .switcher button[aria-pressed="true"] { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px rgb(15 23 42 / .08); font-weight: 650; }
+    .intro { max-width: 1440px; margin: 0 auto; padding: 20px 24px 12px; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end; }
+    .intro h1 { margin: 0 0 5px; font-size: 24px; line-height: 32px; }
+    .intro p { margin: 0; color: var(--muted-fg); }
+    .token-strip { display: flex; gap: 5px; }
+    .swatch { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; }
+    .workspace { max-width: 1440px; height: 720px; margin: 10px auto 24px; display: grid; grid-template-columns: 224px minmax(360px, 440px) minmax(440px, 1fr); overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 18px 60px rgb(15 23 42 / .10); }
+    .sidebar { display: flex; flex-direction: column; background: color-mix(in oklch, var(--surface-2) 72%, var(--surface)); border-right: 1px solid var(--border); padding: 12px 9px; }
+    .brand { display: flex; align-items: center; gap: 8px; padding: 5px 7px 13px; font-weight: 700; }
+    .nav-group { margin: 7px 0 2px; padding: 0 8px; font-size: 11px; color: var(--muted-fg); font-weight: 700; letter-spacing: .04em; }
+    .nav { display: grid; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 9px; min-height: 32px; padding: 6px 9px; border-radius: var(--radius); color: var(--muted-fg); }
+    .nav-item.active { color: var(--fg); background: var(--accent); font-weight: 650; }
+    .nav-item .count { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 12px; }
+    .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--success); }
+    .sidebar-foot { margin-top: auto; border-top: 1px solid var(--border); padding: 10px 7px 2px; color: var(--muted-fg); font-size: 12px; display: grid; gap: 6px; }
+    .status-line { display: flex; gap: 7px; align-items: center; }
+    .list-pane { display: grid; grid-template-rows: auto auto 1fr; border-right: 1px solid var(--border); min-width: 0; }
+    .pane-head { padding: 13px 14px 10px; display: flex; align-items: center; justify-content: space-between; }
+    .pane-head h2 { font-size: 16px; margin: 0; }
+    .pane-head small { color: var(--muted-fg); }
+    .icon-btn, .button { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius); cursor: pointer; }
+    .icon-btn { width: 30px; height: 30px; }
+    .button { min-height: 32px; padding: 5px 10px; font-weight: 600; }
+    .button.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+    .toolbar { padding: 0 14px 10px; display: flex; gap: 7px; }
+    .search { flex: 1; height: 32px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); padding: 0 10px; }
+    .feed { overflow: auto; border-top: 1px solid var(--border); }
+    .feed-item { position: relative; padding: 12px 14px 11px 16px; border-bottom: 1px solid var(--border); cursor: default; }
+    .feed-item:hover { background: color-mix(in oklch, var(--accent) 48%, transparent); }
+    .feed-item.selected { background: var(--accent); }
+    .feed-item.selected::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--primary); }
+    .meta { display: flex; gap: 7px; align-items: center; color: var(--muted-fg); font-size: 12px; }
+    .source { color: var(--fg); font-weight: 650; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; min-height: 20px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); font-size: 11px; font-weight: 650; }
+    .badge.ai { color: var(--primary); border-color: color-mix(in oklch, var(--primary) 32%, var(--border)); background: color-mix(in oklch, var(--accent) 75%, var(--surface)); }
+    .badge.critical { color: var(--critical); border-color: color-mix(in oklch, var(--critical) 32%, var(--border)); }
+    .feed-item h3 { margin: 6px 0 5px; font-size: 15px; line-height: 21px; }
+    .feed-item p { margin: 0; color: var(--muted-fg); line-height: 19px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .chips { margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap; }
+    .detail { min-width: 0; overflow: auto; }
+    .detail-head { position: sticky; top: 0; z-index: 4; padding: 11px 18px; display: flex; justify-content: space-between; gap: 10px; align-items: center; background: color-mix(in oklch, var(--surface) 94%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+    .detail-actions { display: flex; gap: 6px; }
+    .detail-body { padding: 22px 24px 46px; max-width: 780px; }
+    .kicker { display: flex; gap: 7px; align-items: center; margin-bottom: 10px; }
+    .detail h2 { margin: 0; font-size: 24px; line-height: 32px; letter-spacing: -.012em; }
+    .byline { margin: 9px 0 20px; color: var(--muted-fg); font-size: 12px; }
+    .lead { margin: 0 0 18px; font-size: 15px; line-height: 23px; }
+    .section { padding: 15px 0; border-top: 1px solid var(--border); }
+    .section h3 { margin: 0 0 8px; font-size: 13px; }
+    .section p { margin: 0; line-height: 21px; color: color-mix(in oklch, var(--fg) 88%, var(--muted-fg)); }
+    .evidence { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metric { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+    .metric span { display: block; color: var(--muted-fg); font-size: 11px; margin-bottom: 4px; }
+    .metric strong { font-size: 14px; }
+    .progress { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 7px; }
+    .progress i { display: block; height: 100%; width: 78%; background: var(--primary); border-radius: inherit; }
+    .states { max-width: 1440px; margin: 0 auto 40px; display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 12px; padding: 0 24px; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 14px; min-height: 190px; }
+    .panel h3 { margin: 0 0 12px; font-size: 14px; }
+    .alert { border: 1px solid color-mix(in oklch, var(--warning) 45%, var(--border)); background: color-mix(in oklch, var(--warning) 11%, var(--surface)); border-radius: var(--radius); padding: 10px 11px; display: flex; gap: 9px; }
+    .alert strong, .alert span { display: block; }
+    .alert span { color: var(--muted-fg); font-size: 12px; margin-top: 2px; line-height: 17px; }
+    .form-row { display: grid; gap: 5px; margin-bottom: 10px; }
+    .form-row label { font-size: 12px; font-weight: 650; }
+    .form-row input, .form-row select { height: 34px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius); padding: 0 9px; }
+    .command { box-shadow: var(--shadow); border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+    .command input { width: 100%; height: 38px; border: 0; border-bottom: 1px solid var(--border); padding: 0 11px; background: var(--surface); }
+    .command-list { padding: 5px; display: grid; gap: 2px; }
+    .command-item { padding: 7px 8px; border-radius: 5px; display: flex; justify-content: space-between; }
+    .command-item.active { background: var(--accent); }
+    .key { color: var(--muted-fg); font-size: 11px; font-family: ui-monospace, Consolas, monospace; }
+    .chart { height: 64px; display: flex; align-items: end; gap: 5px; margin-top: 12px; }
+    .bar { flex: 1; min-width: 8px; border-radius: 3px 3px 0 0; background: var(--chart-1); }
+    .bar:nth-child(2n) { background: var(--chart-2); }
+    .bar:nth-child(3n) { background: var(--chart-3); }
+    .skeleton { height: 10px; border-radius: 4px; background: linear-gradient(90deg, var(--surface-2), color-mix(in oklch, var(--surface-2) 55%, var(--surface)), var(--surface-2)); background-size: 220% 100%; animation: pulse 1.5s infinite; margin: 9px 0; }
+    @keyframes pulse { to { background-position: -220% 0; } }
+    @media (max-width: 980px) {
+      .workspace { margin-inline: 14px; grid-template-columns: 190px minmax(320px, 1fr); }
+      .detail { display: none; }
+      .states { grid-template-columns: 1fr; padding-inline: 14px; }
+      .intro { padding-inline: 14px; grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="theme-bar">
+      <div class="theme-title"><div class="mark">AI</div><div><strong>ai-subscribe 主题实验室</strong><span>真实工作台上下文 · 浅色候选</span></div></div>
+      <div class="switcher" role="group" aria-label="选择主题">
+        <button data-set-theme="signal" aria-pressed="true">信号青 · 推荐</button>
+        <button data-set-theme="ink" aria-pressed="false">研究墨蓝</button>
+        <button data-set-theme="amber" aria-pressed="false">雷达琥珀</button>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div><h1 id="theme-name">信号青：冷静、可信、证据优先</h1><p id="theme-note">中性工作台以青绿色标识选中、焦点与可信操作；红色只保留给真实错误。</p></div>
+      <div class="token-strip" aria-label="当前主题色板">
+        <div class="swatch" style="background:var(--bg)"></div><div class="swatch" style="background:var(--surface)"></div><div class="swatch" style="background:var(--surface-2)"></div><div class="swatch" style="background:var(--primary)"></div><div class="swatch" style="background:var(--warning)"></div><div class="swatch" style="background:var(--destructive)"></div>
+      </div>
+    </section>
+
+    <main class="workspace" aria-label="主题预览工作台">
+      <aside class="sidebar">
+        <div class="brand"><div class="mark">R</div> 情报雷达</div>
+        <div class="nav-group">工作区</div>
+        <div class="nav"><div class="nav-item active">⌁ 主情报流 <span class="count">8</span></div><div class="nav-item">◉ 探索与过滤 <span class="count">23</span></div><div class="nav-item">☆ 收藏</div></div>
+        <div class="nav-group">雷达</div>
+        <div class="nav"><div class="nav-item">◇ 来源</div><div class="nav-item">⌘ 规则</div><div class="nav-item">↻ 同步与诊断 <span class="count">1</span></div></div>
+        <div class="nav-group">系统</div>
+        <div class="nav"><div class="nav-item">⚙ 设置</div></div>
+        <div class="sidebar-foot"><div class="status-line"><i class="dot"></i><span>本地数据可用</span></div><div>上次同步 09:42 · 部分成功</div></div>
+      </aside>
+
+      <section class="list-pane">
+        <div class="pane-head"><div><h2>今日重点</h2><small>8 条高价值动态</small></div><button class="icon-btn" aria-label="立即同步">↻</button></div>
+        <div class="toolbar"><input class="search" placeholder="在当前视图搜索  /" /><button class="button">筛选 2</button></div>
+        <div class="feed">
+          <article class="feed-item selected" tabindex="0"><div class="meta"><span class="source">Anthropic</span><span>官方发布</span><span>18 分钟前</span></div><h3>Claude Code 推出新的多代理协作能力</h3><p>可能改变复杂代码任务的拆分方式，并影响现有 Agent 工具链设计。</p><div class="chips"><span class="badge critical">重大动态</span><span class="badge ai">AI 已分析</span><span class="badge">Agent</span></div></article>
+          <article class="feed-item" tabindex="0"><div class="meta"><span class="source">arXiv</span><span>论文</span><span>2 小时前</span></div><h3>长上下文推理的检索压缩新方法</h3><p>在固定计算预算下改善代码库问答的召回与推理稳定性。</p><div class="chips"><span class="badge">高价值</span><span class="badge ai">AI 已分析</span></div></article>
+          <article class="feed-item" tabindex="0"><div class="meta"><span class="source">GitHub</span><span>Release</span><span>5 小时前</span></div><h3>本地推理框架发布 Windows 性能修复</h3><p>修复大模型加载时的内存峰值，并更新量化模型兼容范围。</p><div class="chips"><span class="badge">普通候选</span><span class="badge">本地模型</span></div></article>
+          <article class="feed-item" tabindex="0"><div class="meta"><span class="source">Vendor RSS</span><span>博客</span><span>昨天</span></div><h3>开发者平台更新 API 限流策略</h3><p>新的限流响应字段可能影响已有同步和重试实现。</p><div class="chips"><span class="badge">待判断</span><span class="badge ai">等待分析</span></div></article>
+        </div>
+      </section>
+
+      <article class="detail">
+        <div class="detail-head"><span class="badge">决策证据</span><div class="detail-actions"><button class="button">☆ 收藏</button><button class="button">反馈</button><button class="button primary">查看原文 ↗</button></div></div>
+        <div class="detail-body">
+          <div class="kicker"><span class="badge critical">重大动态</span><span class="badge ai">AI 生成提炼</span></div>
+          <h2>Claude Code 推出新的多代理协作能力</h2>
+          <div class="byline">Anthropic · 官方发布 · 2026-08-10 09:24 · 原文可用</div>
+          <p class="lead">新版本允许多个专用代理在同一代码任务中分工，并通过共享上下文协调规划、实现与审查。</p>
+          <section class="section"><h3>为什么重要</h3><p>这可能把单代理的串行执行改造成可观察的协作工作流，直接影响复杂任务的延迟、成本和错误隔离方式。</p></section>
+          <section class="section"><h3>判断概览</h3><div class="evidence"><div class="metric"><span>重要程度</span><strong>高 · 影响工具链</strong></div><div class="metric"><span>AI 置信度</span><strong>较高</strong><div class="progress"><i></i></div></div><div class="metric"><span>来源</span><strong>官方一手</strong></div></div></section>
+          <section class="section"><h3>判断依据</h3><p>命中 Agent 赛道与核心框架关键词；来源为官方发布；包含明确版本与能力变化；另有 2 个关联来源可展开核验。</p></section>
+          <section class="section"><h3>原始事实与溯源</h3><p>原始标题、作者、发布时间、首次发现时间与内容标识均已保存。AI 提炼与原始字段分区展示。</p></section>
+        </div>
+      </article>
+    </main>
+
+    <section class="states">
+      <div class="panel"><h3>状态与错误</h3><div class="alert"><div>⚠</div><div><strong>1 个来源同步受限</strong><span>已有数据安全，其他 11 个来源已完成。预计 10:15 自动重试。</span></div></div><div class="skeleton" style="width:88%"></div><div class="skeleton" style="width:64%"></div><div class="skeleton" style="width:76%"></div></div>
+      <div class="panel"><h3>表单与语义控件</h3><div class="form-row"><label for="topic">关注赛道</label><input id="topic" value="Agent 与开发工具" /></div><div class="form-row"><label for="source">来源可信度</label><select id="source"><option>官方来源 · 高</option></select></div><button class="button primary">保存规则</button></div>
+      <div class="panel"><h3>命令面板</h3><div class="command"><input aria-label="搜索命令" value="同步" /><div class="command-list"><div class="command-item active"><span>立即同步全部来源</span><span class="key">Enter</span></div><div class="command-item"><span>打开同步与诊断</span><span class="key">G D</span></div><div class="command-item"><span>重试失败来源</span><span class="key">R</span></div></div></div></div>
+      <div class="panel"><h3>验证趋势</h3><strong>主情报流有效率 74%</strong><div class="chart"><div class="bar" style="height:38%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:59%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:78%"></div></div></div>
+      <div class="panel"><h3>空状态</h3><div style="padding:22px 10px;text-align:center"><div style="font-size:22px;margin-bottom:8px">◎</div><strong>今日重点已浏览</strong><p style="color:var(--muted-fg);font-size:12px;line-height:18px">普通候选仍可在探索中查看。下一次同步 10:30。</p><button class="button">查看探索内容</button></div></div>
+      <div class="panel"><h3>语义状态</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge critical">重大动态</span><span class="badge">高价值</span><span class="badge ai">AI 生成</span><span class="badge">官方来源</span><span class="badge">离线可用</span></div><p style="margin-top:16px;color:var(--muted-fg);font-size:12px;line-height:18px">状态同时依赖文字、图标与边界，不以颜色作为唯一线索。</p></div>
+    </section>
+  </div>
+  <script>
+    const copy = {
+      signal: ["信号青：冷静、可信、证据优先", "中性工作台以青绿色标识选中、焦点与可信操作；红色只保留给真实错误。"],
+      ink: ["研究墨蓝：理性、编辑感、长时阅读", "更强的蓝灰层级适合研究型详情与长期使用，气质稳健但略偏传统效率工具。"],
+      amber: ["雷达琥珀：敏锐、温暖、信号导向", "温暖强调更具识别度，适合突出情报发现，但必须克制使用以避免持续警报感。"]
+    };
+    document.querySelectorAll("[data-set-theme]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const theme = button.dataset.setTheme;
+        document.documentElement.dataset.theme = theme;
+        document.querySelectorAll("[data-set-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+        document.getElementById("theme-name").textContent = copy[theme][0];
+        document.getElementById("theme-note").textContent = copy[theme][1];
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "story": "1.2",
+  "decision": "WAIVED",
+  "approved_by": "user/xmy",
+  "approved_at": "2026-08-14",
+  "reason": "Two non-core runtime evidence items are deferred to accelerate Windows-first delivery.",
+  "deferred_to": "Story 1.7",
+  "blockers": [],
+  "conditions": [
+    "Verify WebView2 UIA health/version in an interactive Windows session.",
+    "Run light/dark, high-contrast, reduced-motion, and 100%/200% scale matrix."
+  ]
+}

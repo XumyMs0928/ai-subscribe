@@ -1,0 +1,13 @@
+[package]
+name = "xtask"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+radar-core = { path = "../radar-core" }
+radar-ffi = { path = "../radar-ffi" }
+
+[lints]
+workspace = true

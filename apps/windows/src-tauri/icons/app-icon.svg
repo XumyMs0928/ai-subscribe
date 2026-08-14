@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AI Subscribe signal mark">
+  <rect width="512" height="512" rx="112" fill="#102c36"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#44c4cf" stroke-width="36"/>
+  <circle cx="256" cy="256" r="62" fill="#f4fbfb"/>
+  <path d="M256 70v68M256 374v68M70 256h68M374 256h68" stroke="#44c4cf" stroke-width="36" stroke-linecap="round"/>
+</svg>

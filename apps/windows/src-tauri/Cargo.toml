@@ -1,0 +1,36 @@
+[package]
+name = "ai-subscribe-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "ai_subscribe_windows"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[[bin]]
+name = "ai-subscribe-desktop"
+path = "src/main.rs"
+
+[features]
+benchmark-instrumentation = []
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+radar-core = { path = "../../../crates/radar-core" }
+radar-ffi = { path = "../../../crates/radar-ffi" }
+serde = { version = "1.0.228", features = ["derive"] }
+tauri = { version = "=2.11.5", default-features = false, features = ["wry"] }
+
+[target.'cfg(windows)'.dependencies]
+keyring-core = "1.0.0"
+windows-native-keyring-store = "1.1.0"
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+serde_json = "1.0.151"

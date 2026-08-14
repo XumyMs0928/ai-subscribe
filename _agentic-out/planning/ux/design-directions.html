@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN" data-direction="calm" data-screen="workspace">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ai-subscribe · UX 设计方向</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      color-scheme: light;
+      --background: oklch(0.985 0.004 240); --foreground: oklch(0.19 0.012 240);
+      --card: oklch(1 0 0); --card-foreground: var(--foreground);
+      --popover: oklch(1 0 0); --popover-foreground: var(--foreground);
+      --primary: oklch(0.50 0.105 188); --primary-foreground: oklch(0.985 0.004 188);
+      --secondary: oklch(0.955 0.006 240); --secondary-foreground: var(--foreground);
+      --muted: oklch(0.955 0.006 240); --muted-foreground: oklch(0.47 0.015 240);
+      --accent: oklch(0.93 0.03 188); --accent-foreground: var(--foreground);
+      --destructive: oklch(0.57 0.22 27); --destructive-foreground: white;
+      --border: oklch(0.89 0.008 240); --input: var(--border); --ring: oklch(0.56 0.12 188);
+      --warning: oklch(0.72 0.14 78); --success: oklch(0.56 0.12 155); --critical: oklch(0.58 0.19 35);
+      --radius: 6px; --rail: 228px; --list: 430px; --pad: 14px; --row: 11px;
+      --overlay: 0 18px 54px rgb(15 23 42 / .16);
+    }
+    html[data-direction="editorial"] { --primary: oklch(0.47 0.14 255); --accent: oklch(0.92 0.035 255); --ring: oklch(0.56 0.15 255); --rail: 210px; --list: 350px; --pad: 18px; --row: 14px; --radius: 4px; }
+    html[data-direction="triage"] { --primary: oklch(0.54 0.13 70); --accent: oklch(0.92 0.06 82); --ring: oklch(0.62 0.15 70); --rail: 196px; --list: 490px; --pad: 11px; --row: 7px; --radius: 5px; }
+    html[data-direction="command"] { color-scheme: dark; --background: oklch(0.15 0.012 240); --foreground: oklch(0.94 0.008 240); --card: oklch(0.185 0.012 240); --card-foreground: var(--foreground); --popover: oklch(0.21 0.012 240); --popover-foreground: var(--foreground); --primary: oklch(0.71 0.12 188); --primary-foreground: oklch(0.15 0.02 188); --secondary: oklch(0.235 0.012 240); --secondary-foreground: var(--foreground); --muted: oklch(0.235 0.012 240); --muted-foreground: oklch(0.70 0.014 240); --accent: oklch(0.27 0.045 188); --accent-foreground: var(--foreground); --border: oklch(0.31 0.012 240); --input: var(--border); --ring: oklch(0.72 0.12 188); --warning: oklch(0.76 0.13 78); --success: oklch(0.68 0.12 155); --critical: oklch(0.69 0.17 35); --rail: 64px; --list: 440px; --pad: 13px; --row: 9px; --radius: 6px; --overlay: 0 22px 72px rgb(0 0 0 / .46); }
+    body { margin: 0; color: var(--foreground); background: var(--background); font-size: 14px; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .shell { min-height: 100vh; }
+    .top { position: sticky; top: 0; z-index: 30; background: color-mix(in oklch, var(--background) 92%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .top-inner { max-width: 1500px; margin: auto; padding: 11px 20px; display: grid; grid-template-columns: minmax(210px, .8fr) minmax(420px, 1.7fr) minmax(300px, 1fr); align-items: center; gap: 14px; }
+    .brand { display: flex; align-items: center; gap: 9px; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: var(--primary); color: var(--primary-foreground); font-weight: 800; }
+    .brand strong, .brand span { display: block; }
+    .brand span { color: var(--muted-foreground); font-size: 11px; }
+    .segmented { display: flex; gap: 3px; padding: 3px; border: 1px solid var(--border); background: var(--muted); border-radius: 8px; overflow-x: auto; }
+    .segmented button { white-space: nowrap; border: 0; background: transparent; min-height: 30px; padding: 5px 9px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+    .segmented button[aria-pressed="true"] { color: var(--primary); background: var(--card); box-shadow: 0 1px 3px rgb(15 23 42 / .09); font-weight: 700; }
+    html[data-direction="command"] .segmented button[aria-pressed="true"] { box-shadow: 0 1px 3px rgb(0 0 0 / .34); }
+    .screen-switch { justify-self: end; }
+    .brief { max-width: 1500px; margin: auto; padding: 16px 20px 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: end; }
+    .brief h1 { margin: 0 0 4px; font-size: 22px; line-height: 30px; }
+    .brief p { margin: 0; color: var(--muted-foreground); line-height: 20px; }
+    .score { display: flex; gap: 5px; flex-wrap: wrap; justify-content: end; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; padding: 2px 7px; border: 1px solid var(--border); border-radius: 5px; background: var(--card); font-size: 11px; font-weight: 650; }
+    .preview { max-width: 1500px; height: 715px; margin: 10px auto 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--card); box-shadow: 0 20px 64px rgb(15 23 42 / .10); }
+    html[data-direction="command"] .preview { box-shadow: 0 22px 64px rgb(0 0 0 / .34); }
+    .screen { display: none; width: 100%; height: 100%; }
+    html[data-screen="workspace"] .screen-workspace, html[data-screen="detail"] .screen-detail, html[data-screen="rules"] .screen-rules, html[data-screen="states"] .screen-states { display: grid; }
+    .app-grid { grid-template-columns: var(--rail) var(--list) minmax(420px, 1fr); }
+    .sidebar { background: color-mix(in oklch, var(--muted) 76%, var(--card)); border-right: 1px solid var(--border); padding: 11px 8px; display: flex; flex-direction: column; min-width: 0; }
+    .app-title { display: flex; gap: 8px; align-items: center; font-weight: 750; padding: 5px 7px 13px; }
+    .app-title .brand-mark { width: 27px; height: 27px; border-radius: 7px; }
+    .nav-label { padding: 9px 8px 4px; color: var(--muted-foreground); font-size: 10px; letter-spacing: .06em; font-weight: 800; }
+    .nav { display: grid; gap: 2px; }
+    .nav-item { min-height: 31px; padding: 6px 8px; display: flex; gap: 8px; align-items: center; border-radius: var(--radius); color: var(--muted-foreground); white-space: nowrap; overflow: hidden; }
+    .nav-item.active { color: var(--foreground); background: var(--accent); font-weight: 700; }
+    .nav-item .num { margin-left: auto; font-variant-numeric: tabular-nums; }
+    .side-status { margin-top: auto; padding: 10px 7px 3px; border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: 11px; display: grid; gap: 6px; }
+    html[data-direction="command"] .sidebar .nav-label, html[data-direction="command"] .sidebar .app-title span, html[data-direction="command"] .sidebar .nav-item span, html[data-direction="command"] .sidebar .nav-item .num, html[data-direction="command"] .side-status { display: none; }
+    html[data-direction="command"] .sidebar { align-items: center; }
+    html[data-direction="command"] .nav-item { justify-content: center; width: 38px; }
+    .list-pane { min-width: 0; border-right: 1px solid var(--border); display: grid; grid-template-rows: auto auto 1fr; }
+    .pane-head { padding: 12px var(--pad) 9px; display: flex; justify-content: space-between; align-items: center; gap: 9px; }
+    .pane-head h2 { margin: 0; font-size: 16px; }
+    .pane-head small { color: var(--muted-foreground); }
+    .toolbar { display: flex; gap: 6px; padding: 0 var(--pad) 9px; }
+    .input, .select, .textarea { border: 1px solid var(--input); background: var(--background); border-radius: var(--radius); }
+    .input, .select { height: 32px; padding: 0 9px; }
+    .textarea { min-height: 76px; padding: 8px 9px; resize: vertical; }
+    .search { flex: 1; min-width: 0; }
+    .btn { min-height: 32px; padding: 5px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); cursor: pointer; font-weight: 650; }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+    .btn.destructive { background: var(--destructive); border-color: var(--destructive); color: var(--destructive-foreground); }
+    .btn:disabled { opacity: .48; cursor: not-allowed; }
+    .icon-btn { width: 30px; padding: 0; }
+    .feed { overflow: auto; border-top: 1px solid var(--border); }
+    .item { position: relative; padding: var(--row) var(--pad) calc(var(--row) - 1px) calc(var(--pad) + 2px); border-bottom: 1px solid var(--border); }
+    .item:hover { background: color-mix(in oklch, var(--accent) 48%, transparent); }
+    .item.selected { background: var(--accent); }
+    .item.selected::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--primary); }
+    .meta { display: flex; align-items: center; gap: 6px; color: var(--muted-foreground); font-size: 11px; }
+    .source { color: var(--foreground); font-weight: 700; }
+    .item h3 { margin: 5px 0 4px; font-size: 14px; line-height: 20px; }
+    .item p { margin: 0; color: var(--muted-foreground); line-height: 18px; font-size: 12px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; min-height: 19px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--card); font-size: 10px; font-weight: 700; }
+    .badge.ai { color: var(--primary); border-color: color-mix(in oklch, var(--primary) 34%, var(--border)); background: color-mix(in oklch, var(--accent) 70%, var(--card)); }
+    .badge.critical { color: var(--critical); border-color: color-mix(in oklch, var(--critical) 36%, var(--border)); }
+    .detail-pane { min-width: 0; overflow: auto; background: var(--card); }
+    .detail-bar { position: sticky; top: 0; z-index: 4; padding: 10px 18px; border-bottom: 1px solid var(--border); background: color-mix(in oklch, var(--card) 94%, transparent); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .detail-body { max-width: 790px; padding: 22px 25px 52px; }
+    html[data-direction="editorial"] .detail-body { max-width: 850px; padding: 30px 38px 64px; }
+    html[data-direction="triage"] .detail-body { padding-top: 17px; }
+    .eyebrow { display: flex; gap: 6px; margin-bottom: 10px; }
+    .detail-body h1 { margin: 0; font-size: 23px; line-height: 31px; letter-spacing: -.01em; }
+    html[data-direction="editorial"] .detail-body h1 { font-size: 28px; line-height: 37px; }
+    .byline { color: var(--muted-foreground); font-size: 11px; margin: 9px 0 19px; }
+    .summary { font-size: 15px; line-height: 23px; margin: 0 0 18px; }
+    .evidence-section { border-top: 1px solid var(--border); padding: 15px 0; }
+    .evidence-section h3 { margin: 0 0 8px; font-size: 13px; }
+    .evidence-section p { margin: 0; line-height: 21px; color: color-mix(in oklch, var(--foreground) 88%, var(--muted-foreground)); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .metric { padding: 10px; border: 1px solid var(--border); background: var(--background); border-radius: var(--radius); }
+    .metric span { display: block; color: var(--muted-foreground); font-size: 10px; margin-bottom: 4px; }
+    .metric strong { font-size: 13px; }
+    .progress { height: 5px; background: var(--muted); border-radius: 999px; margin-top: 7px; overflow: hidden; }
+    .progress i { display: block; width: 78%; height: 100%; background: var(--primary); }
+    .journey-strip { display: flex; gap: 6px; padding: 8px 18px; border-bottom: 1px solid var(--border); color: var(--muted-foreground); font-size: 11px; }
+    .journey-strip strong { color: var(--foreground); }
+    .full-detail { grid-template-columns: var(--rail) minmax(0, 1fr) 310px; }
+    .toc { border-left: 1px solid var(--border); padding: 18px 16px; background: color-mix(in oklch, var(--muted) 58%, var(--card)); }
+    .toc h3 { margin: 0 0 10px; font-size: 12px; }
+    .toc ol { margin: 0; padding-left: 18px; color: var(--muted-foreground); line-height: 27px; font-size: 12px; }
+    .rules { grid-template-columns: var(--rail) minmax(0, 1fr); }
+    .rules-main { overflow: auto; padding: 20px 24px 48px; }
+    .page-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .page-heading h1 { margin: 0 0 3px; font-size: 20px; }
+    .page-heading p { margin: 0; color: var(--muted-foreground); }
+    .rules-grid { display: grid; grid-template-columns: minmax(420px, 1.1fr) minmax(300px, .9fr); gap: 14px; }
+    .panel { border: 1px solid var(--border); background: var(--card); border-radius: calc(var(--radius) + 2px); }
+    .panel-head { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .panel-head h2 { margin: 0; font-size: 14px; }
+    .panel-head p { margin: 3px 0 0; color: var(--muted-foreground); font-size: 11px; }
+    .panel-body { padding: 14px; }
+    .field { display: grid; gap: 5px; margin-bottom: 13px; }
+    .field label { font-size: 12px; font-weight: 700; }
+    .help { color: var(--muted-foreground); font-size: 11px; line-height: 16px; }
+    .inline { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .switch-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .switch { width: 34px; height: 19px; border-radius: 999px; background: var(--primary); padding: 2px; }
+    .switch i { display: block; margin-left: 15px; width: 15px; height: 15px; border-radius: 999px; background: var(--primary-foreground); }
+    .range { height: 6px; background: var(--muted); border-radius: 999px; position: relative; margin: 12px 3px; }
+    .range::before { content: ""; position: absolute; inset: 0 30% 0 0; background: var(--primary); border-radius: inherit; }
+    .range::after { content: ""; position: absolute; left: 70%; top: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); border-radius: 999px; border: 2px solid var(--primary); background: var(--card); }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 8px 7px; border-bottom: 1px solid var(--border); text-align: left; font-size: 11px; }
+    .table th { color: var(--muted-foreground); font-weight: 650; }
+    .risk { margin-top: 12px; padding: 10px; border: 1px solid color-mix(in oklch, var(--warning) 48%, var(--border)); background: color-mix(in oklch, var(--warning) 10%, var(--card)); border-radius: var(--radius); font-size: 12px; line-height: 18px; }
+    .states-screen { grid-template-columns: var(--rail) minmax(0, 1fr); }
+    .states-main { overflow: auto; padding: 20px 24px 48px; }
+    .state-grid { display: grid; grid-template-columns: repeat(3, minmax(230px, 1fr)); gap: 11px; }
+    .state-card { min-height: 160px; padding: 13px; border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px); background: var(--card); }
+    .state-card h3 { margin: 0 0 9px; font-size: 13px; }
+    .state-card p { margin: 5px 0 10px; color: var(--muted-foreground); font-size: 11px; line-height: 17px; }
+    .alert { display: flex; gap: 8px; padding: 10px; border-radius: var(--radius); border: 1px solid color-mix(in oklch, var(--warning) 44%, var(--border)); background: color-mix(in oklch, var(--warning) 10%, var(--card)); }
+    .alert.error { border-color: color-mix(in oklch, var(--destructive) 44%, var(--border)); background: color-mix(in oklch, var(--destructive) 9%, var(--card)); }
+    .alert strong, .alert span { display: block; }
+    .alert span { color: var(--muted-foreground); font-size: 11px; margin-top: 2px; line-height: 16px; }
+    .skeleton { height: 9px; margin: 8px 0; border-radius: 3px; background: linear-gradient(90deg, var(--muted), color-mix(in oklch, var(--muted) 52%, var(--card)), var(--muted)); background-size: 220% 100%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { to { background-position: -220% 0; } }
+    .empty { text-align: center; padding: 17px 8px; }
+    .empty .symbol { font-size: 22px; color: var(--primary); }
+    .success-line { display: flex; gap: 8px; align-items: center; color: var(--success); font-weight: 700; }
+    .dialog-sample { max-width: 280px; padding: 13px; border: 1px solid var(--border); border-radius: calc(var(--radius) + 3px); box-shadow: var(--overlay); background: var(--popover); }
+    .dialog-sample h4 { margin: 0 0 6px; }
+    .dialog-sample p { margin: 0 0 12px; }
+    .component-map { max-width: 1500px; margin: 0 auto 40px; padding: 0 20px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px; }
+    .map-card { padding: 14px; border: 1px solid var(--border); border-radius: 9px; background: var(--card); }
+    .map-card h2 { margin: 0 0 8px; font-size: 14px; }
+    .map-card p { margin: 0; color: var(--muted-foreground); line-height: 19px; font-size: 12px; }
+    .map-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .mobile-note { display: none; }
+    @media (max-width: 1000px) {
+      .top-inner { grid-template-columns: 1fr; }
+      .screen-switch { justify-self: stretch; }
+      .brief { grid-template-columns: 1fr; padding-inline: 12px; }
+      .score { justify-content: start; }
+      .preview { margin-inline: 12px; height: 720px; }
+      .app-grid, .full-detail { grid-template-columns: 64px minmax(0, 1fr); }
+      .app-grid .detail-pane, .full-detail .toc { display: none; }
+      .sidebar .nav-label, .sidebar .app-title span, .sidebar .nav-item span, .sidebar .nav-item .num, .side-status { display: none; }
+      .sidebar { align-items: center; }
+      .nav-item { justify-content: center; width: 38px; }
+      .rules, .states-screen { grid-template-columns: 64px minmax(0, 1fr); }
+      .rules-grid { grid-template-columns: 1fr; }
+      .state-grid { grid-template-columns: 1fr 1fr; }
+      .component-map { grid-template-columns: 1fr; padding-inline: 12px; }
+      .mobile-note { display: block; color: var(--muted-foreground); font-size: 11px; }
+    }
+    @media (max-width: 640px) {
+      .preview { margin-inline: 0; border-left: 0; border-right: 0; border-radius: 0; }
+      .app-grid, .full-detail, .rules, .states-screen { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .state-grid { grid-template-columns: 1fr; }
+      .rules-main, .states-main { padding: 14px; }
+      .rules-grid, .inline { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .top-inner { padding-inline: 10px; }
+      .top-inner .segmented { max-width: 100%; scroll-padding-inline: 6px; overscroll-behavior-inline: contain; }
+      .top-inner .segmented button { flex: 1 1 auto; min-width: 0; padding-inline: 5px; font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top"><div class="top-inner">
+      <div class="brand"><div class="brand-mark">AI</div><div><strong>设计方向实验室</strong><span>4 个方向 · 4 类关键界面</span></div></div>
+      <div class="segmented" role="group" aria-label="设计方向">
+        <button data-direction="calm" aria-pressed="true">01 冷静决策台</button><button data-direction="editorial" aria-pressed="false">02 证据编辑台</button><button data-direction="triage" aria-pressed="false">03 信号分诊台</button><button data-direction="command" aria-pressed="false">04 命令研究台</button>
+      </div>
+      <div class="segmented screen-switch" role="group" aria-label="预览界面">
+        <button data-screen="workspace" aria-pressed="true">工作区</button><button data-screen="detail" aria-pressed="false">详情</button><button data-screen="rules" aria-pressed="false">规则</button><button data-screen="states" aria-pressed="false">状态</button>
+      </div>
+    </div></header>
+
+    <section class="brief"><div><h1 id="direction-title">冷静决策台</h1><p id="direction-thesis">平衡三栏布局，让扫描、判断与证据核验在同一视野内完成。适合每日高频使用。</p><span class="mobile-note">窄屏预览会自动折叠导航与详情，模拟最小 Windows 窗口行为。</span></div><div class="score" id="score"><span class="pill">层级 5</span><span class="pill">可读性 5</span><span class="pill">状态 5</span><span class="pill">无障碍 5</span><span class="pill">可实施性 5</span></div></section>
+
+    <main class="preview">
+      <section class="screen screen-workspace app-grid">
+        <aside class="sidebar" data-slot="sidebar"></aside>
+        <section class="list-pane"><div class="pane-head"><div><h2>今日重点</h2><small>8 条高价值动态</small></div><button class="btn icon-btn" aria-label="立即同步">↻</button></div><div class="toolbar"><input class="input search" placeholder="在当前视图搜索  /" /><button class="btn">筛选 2</button></div><div class="feed" data-slot="feed"></div></section>
+        <article class="detail-pane" data-slot="detail"></article>
+      </section>
+
+      <section class="screen screen-detail full-detail">
+        <aside class="sidebar" data-slot="sidebar"></aside>
+        <article class="detail-pane"><div class="journey-strip"><strong>重大提醒</strong><span>→</span><span>证据核验</span><span>→</span><span>原文或收藏</span></div><div data-slot="detail"></div></article>
+        <aside class="toc"><h3>证据导航</h3><ol><li>发生了什么</li><li>为什么重要</li><li>影响与行动</li><li>判断概览</li><li>规则依据</li><li>原始事实</li><li>关联来源</li></ol></aside>
+      </section>
+
+      <section class="screen screen-rules rules">
+        <aside class="sidebar" data-slot="sidebar"></aside>
+        <section class="rules-main"><div class="page-heading"><div><h1>雷达规则</h1><p>透明控制进入主情报流与重大提醒的条件。</p></div><div class="actions"><button class="btn">放弃更改</button><button class="btn primary">保存并在下一轮生效</button></div></div><div class="rules-grid"><div class="panel"><div class="panel-head"><h2>筛选与提醒</h2><p>调整条件时保留历史情报，不自动改变已有事实。</p></div><div class="panel-body"><div class="field"><label>关注赛道</label><input class="input" value="Agent、多模态、本地模型" /><span class="help">使用逗号分隔；支持精确词与主题组。</span></div><div class="inline"><div class="field"><label>来源可信度下限</label><select class="select"><option>中等及以上</option></select></div><div class="field"><label>时间范围</label><select class="select"><option>最近 7 天</option></select></div></div><div class="field"><label>主情报流阈值 · 70</label><div class="range"></div><span class="help">低于阈值的内容仍可在“探索与过滤”中审查。</span></div><div class="switch-row"><div><strong>重大动态通知</strong><div class="help">同时满足溯源、重要度与提醒阈值时发送。</div></div><div class="switch" role="switch" aria-checked="true"><i></i></div></div><div class="switch-row"><div><strong>允许第三方 AI 分析</strong><div class="help">发送标题、必要片段和分析所需元数据。</div></div><div class="switch" role="switch" aria-checked="true"><i></i></div></div><div class="risk">⚠ 当前“官方来源 + 精确关键词”组合可能遗漏新项目。建议每周检查探索视图。</div></div></div><div class="panel"><div class="panel-head"><h2>规则影响预览</h2><p>基于最近 7 天的本地记录估算。</p></div><div class="panel-body"><table class="table"><thead><tr><th>结果</th><th>调整前</th><th>调整后</th></tr></thead><tbody><tr><td>主情报流</td><td>84</td><td>61</td></tr><tr><td>重大提醒</td><td>12</td><td>7</td></tr><tr><td>被过滤</td><td>320</td><td>343</td></tr></tbody></table><div class="field" style="margin-top:14px"><label>排除词</label><textarea class="textarea">课程, 融资软文, 入门教程</textarea></div><button class="btn">查看受影响内容</button></div></div></div></section>
+      </section>
+
+      <section class="screen screen-states states-screen">
+        <aside class="sidebar" data-slot="sidebar"></aside>
+        <section class="states-main"><div class="page-heading"><div><h1>界面状态系统</h1><p>所有方向均必须覆盖以下状态，不以颜色作为唯一线索。</p></div></div><div class="state-grid">
+          <div class="state-card"><h3>空状态</h3><div class="empty"><div class="symbol">◎</div><strong>今日重点已浏览</strong><p>普通候选仍可在探索中查看。下一次同步 10:30。</p><button class="btn">查看探索内容</button></div></div>
+          <div class="state-card"><h3>局部错误</h3><div class="alert error"><div>!</div><div><strong>arXiv 同步失败</strong><span>已有数据安全，其他来源未受影响。</span></div></div><div class="actions" style="margin-top:10px"><button class="btn">查看详情</button><button class="btn primary">重试</button></div></div>
+          <div class="state-card"><h3>加载与保留布局</h3><div class="skeleton" style="width:78%"></div><div class="skeleton" style="width:96%"></div><div class="skeleton" style="width:67%"></div><div class="skeleton" style="width:84%"></div><p>当前列表保持可操作，仅更新目标详情。</p></div>
+          <div class="state-card"><h3>成功与撤销</h3><div class="success-line"><span>✓</span><span>已收藏并保存正文快照</span></div><p>正文可离线阅读；取消收藏时可删除正文及索引。</p><button class="btn">撤销</button></div>
+          <div class="state-card"><h3>禁用与说明</h3><button class="btn primary" disabled>重试 AI 分析</button><p>当前离线，恢复联网后可重试。原始内容仍可阅读。</p><span class="badge">离线可用</span></div>
+          <div class="state-card"><h3>破坏性确认</h3><div class="dialog-sample"><h4>删除正文快照？</h4><p>将同时清理全文索引；元数据与分析结果按规则保留。</p><div class="actions"><button class="btn">取消</button><button class="btn destructive">删除正文</button></div></div></div>
+        </div></section>
+      </section>
+    </main>
+
+    <section class="component-map"><div class="map-card"><h2>方向说明</h2><p id="direction-rationale">推荐作为 MVP 基线：浏览速度、证据层级和工程可行性最均衡；无需自定义复杂布局原语。</p></div><div class="map-card"><h2>shadcn/ui Component Map</h2><p id="component-note">工作区使用 Sidebar、Resizable、Scroll Area、Input、Popover、Badge、Tooltip、Button；详情使用 Tabs、Collapsible、Separator；覆盖层使用 Command、Dialog、Sheet、Sonner。</p><div class="map-list" id="component-list"></div></div></section>
+  </div>
+  <script>
+    const directions = {
+      calm: { title: "冷静决策台", thesis: "平衡三栏布局，让扫描、判断与证据核验在同一视野内完成。适合每日高频使用。", rationale: "推荐作为 MVP 基线：浏览速度、证据层级和工程可行性最均衡；无需自定义复杂布局原语。", scores: [5,5,5,5,5], components: ["Sidebar","Resizable","Scroll Area","Command","Badge","Popover","Collapsible","Sonner","Sheet"] },
+      editorial: { title: "证据编辑台", thesis: "扩大详情与来源证据的视觉权重，适合技术负责人进行深度核验和决策记录。", rationale: "阅读层级最强，适合作为全屏详情模式；若作为默认工作区，连续扫描速度会下降。", scores: [5,5,4,5,4], components: ["Sidebar","Tabs","Breadcrumb","Separator","Hover Card","Collapsible","Sheet","Dialog"] },
+      triage: { title: "信号分诊台", thesis: "更紧凑的列表与状态列优先支持大量候选的快速分流和规则校准。", rationale: "处理效率最高，适合探索和被过滤内容；默认使用可能重新制造 Inbox 压力。", scores: [4,4,5,4,5], components: ["Sidebar","Data Table","Context Menu","Dropdown Menu","Badge","Tooltip","Popover","Alert"] },
+      command: { title: "命令研究台", thesis: "深色、键盘优先、命令面板驱动，服务熟练用户的快速导航与批量动作。", rationale: "专业感和键盘效率突出，可作为深色/专家模式；发现性较弱，不建议作为首次体验默认值。", scores: [4,4,4,4,4], components: ["Command","Sidebar","Scroll Area","Context Menu","Tooltip","Dialog","Sheet","Sonner"] }
+    };
+    const sidebar = `<div class="app-title"><div class="brand-mark">R</div><span>情报雷达</span></div><div class="nav-label">工作区</div><div class="nav"><div class="nav-item active">⌁ <span>主情报流</span><b class="num">8</b></div><div class="nav-item">◉ <span>探索与过滤</span><b class="num">23</b></div><div class="nav-item">☆ <span>收藏</span></div></div><div class="nav-label">雷达</div><div class="nav"><div class="nav-item">◇ <span>来源</span></div><div class="nav-item">⌘ <span>规则</span></div><div class="nav-item">↻ <span>同步与诊断</span><b class="num">1</b></div></div><div class="nav-label">系统</div><div class="nav"><div class="nav-item">⚙ <span>设置</span></div></div><div class="side-status"><span>● 本地数据可用</span><span>09:42 · 部分成功</span></div>`;
+    const feed = `<article class="item selected" tabindex="0"><div class="meta"><span class="source">Anthropic</span><span>官方发布</span><span>18 分钟前</span></div><h3>Claude Code 推出新的多代理协作能力</h3><p>可能改变复杂代码任务的拆分方式，并影响现有 Agent 工具链设计。</p><div class="tags"><span class="badge critical">重大动态</span><span class="badge ai">AI 已分析</span><span class="badge">Agent</span></div></article><article class="item" tabindex="0"><div class="meta"><span class="source">arXiv</span><span>论文</span><span>2 小时前</span></div><h3>长上下文推理的检索压缩新方法</h3><p>在固定计算预算下改善代码库问答的召回与推理稳定性。</p><div class="tags"><span class="badge">高价值</span><span class="badge ai">AI 已分析</span></div></article><article class="item" tabindex="0"><div class="meta"><span class="source">GitHub</span><span>Release</span><span>5 小时前</span></div><h3>本地推理框架发布 Windows 性能修复</h3><p>修复模型加载时的内存峰值，并更新量化模型兼容范围。</p><div class="tags"><span class="badge">普通候选</span><span class="badge">本地模型</span></div></article><article class="item" tabindex="0"><div class="meta"><span class="source">Vendor RSS</span><span>博客</span><span>昨天</span></div><h3>开发者平台更新 API 限流策略</h3><p>新的限流响应字段可能影响已有同步和重试实现。</p><div class="tags"><span class="badge">待判断</span><span class="badge ai">等待分析</span></div></article>`;
+    const detail = `<div class="detail-bar"><span class="badge">决策证据</span><div class="actions"><button class="btn">☆ 收藏</button><button class="btn">反馈</button><button class="btn primary">查看原文 ↗</button></div></div><div class="detail-body"><div class="eyebrow"><span class="badge critical">重大动态</span><span class="badge ai">AI 生成提炼</span></div><h1>Claude Code 推出新的多代理协作能力</h1><div class="byline">Anthropic · 官方发布 · 2026-08-10 09:24 · 原文可用</div><p class="summary">新版本允许多个专用代理在同一代码任务中分工，并通过共享上下文协调规划、实现与审查。</p><section class="evidence-section"><h3>为什么重要</h3><p>这可能把单代理的串行执行改造成可观察的协作工作流，直接影响复杂任务的延迟、成本和错误隔离方式。</p></section><section class="evidence-section"><h3>判断概览</h3><div class="metrics"><div class="metric"><span>重要程度</span><strong>高 · 影响工具链</strong></div><div class="metric"><span>AI 置信度</span><strong>较高</strong><div class="progress"><i></i></div></div><div class="metric"><span>来源</span><strong>官方一手</strong></div></div></section><section class="evidence-section"><h3>判断依据</h3><p>命中 Agent 赛道与核心框架关键词；来源为官方发布；包含明确版本与能力变化；另有 2 个关联来源可展开核验。</p></section><section class="evidence-section"><h3>原始事实与溯源</h3><p>原始标题、作者、发布时间、首次发现时间与内容标识均已保存。AI 提炼与原始字段分区展示。</p></section></div>`;
+    document.querySelectorAll('[data-slot="sidebar"]').forEach(el => el.innerHTML = sidebar);
+    document.querySelector('[data-slot="feed"]').innerHTML = feed;
+    document.querySelectorAll('[data-slot="detail"]').forEach(el => el.innerHTML = detail);
+    function applyDirection(key) {
+      const d = directions[key]; document.documentElement.dataset.direction = key;
+      document.getElementById('direction-title').textContent = d.title; document.getElementById('direction-thesis').textContent = d.thesis; document.getElementById('direction-rationale').textContent = d.rationale;
+      document.getElementById('score').innerHTML = ['层级','可读性','状态','无障碍','可实施性'].map((n,i)=>`<span class="pill">${n} ${d.scores[i]}</span>`).join('');
+      document.getElementById('component-list').innerHTML = d.components.map(x=>`<span class="badge">${x}</span>`).join('');
+      document.querySelectorAll('[data-direction]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.direction===key)));
+    }
+    function applyScreen(key) { document.documentElement.dataset.screen = key; document.querySelectorAll('[data-screen]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.screen===key))); }
+    document.querySelectorAll('button[data-direction]').forEach(b=>b.addEventListener('click',()=>applyDirection(b.dataset.direction)));
+    document.querySelectorAll('button[data-screen]').forEach(b=>b.addEventListener('click',()=>applyScreen(b.dataset.screen)));
+    applyDirection('calm'); applyScreen('workspace');
+  </script>
+</body>
+</html>

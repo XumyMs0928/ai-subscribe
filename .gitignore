@@ -1,0 +1,50 @@
+# Project-isolated Rust toolchain
+.toolchains/
+
+# Rust build output
+target/
+
+# Local application data and secrets
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Generated temporary output
+tmp/
+*.tmp
+.toolchains/node/
+.toolchains/pnpm/
+.toolchains/pnpm-store/
+.toolchains/pnpm-cache/
+.toolchains/pnpm-state/
+.toolchains/pnpm-global/
+.toolchains/npm-cache/
+.toolchains/cargo-xwin/
+.toolchains/xwin-cache/
+.toolchains/windows-msvc-sysroot-cache/
+node_modules/
+apps/windows/dist/
+apps/windows/*.tsbuildinfo
+apps/windows/src-tauri/target/
+apps/windows/src-tauri/gen/
+playwright-report/
+test-results/
+.toolchains/playwright-browsers/
+*.pfx
+*.p12
+*.secret
+
+# Local AI workflow tooling
+.agents/
+_agentic/
+agentic-workflow/
+
+# Personal files
+徐梦云.zip
+心得.txt

@@ -1,0 +1,1 @@
+{"scenario":"internal_error_v1","input":{"fault":"opaque_test_fault"},"expected":{"contract_version":1,"code":"internal.unexpected","category":"internal"},"forbidden_fields":["private_error_text"]}

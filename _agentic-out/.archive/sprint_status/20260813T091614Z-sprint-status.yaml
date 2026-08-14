@@ -1,0 +1,124 @@
+# generated: 2026-08-13T11:17:31+08:00
+# last_updated: 2026-08-13T14:19:36+08:00
+# project: ai-subscribe
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: D:\2026\TEST1\_agentic-out\implementation\stories
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in implementation/stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first Story is created.
+# - Stories can be worked in parallel if team capacity and dependencies allow.
+# - The sequential default is to create the next Story after the previous one is done so learnings transfer.
+# - Development moves a Story to 'review', then runs code review before 'done'.
+# - Automatic-monitoring capacity and overflow remain a deferred product decision; implementation must not invent policy.
+
+generated: '2026-08-13T11:17:31+08:00'
+last_updated: '2026-08-13T17:25:00+08:00'
+project: ai-subscribe
+project_key: NOKEY
+tracking_system: file-system
+story_location: 'D:\2026\TEST1\_agentic-out\implementation\stories'
+
+development_status:
+  epic-1: in-progress
+  1-1-建立共享核心与版本化契约基线: done
+  1-2-启动-windows-原生应用壳并接入共享核心: ready-for-dev
+  1-3-启动-apple-原生应用壳并接入共享核心: backlog
+  1-4-启动-android-原生应用壳并接入共享核心: backlog
+  1-5-集成生成绑定与跨平台契约质量门禁: backlog
+  1-6-浏览安全隔离的演示情报: backlog
+  1-7-浏览可访问的演示情报列表与证据详情: backlog
+  1-8-使用默认赛道并按自己的节奏完成配置引导: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-管理并安全校验当前设备的关注配置: backlog
+  2-2-订阅并增量同步-rss-atom-来源: backlog
+  2-3-监控-github-release-更新: backlog
+  2-4-监控-arxiv-主题与分类: backlog
+  2-5-统一执行同步并判断三来源交付就绪: backlog
+  2-6-查看本轮同步的最小可消费结果: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-创建并管理-github-项目发现订阅: backlog
+  3-2-发现符合当前条件的公开-github-项目: backlog
+  3-3-用有效观测识别增长与首次跨越门槛: backlog
+  3-4-合并手动关注-多订阅及仓库身份变化: backlog
+  3-5-控制自动关注并保留其他有效关注: backlog
+  3-6-在订阅和条件变化后保留合法历史: backlog
+  3-7-在限流和部分失败中继续发现与同步-release: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-将真实来源规范化为可溯源情报: backlog
+  4-2-确定性识别重复并关联同一事件来源: backlog
+  4-3-用透明规则判断价值并形成主流分流: backlog
+  4-4-显式管理每条情报的处理状态: backlog
+  4-5-浏览高价值主情报流并组合筛选: backlog
+  4-6-查看证据详情并打开原文核验: backlog
+  4-7-搜索允许持久化的本地情报内容: backlog
+  4-8-收藏正文-离线阅读并彻底删除: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-在平台安全存储中管理-ai-凭据: backlog
+  5-2-在首次外发前确认数据范围并按来源授权: backlog
+  5-3-生成并验证结构化中文情报分析: backlog
+  5-4-明确展示-ai-状态并在失败时可信降级: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-仅为符合门槛的重大动态生成本地通知效果: backlog
+  6-2-渐进请求通知权限并遵守提醒治理: backlog
+  6-3-从通知安全直达证据详情并处理无效目标: backlog
+  6-4-通过-windows-托盘安全管理后台运行: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-记录可解释的情报价值与分析反馈: backlog
+  7-2-登记已确认漏报及其原因: backlog
+  7-3-汇总四周个人验证指标: backlog
+  7-4-从透明证据手动校准筛选规则: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-在单源故障中保留部分成功结果: backlog
+  8-2-按退避规则独立重试来源和-ai-任务: backlog
+  8-3-在离线模式继续使用本地资料和配置: backlog
+  8-4-在移动生命周期中安全恢复持久任务: backlog
+  8-5-查看全平台状态并导出安全诊断: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-在五类设备使用平台原生导航完成核心旅程: backlog
+  9-2-在方向-分屏和窗口变化中保持任务上下文: backlog
+  9-3-明确当前设备数据边界并安全执行删除: backlog
+  9-4-保护安装-升级和数据迁移路径: backlog
+  9-5-通过-apple-受控测试分发门禁: backlog
+  9-6-通过-android-受控测试分发门禁: backlog
+  9-7-汇总跨平台发布与-github-发现验收证据: backlog
+  epic-9-retrospective: optional

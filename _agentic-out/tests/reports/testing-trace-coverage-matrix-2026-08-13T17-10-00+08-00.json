@@ -1,0 +1,66 @@
+{
+  "phase": "PHASE_1_COMPLETE",
+  "generated_at": "2026-08-13T17:10:00+08:00",
+  "trace_target": {"type":"story","id":"1.1","label":"建立共享核心与版本化契约基线"},
+  "collection_mode": "contract_static",
+  "collection_status": "COLLECTED",
+  "allow_gate": true,
+  "coverage_basis": "acceptance_criteria",
+  "summary_confidence": "high",
+  "oracle": {
+    "resolution_mode": "formal_requirements",
+    "confidence": "high",
+    "sources": [
+      "_agentic-out/implementation/stories/1-1-建立共享核心与版本化契约基线.md#验收标准",
+      "_agentic-out/planning/prd.md#FR1,NFR15",
+      "_agentic-out/planning/architecture.md#SecretLeaseInput,PlatformEffect,AppError"
+    ],
+    "external_pointer_status": "not_used",
+    "synthetic": false
+  },
+  "requirements": [
+    {"id":"AC1.1","priority":"P1","coverage":"FULL"},
+    {"id":"AC1.2","priority":"P1","coverage":"FULL"},
+    {"id":"AC2.1","priority":"P0","coverage":"FULL"},
+    {"id":"AC2.2","priority":"P1","coverage":"FULL"},
+    {"id":"AC2.3","priority":"P0","coverage":"FULL"},
+    {"id":"AC2.4","priority":"P0","coverage":"FULL"},
+    {"id":"AC2.5","priority":"P0","coverage":"FULL"},
+    {"id":"AC2.6","priority":"P0","coverage":"FULL"},
+    {"id":"AC2.7","priority":"P1","coverage":"FULL"},
+    {"id":"AC2.8","priority":"P1","coverage":"FULL"},
+    {"id":"AC2.9","priority":"P1","coverage":"FULL"},
+    {"id":"AC2.10","priority":"P0","coverage":"FULL"}
+  ],
+  "coverage_statistics": {
+    "total_requirements": 12,
+    "fully_covered": 12,
+    "partially_covered": 0,
+    "uncovered": 0,
+    "overall_coverage_percentage": 100,
+    "priority_breakdown": {
+      "P0":{"total":6,"covered":6,"percentage":100},
+      "P1":{"total":6,"covered":6,"percentage":100},
+      "P2":{"total":0,"covered":0,"percentage":100},
+      "P3":{"total":0,"covered":0,"percentage":100}
+    }
+  },
+  "gap_analysis": {
+    "critical_gaps":[],"high_gaps":[],"medium_gaps":[],"low_gaps":[],
+    "partial_coverage_items":[],"unit_only_items":[]
+  },
+  "coverage_heuristics": {
+    "endpoint_gaps":[],"auth_negative_path_gaps":[],"happy_path_only_gaps":[],
+    "ui_journey_gaps":[],"ui_state_gaps":[],
+    "counts":{"endpoints_without_tests":0,"auth_missing_negative_paths":0,"happy_path_only_criteria":0,"ui_journeys_without_e2e":0,"ui_states_missing_coverage":0}
+  },
+  "test_inventory": {
+    "summary": {
+      "files":9,"cases":32,"skipped_cases":0,"fixme_cases":0,"pending_cases":0,
+      "by_level":{"e2e":{"tests":0,"criteria_covered":0},"api":{"tests":0,"criteria_covered":0},"component":{"tests":0,"criteria_covered":0},"unit":{"tests":32,"criteria_covered":12},"other":{"tests":0,"criteria_covered":0}}
+    },
+    "tests":[],"blockers":[]
+  },
+  "blockers":[],
+  "recommendations":[{"priority":"LOW","action":"Retain the isolated Rust quality gate and add real UniFFI round trips in Story 1.5","requirements":[]}]
+}
