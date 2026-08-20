@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Invalid time</title>
+  <item><guid>invalid-time-1</guid><title>Time omitted after validation</title><link>https://example.com/invalid-time</link><pubDate>not-a-time</pubDate></item>
+</channel></rss>

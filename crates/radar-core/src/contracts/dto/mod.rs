@@ -1,5 +1,10 @@
 //! Stable data-transfer objects.
 
+pub mod configuration_validation;
+pub mod intel_feed;
+pub mod source;
+pub mod sync;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HealthStatus {
     pub contract_version: u32,

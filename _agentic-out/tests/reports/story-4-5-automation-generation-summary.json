@@ -1,0 +1,24 @@
+{
+  "story": "4.5",
+  "timestamp": "2026-08-20T08-33-00-000Z",
+  "detected_stack": "fullstack",
+  "requested_mode": "auto",
+  "resolved_mode": "agent-team",
+  "total_tests_generated": 0,
+  "api_tests": 0,
+  "e2e_tests": 0,
+  "backend_tests": 0,
+  "fixtures_created": 0,
+  "test_files_created": 0,
+  "duplicate_guard": "pass",
+  "automation_entrypoints": [
+    "scripts/story-4-5-performance-gate.ps1"
+  ],
+  "current_evidence": "target/story-4-5/intel-feed-performance-35400-0.json",
+  "workers": {
+    "api": "success",
+    "e2e": "success",
+    "backend": "success"
+  },
+  "result": "PASS"
+}

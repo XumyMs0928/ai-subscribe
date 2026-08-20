@@ -1,0 +1,13 @@
+{
+  "dimension": "isolation",
+  "score": 100,
+  "max_score": 100,
+  "grade": "A",
+  "violations": [],
+  "passed_checks": 32,
+  "failed_checks": 0,
+  "total_checks": 32,
+  "violation_summary": { "HIGH": 0, "MEDIUM": 0, "LOW": 0 },
+  "recommendations": [],
+  "summary": "Fresh stores/fixtures, afterEach mock restoration, atomic invocation evidence reservation, and a cross-process runner lock provide order and process isolation."
+}

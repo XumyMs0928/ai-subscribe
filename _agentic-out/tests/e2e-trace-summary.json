@@ -1,0 +1,74 @@
+{
+  "schema_version": "0.1.0",
+  "snapshot_at": "2026-08-20T11:30:00+08:00",
+  "workflow": "test-traceability",
+  "repo": "ai-subscribe",
+  "collection_mode": "contract_static",
+  "collection_status": "COLLECTED",
+  "inventory_basis": "acceptance_criteria",
+  "gate_basis": "priority_thresholds",
+  "source_sha": "f73aed0401b832a74e4e49de733dc18ccacc4c6d",
+  "source_dirty": true,
+  "target": { "type": "story", "id": "4.3", "label": "Windows RSS transparent rule evaluation" },
+  "decision_mode": "deterministic",
+  "evaluator": "xmy",
+  "confidence": "high",
+  "oracle": {
+    "resolution_mode": "formal_requirements",
+    "confidence": "high",
+    "sources": [
+      "_agentic-out/implementation/stories/4-3-用透明规则判断价值并形成主流分流.md",
+      "_agentic-out/planning/epics.md",
+      "_agentic-out/planning/prd.md"
+    ],
+    "external_pointer_status": "not_used",
+    "synthetic": false
+  },
+  "coverage": {
+    "inventory": { "covered": 6, "total": 6, "pct": 100 },
+    "priority_breakdown": {
+      "P0": { "total": 5, "covered": 5, "pct": 100 },
+      "P1": { "total": 1, "covered": 1, "pct": 100 },
+      "P2": { "total": 0, "covered": 0, "pct": 100 },
+      "P3": { "total": 0, "covered": 0, "pct": 100 }
+    },
+    "by_level": {
+      "e2e": { "tests": 0, "criteria_covered": 0 },
+      "api": { "tests": 0, "criteria_covered": 0 },
+      "component": { "tests": 0, "criteria_covered": 0 },
+      "unit": { "tests": 11, "criteria_covered": 5 },
+      "other": { "tests": 11, "criteria_covered": 4 }
+    }
+  },
+  "tests": { "files": 5, "cases": 22, "skipped_cases": 0, "fixme_cases": 0, "pending_cases": 0 },
+  "risk_summary": { "critical_open": 0, "high_open": 0, "medium_open": 0, "low_open": 0 },
+  "heuristics": {
+    "endpoint_status": "not_applicable",
+    "endpoint_gaps": 0,
+    "auth_negative_path_status": "not_applicable",
+    "error_path_status": "present",
+    "ui_journey_status": "not_applicable",
+    "ui_state_status": "not_applicable"
+  },
+  "blockers": [],
+  "recommendations": [],
+  "gate_status": "PASS",
+  "gate_criteria": {
+    "p0_coverage_required": "100%",
+    "p0_coverage_actual": "100%",
+    "p0_status": "MET",
+    "p1_coverage_target": "90%",
+    "p1_coverage_minimum": "80%",
+    "p1_coverage_actual": "100%",
+    "p1_status": "MET",
+    "overall_coverage_minimum": "80%",
+    "overall_coverage_actual": "100%",
+    "overall_status": "MET"
+  },
+  "links": {
+    "trace_report_path": "_agentic-out/tests/traceability-matrix.md",
+    "trace_report_url": "",
+    "artifact_url": "",
+    "journey_evidence_url": ""
+  }
+}

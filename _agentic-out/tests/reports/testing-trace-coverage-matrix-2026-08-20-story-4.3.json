@@ -1,0 +1,71 @@
+{
+  "phase": "PHASE_1_COMPLETE",
+  "generated_at": "2026-08-20T11:25:00+08:00",
+  "trace_target": { "type": "story", "id": "4.3", "label": "用透明规则判断价值并形成主流分流" },
+  "collection_mode": "formal_requirements",
+  "allow_gate": true,
+  "coverage_basis": "acceptance_criteria",
+  "summary_confidence": "high",
+  "oracle": {
+    "resolution_mode": "formal_requirements",
+    "confidence": "high",
+    "sources": [
+      "_agentic-out/implementation/stories/4-3-用透明规则判断价值并形成主流分流.md",
+      "_agentic-out/planning/epics.md",
+      "_agentic-out/planning/prd.md"
+    ],
+    "external_pointer_status": "not_used",
+    "synthetic": false
+  },
+  "requirements": [
+    { "id": "AC1", "priority": "P0", "coverage": "FULL", "tests": ["T43-U01", "T43-U07", "T43-INT01", "T43-CON01"] },
+    { "id": "AC2", "priority": "P0", "coverage": "FULL", "tests": ["T43-U03", "T43-U04", "T43-U05", "T43-U10", "T43-CON01"] },
+    { "id": "AC3", "priority": "P0", "coverage": "FULL", "tests": ["T43-U02", "T43-U06", "T43-U07", "T43-U08", "T43-U09", "T43-U10", "T43-CFG01"] },
+    { "id": "AC4", "priority": "P0", "coverage": "FULL", "tests": ["T43-U02", "T43-U03", "T43-U04"] },
+    { "id": "AC5", "priority": "P0", "coverage": "FULL", "tests": ["T43-INT01", "T43-INT02", "T43-INT03", "T43-INT04", "T43-INT05", "T43-INT06"] },
+    { "id": "AC6", "priority": "P1", "coverage": "FULL", "tests": ["T43-U01", "T43-INT06", "T43-MIG01", "T43-MIG02", "T43-MIG03", "T43-MIG04", "T43-CON01"] }
+  ],
+  "coverage_statistics": {
+    "total_requirements": 6,
+    "fully_covered": 6,
+    "partially_covered": 0,
+    "uncovered": 0,
+    "overall_coverage_percentage": 100,
+    "priority_breakdown": {
+      "P0": { "total": 5, "covered": 5, "percentage": 100 },
+      "P1": { "total": 1, "covered": 1, "percentage": 100 },
+      "P2": { "total": 0, "covered": 0, "percentage": 100 },
+      "P3": { "total": 0, "covered": 0, "percentage": 100 }
+    }
+  },
+  "gap_analysis": {
+    "critical_gaps": [], "high_gaps": [], "medium_gaps": [], "low_gaps": [],
+    "partial_coverage_items": [], "unit_only_items": []
+  },
+  "coverage_heuristics": {
+    "endpoint_gaps": [], "auth_negative_path_gaps": [], "happy_path_only_gaps": [],
+    "ui_journey_gaps": [], "ui_state_gaps": [],
+    "counts": { "endpoints_without_tests": 0, "auth_missing_negative_paths": 0, "happy_path_only_criteria": 0, "ui_journeys_without_e2e": 0, "ui_states_missing_coverage": 0 },
+    "not_applicable": ["http_endpoints", "tauri_ipc", "auth_authz", "ui_journeys", "ui_states"]
+  },
+  "test_inventory": {
+    "summary": {
+      "files": 5, "cases": 22, "skipped_cases": 0, "fixme_cases": 0, "pending_cases": 0,
+      "by_level": {
+        "e2e": { "tests": 0, "criteria_covered": 0 },
+        "api": { "tests": 0, "criteria_covered": 0 },
+        "component": { "tests": 0, "criteria_covered": 0 },
+        "unit": { "tests": 11, "criteria_covered": 5 },
+        "other": { "tests": 11, "criteria_covered": 4 }
+      }
+    },
+    "tests": [
+      "T43-U01", "T43-U02", "T43-U03", "T43-U04", "T43-U05", "T43-U06", "T43-U07", "T43-U08", "T43-U09", "T43-U10", "T43-CFG01",
+      "T43-INT01", "T43-INT02", "T43-INT03", "T43-INT04", "T43-INT05", "T43-INT06",
+      "T43-MIG01", "T43-MIG02", "T43-MIG03", "T43-MIG04", "T43-CON01"
+    ],
+    "blockers": []
+  },
+  "blockers": [],
+  "recommendations": []
+}

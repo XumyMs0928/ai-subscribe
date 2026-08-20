@@ -1,12 +1,15 @@
 use std::fs;
 use std::path::PathBuf;
 
+const APPROVED_TAURI_COMMANDS: &str =
+    include_str!("../../../../contracts/fixtures/tauri/approved-commands-v1.txt");
+
 fn crate_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
 #[test]
-fn release_command_table_contains_only_approved_story_1_6_commands() {
+fn release_command_table_contains_only_approved_commands() {
     let source = fs::read_to_string(crate_root().join("src/lib.rs")).expect("read Tauri lib");
     let code = source
         .lines()
@@ -21,10 +24,7 @@ fn release_command_table_contains_only_approved_story_1_6_commands() {
         .nth(1)
         .and_then(|tail| tail.split(']').next())
         .expect("release invoke handler");
-    assert_eq!(
-        handler.trim(),
-        "commands::health_v1,commands::demo_bootstrap_v1,commands::demo_search_v1,commands::demo_list_v1,commands::demo_filter_v1,commands::demo_detail_v1"
-    );
+    assert_eq!(handler.trim(), APPROVED_TAURI_COMMANDS.trim());
     assert!(!source.contains("secret_probe"));
     assert!(!source.contains("panic_probe"));
     assert!(!source.contains("effect_probe"));

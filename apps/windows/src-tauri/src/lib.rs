@@ -24,7 +24,7 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             use tauri::Manager;
-            let mut database_path = app
+            let database_path = app
                 .path()
                 .app_data_dir()
                 .map_err(|_| {
@@ -32,9 +32,7 @@ pub fn run() {
                 })
                 .map(|directory| directory.join("ai-subscribe.sqlite3"));
             #[cfg(feature = "benchmark-instrumentation")]
-            if let Some(path) = benchmark_database_path() {
-                database_path = Ok(path);
-            }
+            let database_path = benchmark_database_path().map(Ok).unwrap_or(database_path);
             app.manage(commands::DemoState::new(database_path));
             Ok(())
         })
@@ -44,7 +42,19 @@ pub fn run() {
             commands::demo_search_v1,
             commands::demo_list_v1,
             commands::demo_filter_v1,
-            commands::demo_detail_v1
+            commands::demo_detail_v1,
+            commands::setup_progress_v1,
+            commands::save_setup_step_v1,
+            commands::configuration_v1,
+            commands::validate_configuration_v1,
+            commands::save_configuration_v1,
+            commands::save_source_v1,
+            commands::query_sources_v1,
+            commands::start_sync_v1,
+            commands::task_v1,
+            commands::sync_health_v1,
+            commands::get_sync_result_v1,
+            commands::query_intel_feed_v1
         ])
         .run(tauri::generate_context!())
         .expect("Tauri application failed to run");

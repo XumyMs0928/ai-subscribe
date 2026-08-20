@@ -1,0 +1,67 @@
+{
+  "overall_score": 93,
+  "overall_grade": "A",
+  "quality_assessment": "Excellent",
+  "dimension_scores": {
+    "determinism": 95,
+    "isolation": 90,
+    "maintainability": 88,
+    "performance": 100
+  },
+  "dimension_grades": {
+    "determinism": "A",
+    "isolation": "A-",
+    "maintainability": "B",
+    "performance": "A"
+  },
+  "violations_summary": { "total": 4, "HIGH": 2, "MEDIUM": 1, "LOW": 1 },
+  "all_violations": [
+    {
+      "dimension": "determinism",
+      "file": "crates/radar-core/tests/demo_catalog.rs",
+      "line": 112,
+      "severity": "MEDIUM",
+      "category": "fixed-file-path-race",
+      "description": "File-backed SQLite test uses a cross-run fixed path.",
+      "suggestion": "Use a process/test-scoped path with RAII cleanup."
+    },
+    {
+      "dimension": "isolation",
+      "file": "crates/radar-core/tests/demo_catalog.rs",
+      "line": 112,
+      "severity": "HIGH",
+      "category": "shared-database-without-cleanup",
+      "description": "The fixed file-backed SQLite database persists and can be shared across processes/runs.",
+      "suggestion": "Use a unique scoped database and remove it during teardown."
+    },
+    {
+      "dimension": "maintainability",
+      "file": "crates/xtask/tests/generated_contract_gate_negative.rs",
+      "line": 298,
+      "severity": "HIGH",
+      "category": "test-too-long",
+      "description": "One mutation test case is 101 lines.",
+      "suggestion": "Extract the case table and repeated assertion loop into focused helpers."
+    },
+    {
+      "dimension": "maintainability",
+      "file": "tests/e2e/story-1-6-demo-intelligence.spec.ts",
+      "line": 27,
+      "severity": "LOW",
+      "category": "repeated-navigation-and-list-locator",
+      "description": "Several cases repeat navigation and list-locator setup.",
+      "suggestion": "Extract a small openDemoCatalog helper."
+    }
+  ],
+  "high_severity_violations": [
+    "shared file-backed SQLite database without cleanup",
+    "101-line xtask mutation test case"
+  ],
+  "top_recommendations": [
+    "Use a unique scoped SQLite path with RAII cleanup.",
+    "Extract xtask mutation cases and repeated checking into helpers.",
+    "Centralize repeated E2E navigation/list lookup."
+  ],
+  "subagent_execution": "SUBAGENT with sequential fallback after two worker timeouts",
+  "success": true
+}

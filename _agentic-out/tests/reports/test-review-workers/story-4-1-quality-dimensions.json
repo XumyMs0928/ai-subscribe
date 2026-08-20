@@ -1,0 +1,29 @@
+{
+  "story": "4.1",
+  "reviewed_at": "2026-08-19",
+  "scope": {
+    "files": 5,
+    "tests": 74,
+    "coverage_excluded": true
+  },
+  "dimensions": {
+    "determinism": { "score": 100, "grade": "A", "violations": [] },
+    "isolation": { "score": 100, "grade": "A+", "violations": [] },
+    "maintainability": { "score": 100, "grade": "A", "violations": [] },
+    "performance": { "score": 100, "grade": "A+", "violations": [] }
+  },
+  "overall_score": 100,
+  "overall_grade": "A",
+  "post_fix": {
+    "closed_findings": 5,
+    "targeted_validation": {
+      "radar_core_intel_normalization": "5/5 passed (project-local MSVC)",
+      "radar_core_sync_tasks": "20/20 passed (project-local MSVC)",
+      "radar_core_lib": "46/46 passed (project-local MSVC)",
+      "vitest": "113/113 passed",
+      "typescript": "typecheck passed",
+      "format": "rustfmt and changed-file Prettier passed"
+    },
+    "environment_note": "gnullvm test executable launch was blocked by Windows application control policy (os error 4551); the same targeted Rust suites passed with the repository-local MSVC toolchain without changing system policy."
+  }
+}

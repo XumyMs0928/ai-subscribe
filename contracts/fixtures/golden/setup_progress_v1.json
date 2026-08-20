@@ -1,0 +1,72 @@
+{
+  "contract_version": 1,
+  "revision": 0,
+  "configuration_revision": 1,
+  "overall_status": "not_started",
+  "steps": [
+    {
+      "contract_version": 1,
+      "step_id": "tracks",
+      "status": "not_started",
+      "saved_fields_version": null
+    },
+    {
+      "contract_version": 1,
+      "step_id": "source_examples",
+      "status": "not_started",
+      "saved_fields_version": null
+    },
+    {
+      "contract_version": 1,
+      "step_id": "refresh_cadence",
+      "status": "not_started",
+      "saved_fields_version": null
+    },
+    {
+      "contract_version": 1,
+      "step_id": "ai_data_disclosure",
+      "status": "not_started",
+      "saved_fields_version": null
+    }
+  ],
+  "next_step_id": "tracks",
+  "defaults": {
+    "contract_version": 1,
+    "fixture_id": "setup-defaults-v1",
+    "default_track_ids": ["ai_agents", "foundation_models", "local_models"],
+    "default_source_example_ids": [
+      "github_releases",
+      "arxiv_topics",
+      "rss_feeds"
+    ],
+    "default_refresh_cadence": "manual",
+    "tracks": [
+      { "id": "ai_agents", "label": "AI 智能体", "is_demo": false },
+      { "id": "foundation_models", "label": "基础模型", "is_demo": false },
+      { "id": "local_models", "label": "本地模型", "is_demo": false }
+    ],
+    "source_examples": [
+      {
+        "id": "github_releases",
+        "label": "GitHub Release 示例",
+        "is_demo": true
+      },
+      { "id": "arxiv_topics", "label": "arXiv 主题示例", "is_demo": true },
+      { "id": "rss_feeds", "label": "RSS/Atom 来源示例", "is_demo": true }
+    ],
+    "refresh_cadences": [
+      { "id": "manual", "label": "仅手动刷新", "is_demo": false },
+      {
+        "id": "daily",
+        "label": "每日一次（后续同步启用后生效）",
+        "is_demo": false
+      }
+    ]
+  },
+  "saved_config": {
+    "track_ids": ["ai_agents", "foundation_models", "local_models"],
+    "source_example_ids": ["github_releases", "arxiv_topics", "rss_feeds"],
+    "refresh_cadence": "manual",
+    "ai_data_disclosure_acknowledged": false
+  }
+}

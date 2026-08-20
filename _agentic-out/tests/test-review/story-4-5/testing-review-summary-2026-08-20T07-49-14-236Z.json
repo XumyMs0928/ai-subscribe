@@ -1,0 +1,232 @@
+{
+  "overall_score": 81,
+  "overall_grade": "B",
+  "quality_assessment": "Good",
+  "dimension_scores": {
+    "determinism": 60,
+    "isolation": 95,
+    "maintainability": 76,
+    "performance": 100
+  },
+  "dimension_grades": {
+    "determinism": "D",
+    "isolation": "A",
+    "maintainability": "C",
+    "performance": "A"
+  },
+  "violations_summary": {
+    "total": 12,
+    "HIGH": 3,
+    "MEDIUM": 7,
+    "LOW": 2
+  },
+  "all_violations": [
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 669,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The performance test measures wall-clock elapsed time and fails when the observed P95 exceeds 200 ms, so host load, scheduler contention, power state, and concurrent CI work can change the result without a code change.",
+      "suggestion": "Keep deterministic query-result and query-plan assertions in the test suite; move wall-clock benchmarking to a controlled benchmark job or record timings without making an ordinary test pass/fail on elapsed time.",
+      "code_snippet": "let started = Instant::now();",
+      "dimension": "determinism"
+    },
+    {
+      "file": "crates/radar-core/tests/sync_tasks.rs",
+      "line": 1184,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The Last7d assertion queries through query_intel_feed(), which reads the real system clock, while candidate() fixes published_at to 2026-08-18T08:00:00Z; the expected two results therefore expire as calendar time advances.",
+      "suggestion": "Inject or expose a fixed test clock/as-of instant for this integration path and assert Last7d against that fixed instant.",
+      "code_snippet": ".query_intel_feed(&combined)",
+      "dimension": "determinism"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 101,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The assertion identifies feed state through the styling class .feed-status, coupling synchronization to a CSS implementation detail that may change independently of behavior.",
+      "suggestion": "Select the state by an accessible role/name or a stable test id owned by the UI contract.",
+      "code_snippet": "screen.getByText(\"高价值\", { selector: \".feed-status\" })",
+      "dimension": "determinism"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 118,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The ordinary-stream assertion uses the styling class .feed-status as part of element discovery, making the test sensitive to presentation-only refactors.",
+      "suggestion": "Select the stream status through its accessible role/name or a stable test id.",
+      "code_snippet": "screen.findByText(\"普通候选\", { selector: \".feed-status\" })",
+      "dimension": "determinism"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 17,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The E2E assertion waits on the styling class .feed-status, which can break on a CSS-only refactor despite unchanged user-visible behavior.",
+      "suggestion": "Use getByRole with an accessible name, or a stable data-testid if no appropriate semantic role exists.",
+      "code_snippet": "page.locator(\".feed-status\", { hasText: \"高价值\" })",
+      "dimension": "determinism"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 25,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The post-switch assertion waits on the styling class .feed-status, coupling a behavioral check to mutable CSS structure.",
+      "suggestion": "Use a semantic status locator with an accessible name, or a stable data-testid if semantics cannot identify it uniquely.",
+      "code_snippet": "page.locator(\".feed-status\", { hasText: \"普通候选\" })",
+      "dimension": "determinism"
+    },
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 649,
+      "severity": "MEDIUM",
+      "category": "shared-filesystem-artifact",
+      "description": "The performance test deletes and rewrites the same workspace-wide evidence and temporary paths on every run. Concurrent test processes in the same checkout can remove or rename each other's files, and the published artifact is intentionally left behind as shared state.",
+      "suggestion": "Write each run to a uniquely named temporary directory or filename (for example including process and run identity), then publish evidence through a serialized or out-of-test evidence step; clean up per-run temporary files with RAII.",
+      "code_snippet": "let evidence_path = directory.join(\"intel-feed-performance.json\");\nlet temporary_path = directory.join(\"intel-feed-performance.json.tmp\");",
+      "dimension": "isolation"
+    },
+    {
+      "file": "apps/windows/src-tauri/tests/release_surface.rs",
+      "line": 24,
+      "severity": "HIGH",
+      "category": "duplicate-test-logic",
+      "description": "The complete approved Tauri command allowlist is maintained here as one long string and duplicated in crates/xtask/tests/generated_contract_gate_negative.rs:309-329. Adding or renaming a command requires synchronized edits in two differently formatted fixtures, so drift can make one gate stale or produce unrelated failures.",
+      "suggestion": "Define the approved command names once in a shared test fixture or helper and have both the release-surface assertion and xtask sandbox source generation consume that canonical list.",
+      "code_snippet": "assert_eq!(handler.trim(), \"commands::health_v1,...,commands::query_intel_feed_v1\");",
+      "dimension": "maintainability"
+    },
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 352,
+      "severity": "MEDIUM",
+      "category": "large-setup-block",
+      "description": "seed_fixed_feed spans about 110 lines and constructs four related database projections plus a canonical hash in one setup helper. The inline SQL and repeated row-derived values make fixture changes difficult to review and couple unrelated projection details.",
+      "suggestion": "Split the seed manifest into focused builders for fact, content, provenance, and rule-evaluation rows, while keeping a small orchestration helper for dataset generation.",
+      "code_snippet": "fn seed_fixed_feed(store: &mut DemoStore, dataset_size: usize) -> String {",
+      "dimension": "maintainability"
+    },
+    {
+      "file": "crates/radar-core/tests/sync_tasks.rs",
+      "line": 1142,
+      "severity": "MEDIUM",
+      "category": "complex-test-missing-structure-comments",
+      "description": "This 97-line test combines successful four-dimensional filtering, multiple mismatch cases, cursor pagination, query-identity rejection, and cursor tampering without phase labels. Its name cannot identify which sub-scenario failed, and future edits must reason about several state mutations in one body.",
+      "suggestion": "Split filtering, pagination identity, and tamper rejection into focused tests sharing a small feed setup helper; if kept together, add explicit Given/When/Then phase comments around each scenario.",
+      "code_snippet": "fn feed_filters_and_cursor_are_bound_to_the_query_identity() {",
+      "dimension": "maintainability"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 233,
+      "severity": "LOW",
+      "category": "could-benefit-from-helper",
+      "description": "The valid-page, projection-drift, and stale-cursor tests repeat the same opaque cursor construction, first-page response, and second-item fixture mutations. The repeated setup obscures the behavioral difference among the three pagination cases.",
+      "suggestion": "Introduce a local pagination scenario factory that returns the cursor, first page, and a customizable continuation page or error.",
+      "code_snippet": "const cursor = `feed-v1:aa:${\"1\".repeat(64)}`;",
+      "dimension": "maintainability"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 56,
+      "severity": "LOW",
+      "category": "could-benefit-from-helper",
+      "description": "The filter journey repeats the same invoke-call polling and findLast command lookup before and after reload. The duplicated callback makes the expected query payload harder to scan and invites inconsistent changes to the two checkpoints.",
+      "suggestion": "Extract a small latestIntelFeedArgs helper for the fixture and keep the two expected payload assertions visible in the test body.",
+      "code_snippet": "const calls = await demoApp.invokeCalls(); return calls.findLast((call) => call.command === \"query_intel_feed_v1\")?.args;",
+      "dimension": "maintainability"
+    }
+  ],
+  "high_severity_violations": [
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 669,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The performance test measures wall-clock elapsed time and fails when the observed P95 exceeds 200 ms, so host load, scheduler contention, power state, and concurrent CI work can change the result without a code change.",
+      "suggestion": "Keep deterministic query-result and query-plan assertions in the test suite; move wall-clock benchmarking to a controlled benchmark job or record timings without making an ordinary test pass/fail on elapsed time.",
+      "code_snippet": "let started = Instant::now();",
+      "dimension": "determinism"
+    },
+    {
+      "file": "crates/radar-core/tests/sync_tasks.rs",
+      "line": 1184,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The Last7d assertion queries through query_intel_feed(), which reads the real system clock, while candidate() fixes published_at to 2026-08-18T08:00:00Z; the expected two results therefore expire as calendar time advances.",
+      "suggestion": "Inject or expose a fixed test clock/as-of instant for this integration path and assert Last7d against that fixed instant.",
+      "code_snippet": ".query_intel_feed(&combined)",
+      "dimension": "determinism"
+    },
+    {
+      "file": "apps/windows/src-tauri/tests/release_surface.rs",
+      "line": 24,
+      "severity": "HIGH",
+      "category": "duplicate-test-logic",
+      "description": "The complete approved Tauri command allowlist is maintained here as one long string and duplicated in crates/xtask/tests/generated_contract_gate_negative.rs:309-329. Adding or renaming a command requires synchronized edits in two differently formatted fixtures, so drift can make one gate stale or produce unrelated failures.",
+      "suggestion": "Define the approved command names once in a shared test fixture or helper and have both the release-surface assertion and xtask sandbox source generation consume that canonical list.",
+      "code_snippet": "assert_eq!(handler.trim(), \"commands::health_v1,...,commands::query_intel_feed_v1\");",
+      "dimension": "maintainability"
+    }
+  ],
+  "top_10_recommendations": [
+    {
+      "dimension": "determinism",
+      "recommendation": "Inject a fixed clock/as-of instant into the Rust integration query that exercises Last7d filtering.",
+      "impact": "HIGH"
+    },
+    {
+      "dimension": "determinism",
+      "recommendation": "Separate wall-clock performance gating from deterministic functional tests and run it only in a controlled benchmark environment.",
+      "impact": "HIGH"
+    },
+    {
+      "dimension": "determinism",
+      "recommendation": "Replace all .feed-status CSS selectors with accessible role/name locators or stable test ids.",
+      "impact": "HIGH"
+    },
+    {
+      "dimension": "isolation",
+      "recommendation": "Give the performance-evidence writer a per-run unique workspace and serialize only the final publication step so concurrent test processes cannot collide.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "maintainability",
+      "recommendation": "Centralize the approved Tauri command allowlist used by release and xtask boundary tests.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "maintainability",
+      "recommendation": "Decompose the large fixed-feed database seeder into projection-focused builders.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "maintainability",
+      "recommendation": "Split the combined Core filter/cursor test into focused behavioral cases with shared setup.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "maintainability",
+      "recommendation": "Extract pagination fixture and latest-invoke lookup helpers while keeping assertions explicit in test bodies.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "performance",
+      "recommendation": "Retain the purpose-built 50,000-row AC7 gate and continue storing its raw samples and P95 evidence.",
+      "impact": "MEDIUM"
+    },
+    {
+      "dimension": "performance",
+      "recommendation": "Track the complete performance-test wall time, including dataset seeding, so future regressions against the 1.5-minute test-quality target are visible.",
+      "impact": "MEDIUM"
+    }
+  ],
+  "subagent_execution": "AGENT-TEAM (4 quality dimensions; 3 concurrent slots with slot reuse)",
+  "performance_gain": "Parallelized within available concurrency",
+  "timestamp": "2026-08-20T07-49-14-236Z"
+}

@@ -9,9 +9,30 @@
       "title": "Agents SDK 发布新的会话追踪能力",
       "track": "AI Agent",
       "summary": "固定演示样本：展示如何从来源事实形成可核验的情报摘要。",
-      "original_url": "https://openai.com/",
       "published_at": "2026-07-01T08:00:00Z",
-      "collected_at": "2026-07-01T09:00:00Z"
+      "collected_at": "2026-07-01T09:00:00Z",
+      "what_happened": "OpenAI Agents SDK 的演示版本增加了会话追踪能力。",
+      "why_it_matters": "更清晰的会话轨迹有助于定位多步骤 Agent 的失败位置。",
+      "possible_impact": "团队可用更少的手工日志还原复杂 Agent 的执行过程。",
+      "importance": "high",
+      "facts": ["演示来源声明了新的会话追踪能力。", "该记录仅用于离线产品演示。"],
+      "rule_reasons": ["命中 AI Agent 赛道", "涉及可观测性和调试效率"],
+      "ai_content": "演示 AI 生成：该能力可能降低复杂 Agent 的排障成本。",
+      "ai_confidence_percent": 88,
+      "ai_status": "generated",
+      "provenance": {
+        "source_kind": "official_release",
+        "publisher": "OpenAI",
+        "author": null,
+        "original_title": "Agents SDK session tracing demo",
+        "original_url": "https://openai.com/",
+        "published_at": "2026-07-01T08:00:00Z",
+        "collected_at": "2026-07-01T09:00:00Z",
+        "first_discovered_at": "2026-07-01T09:00:00Z",
+        "last_updated_at": "2026-07-01T09:00:00Z",
+        "availability_status": "available",
+        "deterministic_association_basis": "demo_fixture_id"
+      }
     },
     {
       "id": "demo:rust-197-001",
@@ -20,9 +41,30 @@
       "title": "Rust 1.97 提升工具链诊断体验",
       "track": "开发工具",
       "summary": "固定演示样本：说明版本变化、影响范围与原始来源。",
-      "original_url": "https://www.rust-lang.org/",
       "published_at": "2026-06-20T10:00:00Z",
-      "collected_at": "2026-06-20T10:30:00Z"
+      "collected_at": "2026-06-20T10:30:00Z",
+      "what_happened": "Rust 1.97 演示版本改善了工具链诊断信息。",
+      "why_it_matters": "更准确的诊断可以缩短编译问题的定位时间。",
+      "possible_impact": "Rust 团队可能减少升级和 CI 排障的沟通成本。",
+      "importance": "medium",
+      "facts": ["演示记录对应 Rust 1.97。", "原始来源类型为官方发布。"],
+      "rule_reasons": ["命中开发工具赛道", "属于工具链质量变化"],
+      "ai_content": "演示 AI 生成：建议关注升级后诊断信息对 CI 的影响。",
+      "ai_confidence_percent": 76,
+      "ai_status": "generated",
+      "provenance": {
+        "source_kind": "official_release",
+        "publisher": "Rust Project",
+        "author": null,
+        "original_title": "Rust 1.97 diagnostics demo",
+        "original_url": "https://www.rust-lang.org/",
+        "published_at": "2026-06-20T10:00:00Z",
+        "collected_at": "2026-06-20T10:30:00Z",
+        "first_discovered_at": "2026-06-20T10:30:00Z",
+        "last_updated_at": "2026-06-20T10:30:00Z",
+        "availability_status": "available",
+        "deterministic_association_basis": "demo_fixture_id"
+      }
     },
     {
       "id": "demo:local-model-001",
@@ -31,9 +73,30 @@
       "title": "本地模型推理的内存占用进一步下降",
       "track": "本地模型",
       "summary": "固定演示样本：帮助用户理解离线情报浏览和基础筛选。",
-      "original_url": "https://example.com/ai-subscribe-demo/local-model",
       "published_at": "2026-06-10T02:00:00Z",
-      "collected_at": "2026-06-10T03:00:00Z"
+      "collected_at": "2026-06-10T03:00:00Z",
+      "what_happened": "演示模型在固定测试条件下展示了更低的内存占用。",
+      "why_it_matters": "较低内存需求可能让更多本地设备运行推理任务。",
+      "possible_impact": "个人设备上的离线分析门槛可能降低。",
+      "importance": "medium",
+      "facts": ["这是安全隔离的演示记录。", "数据不代表真实产品测量结果。"],
+      "rule_reasons": ["命中本地模型赛道", "涉及设备资源效率"],
+      "ai_content": "演示 AI 生成：内存下降可能扩大本地推理的适用设备范围。",
+      "ai_confidence_percent": 64,
+      "ai_status": "generated",
+      "provenance": {
+        "source_kind": "demo_fixture",
+        "publisher": "AI Subscribe Demo",
+        "author": null,
+        "original_title": "Local model memory demo",
+        "original_url": "https://example.com/ai-subscribe-demo/local-model",
+        "published_at": "2026-06-10T02:00:00Z",
+        "collected_at": "2026-06-10T03:00:00Z",
+        "first_discovered_at": "2026-06-10T03:00:00Z",
+        "last_updated_at": "2026-06-10T03:00:00Z",
+        "availability_status": "unavailable",
+        "deterministic_association_basis": "demo_fixture_id"
+      }
     }
   ]
 }

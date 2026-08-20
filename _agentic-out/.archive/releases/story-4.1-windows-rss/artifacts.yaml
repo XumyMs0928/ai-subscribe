@@ -1,0 +1,295 @@
+schema_version: 2
+project_name: ai-subscribe
+# Current iteration/release label (e.g. "v1.0", "2026-Q3"). Set when a new
+# iteration starts; used to label release snapshots under .archive/releases/.
+iteration: null
+# Optional iteration/manifest-level override. A Story or implementation spec
+# frontmatter delivery_profile takes precedence; config is the lower fallback.
+delivery_profile: null
+generated_at: "2026-08-10T02:41:18+00:00"
+updated_at: "2026-08-19T08:12:17+00:00"
+
+artifacts:
+  product_brief:
+    type: planning
+    path: null
+    status: missing
+    updated_at: null
+    depends_on: []
+    produced_by: agentic-product-brief
+  prd:
+    type: planning
+    path: "_agentic-out\\planning\\prd.md"
+    status: complete
+    updated_at: "2026-08-17T09:39:15.404426+00:00"
+    depends_on:
+      - product_brief
+    produced_by: agentic-create-prd
+    notes:
+      - "Validated 2026-08-10 via agentic-validate-prd; overall status: Critical; holistic quality: 3/5 - Adequate; report: _agentic-out/reviews/2026-08-10-prd-validation.md"
+      - "Post-edit validation passed on 2026-08-10; report: _agentic-out/reviews/2026-08-10-prd-validation-post-edit.md"
+      - "Marked stale after MVP scope expanded during UX design from Windows-only to Windows + iOS/iPadOS + Android native applications."
+      - "Post-edit validation passed on 2026-08-11; overall status: Pass; holistic quality: 5/5 - Excellent; architecture-ready; report: _agentic-out/reviews/2026-08-11-prd-validation-post-edit.md"
+      - "Post-edit validation completed on 2026-08-12; overall status: Pass; holistic quality: 4/5 - Good; completeness: 100%; two acceptance-precision advisories resolved after validation; report: _agentic-out/reviews/2026-08-12-prd-validation-post-edit.md"
+      - "GitHub discovery validation completed on 2026-08-12; overall status: Pass; holistic quality: 4/5 - Good; completeness: 100%; FR1-FR64 and NFR1-NFR54 validated with zero critical/minor gaps; report: _agentic-out/planning/validation-report-2026-08-12-github-discovery.md"
+      - "Approved Correct Course applied on 2026-08-17: Phase 1 is a 15-Story Windows RSS minimum closed loop; full MVP requirements remain preserved and deferred. Proposal: _agentic-out/planning/sprint-change-proposal-2026-08-17.md."
+  ux:
+    type: planning
+    path: "_agentic-out\\planning\\ux-design-specification.md"
+    status: complete
+    updated_at: "2026-08-19T04:05:00+00:00"
+    depends_on:
+      - prd
+    produced_by: agentic-create-ux-design
+    notes:
+      - "Reconfirmed complete on 2026-08-11: the newer PRD converged to this UX's existing cross-platform scope, and the passing post-edit validation used this UX specification as an input."
+      - "Implementation-facing UX spine generated on 2026-08-11: _agentic-out/planning/ux/DESIGN.md and _agentic-out/planning/ux/EXPERIENCE.md."
+      - "Refreshed on 2026-08-12 against the latest PRD; added explicit three-source MVP gating, device-local notification/data boundaries, and controlled mobile distribution disclosures. UX spine updated in DESIGN.md and EXPERIENCE.md."
+      - "Phase 1 overlay approved on 2026-08-17: visible Windows UX is limited to the RSS minimum closed loop; deferred feature entry points must not appear as placeholders or fake success."
+      - "Post-reconcile semantic validation for Story 4.1: DESIGN/EXPERIENCE already encode Windows RSS normalization/provenance and deferred-source boundaries, so the later Phase 1 architecture overlay introduces no unresolved UX drift."
+  architecture:
+    type: planning
+    path: "_agentic-out\\planning\\architecture.md"
+    status: complete
+    updated_at: "2026-08-18T11:41:54+00:00"
+    depends_on:
+      - prd
+    produced_by: agentic-create-architecture
+    notes:
+      - "Work intentionally deferred on 2026-08-11 by user request until the standalone HTML interactive prototype is completed or explicitly skipped."
+      - "Standalone HTML interactive prototype completed and reviewed on 2026-08-11; architecture remains deferred pending explicit user continuation."
+      - "FR64/NFR54 architecture refresh and validation completed on 2026-08-12; result: READY FOR EPICS REFRESH with zero critical or important gaps."
+      - "Phase 1 architecture overlay approved on 2026-08-17: activate Windows + RSS/Atom + local core/SQLite only; defer unneeded adapters, AI, notification, mobile and public release surfaces."
+  # ux is intentionally not a hard dependency of epics/readiness: it is
+  # conditionally required (see workflow_gates.before_create_story) and its
+  # absence must not mark artifacts as stale in backend-only projects.
+  epics:
+    type: planning
+    path: "_agentic-out\\planning\\epics.md"
+    status: stale
+    updated_at: "2026-08-19T04:05:00+00:00"
+    depends_on:
+      - prd
+      - architecture
+    produced_by: agentic-create-epics-and-stories
+    notes:
+      - "Refreshed and validated on 2026-08-13 against FR1-FR64, NFR1-NFR54, ARCH-1-ARCH-44 and UX-DR1-UX-DR37; 9 epics and 47 stories; zero forward dependencies or coverage gaps."
+      - "Correct Course applied on 2026-08-13: split oversized Story 1.1 and Story 9.5; now 53 stories with continuous numbering, full requirement coverage and zero forward dependencies; proposal: _agentic-out/planning/sprint-change-proposal-2026-08-13.md."
+      - "Correct Course approved on 2026-08-17: retain all Stories but activate only 15 for the Phase 1 Windows RSS minimum closed loop; 9 implementation Stories remain."
+      - "Correct Course refined on 2026-08-18: Story 2.5/2.6 canonical execution scope is RSS/Atom only; GitHub Release, arXiv and three-source readiness remain deferred. Proposal: _agentic-out/planning/sprint-change-proposal-2026-08-18.md."
+      - "Post-reconcile semantic validation for Story 4.1: the approved Phase 1 overlay narrows its executable AC to RSS/Atom while preserving the canonical full-product AC; architecture and UX spine already carry the same boundary."
+  readiness:
+    type: planning
+    path: "_agentic-out\\reviews\\2026-08-12-readiness.md"
+    status: stale
+    updated_at: "2026-08-14T16:52:59+08:00"
+    depends_on:
+      - prd
+      - architecture
+      - epics
+    produced_by: agentic-check-implementation-readiness
+    notes:
+      - "Assessed on 2026-08-13: NEEDS WORK; Critical 0, Major 2, Minor 2. Product/UX/architecture/coverage/dependencies pass; Story 1.1 and Story 9.5 must be split before Sprint Planning."
+      - "Rechecked on 2026-08-13 after the approved Story splits: READY; Critical 0, Major 0, Minor 2. FR coverage 64/64, 53/53 Stories structurally complete, zero forward dependencies; Sprint Planning may proceed."
+  sprint_status:
+    type: implementation
+    path: "_agentic-out\\implementation\\sprint-status.yaml"
+    status: complete
+    updated_at: "2026-08-19T08:11:26.457645+00:00"
+    depends_on:
+      - epics
+    produced_by: agentic-sprint-planning
+    notes:
+      - "Phase 1 selection is authoritative in phase_1_story_ids; Story 2.2 is done, the next Story is 2.5, and deferred_after_phase_1 remains backlog."
+      - "Story 2.5 and 2.6 execute RSS/Atom only in Phase 1; three-source aggregation is explicitly deferred."
+      - "Story 2.6 passed all standard before_done gates and is done; Phase 1 next Story is 4.1."
+  # story tracks the CURRENT story being worked on (latest created/updated).
+  # readiness is intentionally NOT a hard dependency - it is a recommended gate
+  # (see workflow_gates), so its absence must not mark stories as stale.
+  # Manifest vocabulary intentionally maps a Story in `review` to `in-progress`;
+  # the Story frontmatter and sprint-status.yaml remain the lifecycle authorities.
+  story:
+    type: implementation
+    path: "_agentic-out\\implementation\\stories\\4-1-将真实来源规范化为可溯源情报.md"
+    status: complete
+    updated_at: "2026-08-19T08:15:00+00:00"
+    depends_on:
+      - sprint_status
+    produced_by: agentic-develop-story
+    notes:
+      - "Story 2.5 standard before_done gates passed: automation, code review, test review and traceability are complete; lifecycle advanced to done."
+      - "Risk signals cross-artifact + high-nfr recommend assured, but the explicit standard profile is intentionally retained for the user-approved fast Windows RSS/Atom Phase 1 closure; native release evidence remains deferred to the frozen Phase 1 candidate."
+      - "Story 2.6 Windows RSS/Atom minimum result loop passed automation, code review, test review and traceability; lifecycle advanced to done."
+      - "Story 4.1 is ready-for-dev as a backend-first Windows RSS/Atom normalization slice; standard delivery is intentional for fast Phase 1 closure, while atomic source transactions, v8 migration/restart integrity, provenance separation and project-local tooling remain non-waivable."
+      - "Story 4.1 Windows RSS minimum-loop passed automation, code review, test review, traceability and the single final combined gate; lifecycle advanced to done."
+  # Current standalone or Story-companion implementation spec. Companion specs
+  # use source_story; they never replace or populate the story record.
+  implementation_spec:
+    type: implementation
+    path: "_agentic-out\\implementation\\specs\\spec-html-interactive-prototype.md"
+    status: complete
+    updated_at: "2026-08-14T16:52:59+08:00"
+    depends_on: []
+    produced_by: agentic-quick-dev
+  test_design:
+    type: tests
+    path: null
+    status: missing
+    updated_at: null
+    depends_on:
+      - prd
+      - epics
+    produced_by: agentic-test-design
+  test_framework:
+    type: tests
+    path: "_agentic-out\\tests\\reports\\framework-setup-progress.md"
+    status: complete
+    updated_at: "2026-08-14T09:11:05+00:00"
+    depends_on: []
+    produced_by: agentic-test-framework
+  automation:
+    type: tests
+    path: "_agentic-out/tests/reports/automation-summary.md"
+    status: complete
+    updated_at: "2026-08-19T08:12:16+00:00"
+    depends_on:
+      - story
+      - test_framework
+    produced_by: agentic-test-automation
+    notes:
+      - "Story 4.1 automation complete: HTTP/OpenAPI and new E2E are N/A after strict deduplication; two P0 Rust tests close deterministic v7 tie-break and retention-preserves-fact evidence."
+      - "Final combined gate completed once after review convergence: workspace Rust 169, Vitest 113 and Playwright 32 passed with all static/build gates."
+  traceability:
+    type: tests
+    path: "_agentic-out/tests/traceability-matrix.md"
+    status: complete
+    updated_at: "2026-08-19T08:12:17+00:00"
+    depends_on:
+      - prd
+      - epics
+      - automation
+    produced_by: agentic-test-traceability
+    notes:
+      - "Story 4.1 Windows RSS minimum-loop: AC1-AC6 FULL, P0 5/5, P1 1/1, overall 100%, deterministic gate PASS; 19 direct evidence cases in 6 files."
+  nfr:
+    type: tests
+    path: "_agentic-out\\tests\\nfr-assessment.md"
+    status: stale
+    updated_at: "2026-08-17T01:57:23+00:00"
+    depends_on:
+      - automation
+    produced_by: agentic-test-nfr
+    notes:
+      - "Story 1.2 overall NFR status is CONCERNS_WITH_APPROVED_WAIVER; security, reliability, testability and deployability pass; two UX/accessibility runtime-evidence risks transfer to Story 1.7."
+  code_review:
+    type: reviews
+    path: "_agentic-out\\reviews\\2026-08-19-story-4.1-code-review.md"
+    status: complete
+    updated_at: "2026-08-19T08:15:00+00:00"
+    depends_on:
+      - story
+    produced_by: agentic-code-review
+    notes:
+      - "Story 4.1 full adversarial review: 8 actionable findings fixed, 0 unresolved, 7 pre-existing Story 2.5 findings recorded as deferred, 5 false positives dismissed."
+      - "Post-review final combined repository gate passed once; Story 4.1 has 0 unresolved in-scope findings."
+  test_review:
+    type: reviews
+    path: "_agentic-out\\reviews\\2026-08-19-story-4.1-test-review.md"
+    status: complete
+    updated_at: "2026-08-19T08:15:00+00:00"
+    depends_on:
+      - story
+      - automation
+    produced_by: agentic-test-review
+    notes:
+      - "Story 4.1 post-fix test quality score 100/100 (A): determinism, isolation, maintainability and performance all 100; 0 remaining violations."
+      - "Five maintainability findings were refactored and independently re-reviewed; targeted Rust 5+20+46 and Vitest 113 tests passed with project-local toolchains."
+      - "The later Story edits only register completed evidence and lifecycle state; no reviewed production behavior changed after the 100/A test-review closure."
+  research:
+    type: planning
+    path: "_agentic-out\\planning\\research\\technical-ai-intelligence-radar-research-2026-08-06.md"
+    status: present
+    updated_at: "2026-08-14T16:52:59+08:00"
+    depends_on: []
+    produced_by: agentic-market-research # also: agentic-domain-research, agentic-technical-research, agentic-brainstorming and other research/ideation skills
+  project_knowledge:
+    type: knowledge
+    path: null
+    status: missing
+    updated_at: null
+    depends_on: []
+    produced_by: agentic-document-project # also: agentic-generate-project-context, agentic-index-docs (routed via the agentic-docs entry skill)
+
+workflow_gates:
+  before_create_story:
+    required:
+      - prd
+      - architecture
+      - epics
+    conditionally_required:
+      - ux # required when the product has a user-facing UI; may be waived (record a waiver) for backend-only projects
+    recommended:
+      - readiness
+      - test_design
+  before_develop_story:
+    required:
+      - story
+    recommended:
+      - readiness
+      - test_design
+  before_done:
+    required:
+      - automation
+    recommended:
+      - traceability
+
+# Profile-specific gates. The standard matrix intentionally matches
+# workflow_gates above so old schema-v2 projects retain their behavior.
+delivery_profile_gates:
+  quick:
+    before_create_story:
+      required: [implementation_spec]
+      recommended: [architecture]
+    before_develop_story:
+      required: [work_item]
+      recommended: [test_design]
+    before_done:
+      required: [automation, code_review]
+      recommended: [traceability]
+  standard:
+    before_create_story:
+      required: [prd, architecture, epics]
+      conditionally_required: [ux]
+      recommended: [readiness, test_design]
+    before_develop_story:
+      required: [story]
+      recommended: [readiness, test_design]
+    before_done:
+      required: [automation, code_review, test_review, traceability]
+      recommended: []
+  assured:
+    before_create_story:
+      required: [prd, architecture, epics, readiness, test_design]
+      conditionally_required: [ux]
+      recommended: []
+    before_develop_story:
+      required: [story, readiness, test_design, project_governance]
+      recommended: []
+    before_done:
+      required: [automation, traceability, nfr, code_review]
+      recommended: []
+
+recommendations:
+  - "Story 1.6 Windows-first milestone is complete. Continue with the next approved Windows story; Apple/iPhone/iPad/Android acceptance remains deferred and all dependency installation must remain project-local."
+blockers: []
+# Recorded gate waivers. Each entry:
+#   - artifact: ux
+#     reason: backend-only project, no user-facing UI
+#     recorded_at: 2026-07-02
+# Waived artifacts are skipped in gate checks and stale derivation.
+waivers:
+  - artifact: story-1.2-runtime-evidence
+    reason: "Accelerate Windows-first delivery; defer WebView2 health UIA and the dark/high-contrast/reduced-motion/200%-scale runtime matrix without claiming PASS."
+    recorded_at: 2026-08-14
+    approved_by: user/xmy
+    deferred_to: "Story 1.7"

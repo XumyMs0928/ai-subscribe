@@ -1,0 +1,76 @@
+{
+  "dimension": "determinism",
+  "score": 60,
+  "max_score": 100,
+  "grade": "D",
+  "violations": [
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 669,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The performance test measures wall-clock elapsed time and fails when the observed P95 exceeds 200 ms, so host load, scheduler contention, power state, and concurrent CI work can change the result without a code change.",
+      "suggestion": "Keep deterministic query-result and query-plan assertions in the test suite; move wall-clock benchmarking to a controlled benchmark job or record timings without making an ordinary test pass/fail on elapsed time.",
+      "code_snippet": "let started = Instant::now();"
+    },
+    {
+      "file": "crates/radar-core/tests/sync_tasks.rs",
+      "line": 1184,
+      "severity": "HIGH",
+      "category": "time-dependency",
+      "description": "The Last7d assertion queries through query_intel_feed(), which reads the real system clock, while candidate() fixes published_at to 2026-08-18T08:00:00Z; the expected two results therefore expire as calendar time advances.",
+      "suggestion": "Inject or expose a fixed test clock/as-of instant for this integration path and assert Last7d against that fixed instant.",
+      "code_snippet": ".query_intel_feed(&combined)"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 101,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The assertion identifies feed state through the styling class .feed-status, coupling synchronization to a CSS implementation detail that may change independently of behavior.",
+      "suggestion": "Select the state by an accessible role/name or a stable test id owned by the UI contract.",
+      "code_snippet": "screen.getByText(\"高价值\", { selector: \".feed-status\" })"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 118,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The ordinary-stream assertion uses the styling class .feed-status as part of element discovery, making the test sensitive to presentation-only refactors.",
+      "suggestion": "Select the stream status through its accessible role/name or a stable test id.",
+      "code_snippet": "screen.findByText(\"普通候选\", { selector: \".feed-status\" })"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 17,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The E2E assertion waits on the styling class .feed-status, which can break on a CSS-only refactor despite unchanged user-visible behavior.",
+      "suggestion": "Use getByRole with an accessible name, or a stable data-testid if no appropriate semantic role exists.",
+      "code_snippet": "page.locator(\".feed-status\", { hasText: \"高价值\" })"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 25,
+      "severity": "MEDIUM",
+      "category": "flaky-selector",
+      "description": "The post-switch assertion waits on the styling class .feed-status, coupling a behavioral check to mutable CSS structure.",
+      "suggestion": "Use a semantic status locator with an accessible name, or a stable data-testid if semantics cannot identify it uniquely.",
+      "code_snippet": "page.locator(\".feed-status\", { hasText: \"普通候选\" })"
+    }
+  ],
+  "passed_checks": 90,
+  "failed_checks": 6,
+  "total_checks": 96,
+  "violation_summary": {
+    "HIGH": 2,
+    "MEDIUM": 4,
+    "LOW": 0
+  },
+  "recommendations": [
+    "Inject a fixed clock/as-of instant into the Rust integration query that exercises Last7d filtering.",
+    "Separate wall-clock performance gating from deterministic functional tests and run it only in a controlled benchmark environment.",
+    "Replace all .feed-status CSS selectors with accessible role/name locators or stable test ids."
+  ],
+  "summary": "The 8 direct Story 4.5 test files have 6 determinism violations: 2 HIGH wall-clock dependencies and 4 MEDIUM CSS-selector dependencies; no unseeded randomness, hard waits, unmocked external APIs, or test-order dependencies were found."
+}

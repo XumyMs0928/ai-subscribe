@@ -1,0 +1,14 @@
+{
+  "dimension": "performance",
+  "score": 100,
+  "max_score": 100,
+  "grade": "A",
+  "violations": [],
+  "passed_checks": 40,
+  "failed_checks": 0,
+  "total_checks": 40,
+  "violation_summary": { "HIGH": 0, "MEDIUM": 0, "LOW": 0 },
+  "recommendations": [],
+  "performance_metrics": { "parallelizable_tests": 32, "serialized_tests": 1, "serialized_reason": "AC7 isolated wall-clock gate" },
+  "summary": "No hard waits or serial suites; the only serialized work is the intentional lock-protected AC7 performance gate."
+}

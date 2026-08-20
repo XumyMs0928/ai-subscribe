@@ -1,0 +1,29 @@
+{
+  "dimension": "isolation",
+  "score": 95,
+  "max_score": 100,
+  "grade": "A",
+  "violations": [
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 649,
+      "severity": "MEDIUM",
+      "category": "shared-filesystem-artifact",
+      "description": "The performance test deletes and rewrites the same workspace-wide evidence and temporary paths on every run. Concurrent test processes in the same checkout can remove or rename each other's files, and the published artifact is intentionally left behind as shared state.",
+      "suggestion": "Write each run to a uniquely named temporary directory or filename (for example including process and run identity), then publish evidence through a serialized or out-of-test evidence step; clean up per-run temporary files with RAII.",
+      "code_snippet": "let evidence_path = directory.join(\"intel-feed-performance.json\");\nlet temporary_path = directory.join(\"intel-feed-performance.json.tmp\");"
+    }
+  ],
+  "passed_checks": 23,
+  "failed_checks": 1,
+  "total_checks": 24,
+  "violation_summary": {
+    "HIGH": 0,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "recommendations": [
+    "Give the performance-evidence writer a per-run unique workspace and serialize only the final publication step so concurrent test processes cannot collide."
+  ],
+  "summary": "Story 4.5 tests are otherwise independently constructed and cleaned up, but the fixed performance-evidence paths create one medium-severity cross-process isolation risk."
+}

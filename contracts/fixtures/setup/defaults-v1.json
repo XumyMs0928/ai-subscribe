@@ -1,0 +1,29 @@
+{
+  "contract_version": 1,
+  "fixture_id": "setup-defaults-v1",
+  "default_track_ids": ["ai_agents", "foundation_models", "local_models"],
+  "default_source_example_ids": [
+    "github_releases",
+    "arxiv_topics",
+    "rss_feeds"
+  ],
+  "default_refresh_cadence": "manual",
+  "tracks": [
+    { "id": "ai_agents", "label": "AI 智能体", "is_demo": true },
+    { "id": "foundation_models", "label": "基础模型", "is_demo": true },
+    { "id": "local_models", "label": "本地模型", "is_demo": true }
+  ],
+  "source_examples": [
+    {
+      "id": "github_releases",
+      "label": "GitHub Release 示例",
+      "is_demo": true
+    },
+    { "id": "arxiv_topics", "label": "arXiv 主题示例", "is_demo": true },
+    { "id": "rss_feeds", "label": "RSS/Atom 来源示例", "is_demo": true }
+  ],
+  "refresh_cadences": [
+    { "id": "manual", "label": "仅手动刷新" },
+    { "id": "daily", "label": "每日一次（后续同步启用后生效）" }
+  ]
+}

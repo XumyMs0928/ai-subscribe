@@ -1,5 +1,5 @@
-import { DemoIntelligence } from "../../features/demo-intelligence/demo-intelligence";
+import { AppRouter } from "../router/app-router";
 
 export function AppShell() {
-    return <DemoIntelligence />;
+    return <AppRouter />;
 }

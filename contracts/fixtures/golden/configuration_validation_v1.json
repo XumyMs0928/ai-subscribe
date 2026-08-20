@@ -1,0 +1,35 @@
+{
+  "scenario": "configuration_validation_v1",
+  "input": {
+    "contract_version": 1,
+    "tracks": [{ "id": "rust", "name": "Rust", "enabled": true }],
+    "include_expression": "Rust AND \"release notes\"",
+    "exclude_expression": "deprecated OR abandoned",
+    "source_preferences": [
+      {
+        "source_kind": "rss",
+        "identifier": "https://example.com/feed.xml",
+        "enabled": true,
+        "trust": 90
+      }
+    ],
+    "refresh_enabled": true,
+    "refresh_interval_minutes": 60,
+    "minimum_trust": 40,
+    "maximum_trust": 100,
+    "alert_threshold": 80,
+    "quiet_hours": { "enabled": true, "start": "23:00", "end": "07:00" },
+    "notification_frequency": { "enabled": true, "max_per_24h": 5 },
+    "active_from": "2026-01-01T00:00:00Z",
+    "active_until": "2027-01-01T00:00:00Z"
+  },
+  "expected": {
+    "contract_version": 1,
+    "blocking_errors": [],
+    "narrowing_risks": [],
+    "validator_version": "attention-configuration-v1",
+    "normalized_config_hash": "5cf8c0c19ab58c18926a882eb24e4a23472434500ca8aaca6de550d68b223d87",
+    "validation_receipt": null
+  },
+  "forbidden_fields": ["force", "force_save", "persisted_receipt"]
+}

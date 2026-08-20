@@ -2,7 +2,7 @@
 title: EXPERIENCE
 status: complete
 created: '2026-08-11'
-updated: '2026-08-12'
+updated: '2026-08-17'
 project: ai-subscribe
 design_source: './DESIGN.md'
 source_documents:
@@ -26,6 +26,12 @@ supported_platforms:
 # EXPERIENCE
 
 本文档是 ai-subscribe 的实现级行为契约。视觉值不得在此重新定义，统一引用 [`DESIGN.md`](DESIGN.md)。完整设计理由见 [`../ux-design-specification.md`](../ux-design-specification.md)。
+
+## Phase 1 Journey
+
+第一阶段唯一必须闭环的生产旅程为：Windows 启动与演示理解 → 当前设备关注配置 → RSS/Atom 来源配置 → 前台手动同步 → 本轮最小结果 → 规范化/溯源/去重/透明规则 → 高价值主流 → 证据详情与系统浏览器原文。同步界面必须区分运行中、零结果、存在结果、部分失败、完全失败和可重试状态，并明确当前设备作用域。
+
+GitHub Release、arXiv、GitHub 项目发现、AI、通知、反馈、处理状态、全文搜索、收藏、托盘及移动端旅程全部保留为 Deferred，不得显示无功能入口。本阶段通过只表示 Windows RSS 最小闭环通过，不表示跨平台 MVP 完成。
 
 ## Users And Journeys
 
@@ -145,14 +151,14 @@ supported_platforms:
 
 验收：破坏性操作不可由手势独占；删除后正文、索引和可恢复残留为 0。
 
-### Flow 7 — MVP source delivery readiness
+### Flow 7 — Full product source delivery readiness（Deferred）
 
 1. 来源总览逐项展示 RSS/Atom、GitHub Release、arXiv 的交付与运行状态。
 2. 每一类来源分别呈现未交付、未配置、可用、同步中、限流、失败、停用和待重试状态；失败不覆盖其他来源结果。
-3. 三类来源全部达到候选构建验收条件前，不展示“Phase 1 已完成”或“全部来源就绪”。
+3. 三类来源全部达到候选构建验收条件前，不展示“完整产品三来源已就绪”。当前第一阶段只以 RSS/Atom 判断 `Windows RSS minimum-loop`，不得借此宣称三来源完成。
 4. 用户可以进入具体来源查看最后成功时间、影响范围、退避条件和独立恢复动作。
 
-验收：三类来源逐项可见且均可独立诊断；汇总状态不得掩盖缺失或失败；任一类未达到门禁时 Phase 1 完成状态必须为阻塞。
+验收：本 Flow 属后续完整产品阶段。当前第一阶段只要求 RSS/Atom 逐项可见、可诊断；GitHub Release/arXiv 不显示为失败、未配置或阻塞。
 
 ### Flow 8 — Controlled mobile test distribution
 
@@ -313,7 +319,7 @@ supported_platforms:
 - 刷新已有内容时保留内容，只更新局部状态。
 - AI 分析时保留原始标题、来源和必要摘录，显示“等待分析/分析中”。
 - 加载超过合理时间后切换为明确状态说明和可执行动作，不无限显示 Skeleton。
-- 使用平台 busy/live 语义；高频进度变化不得反复打断屏幕阅读器。
+- 使用稳定状态语义；高频进度变化不得反复抢占焦点或遮挡当前操作。
 - 发现执行中保留既有结果和 Release 状态；分页进度只更新订阅局部区域，不锁定来源管理或主情报流。
 
 ### Error
@@ -363,17 +369,17 @@ supported_platforms:
 - 可见焦点遵循 [`DESIGN.md`](DESIGN.md) 的 `focus.default`；不得存在焦点陷阱。
 - Radix/覆盖层实现焦点进入、循环、Esc 关闭和触发器恢复。
 - Windows 重复启动恢复现有窗口后移动辅助技术焦点到原有活动上下文；若仅能请求任务栏关注，不得误播报已创建新窗口。
-- 验证 NVDA、Windows 高对比度、浅/深主题及 100%、125%、150%、175%、200% 缩放。
+- 验证键盘、Windows 高对比度、浅/深主题及 100%、125%、150%、175%、200% 缩放；真实系统矩阵仅在专用发布测试机或隔离虚拟机执行，普通开发 Story 使用等效视口、UIA 与默认环境 smoke。
 
 ### Apple
 
-- 支持 VoiceOver、Voice Control、Switch Control、Full Keyboard Access、Dynamic Type、Increase Contrast、Button Shapes 和 Reduce Motion。
+- 支持 Voice Control、Switch Control、Full Keyboard Access、Dynamic Type、Increase Contrast、Button Shapes 和 Reduce Motion；当前产品不承诺盲人屏幕阅读器支持。
 - 默认触控目标以 44×44pt 为目标；小于目标的视觉控件扩大可点击区域。
 - NavigationSplitView 折叠、分屏、Stage Manager 和方向变化后保持上下文。
 
 ### Android
 
-- 支持 TalkBack、Switch Access、Voice Access、字体/显示缩放和 Reduce Motion。
+- 支持 Switch Access、Voice Access、字体/显示缩放和 Reduce Motion；当前产品不承诺盲人屏幕阅读器支持。
 - 核心触控目标不得小于 48×48dp。
 - Compose Semantics 明确角色、名称、状态、动作、窗格和遍历顺序；检查合并与未合并语义树。
 - 验证预测性返回、Window Insets、折叠/展开、多窗口和动态 Window Size Class。
@@ -400,7 +406,7 @@ supported_platforms:
 - 情报重要度、AI 处理、来源可用性、同步健康、权限、任务恢复和设备本地范围采用可判别状态；禁止矛盾布尔组合。
 - 共享深链目标至少包含情报稳定标识和安全回退目的地；解析失败进入“目标不可用”状态。
 - 所有写操作定义 idle/submitting/success/error 和幂等/重复提交行为。
-- `SourceDeliveryReadiness` 必须以 RSS/Atom、GitHub Release、arXiv 三个独立状态计算 Phase 1 门禁，禁止仅使用一个汇总布尔值。
+- 第一阶段 `SourceDeliveryReadiness` 只以 `rss_atom` 为 required source，并保留来源级状态；完整产品阶段再以 RSS/Atom、GitHub Release、arXiv 三个独立状态计算三来源门禁，禁止仅使用一个汇总布尔值。
 - `DistributionDisclosureStatus` 必须包含平台、构建版本、签名/安装资格、授权范围、七类隐私披露及阻塞原因。
 - FR59/NFR52：同步完成必须产出可消费结果摘要和最小规范化条目入口，完整成功、部分成功、零候选与 AI 失败均有固定验收状态。
 - FR60/NFR53：处理状态采用“未查看/已判断/待研究”三态可判别模型，并与收藏、选择、价值反馈和 AI 状态正交持久化；仅浏览或打开详情不得触发转换。
@@ -429,8 +435,8 @@ supported_platforms:
 5. 修改规则、处理风险警告和保存失败。
 6. 离线、单源失败、AI 超时、限流与恢复。
 7. 通知前台/后台/冷启动深链及目标不可用回退。
-8. 键盘或屏幕阅读器完成核心任务。
-9. RSS/Atom、GitHub Release、arXiv 三类来源逐项完成配置、同步、失败隔离、独立重试和 Phase 1 门禁判断。
+8. 键盘、触控或适用的平台输入方式完成核心任务。
+9. 第一阶段完成 RSS/Atom 来源级配置、同步、失败隔离、独立重试和 Windows RSS 门禁判断；GitHub Release、arXiv 的同类验收延期到完整产品阶段。
 10. iOS/iPadOS 与 Android 候选构建验证签名/安装资格、授权对象及七类隐私披露；任一缺失时阻止受控测试分发。
 11. 同步完整成功、部分成功、零候选和 AI 失败时均能消费结果并进入最小规范化条目或来源诊断。
 12. 三种处理状态与收藏/未收藏构成六种组合，修改、重启和筛选后仍保持独立，浏览列表或打开详情不改变状态。
@@ -439,4 +445,4 @@ supported_platforms:
 15. Windows 在窗口可见、最小化和托盘隐藏时重复启动，均只恢复并聚焦现有可交互实例且上下文不重置。
 16. 创建含赛道、语言、Topic、Star/Fork 当前与增长条件的 GitHub 发现订阅；验证基线/首次发现/首次跨门槛分类、命中依据、手动与多订阅身份合并、忽略/停用/转固定、仓库重命名，以及发现故障不影响既有 Release 同步。
 
-组件层使用 Storybook/Xcode Preview/Compose Preview 覆盖状态；行为层使用各平台 UI 自动化；最终以 NVDA、VoiceOver、TalkBack 和真实设备测试作为运行时门禁。现有 HTML 文件只是可切换视觉预览，不能作为上述行为验收证据。
+组件层使用 Storybook/Xcode Preview/Compose Preview 覆盖状态；行为层使用各平台 UI 自动化；最终以键盘/触控、焦点、动态字体或显示缩放、高对比度、减弱动画和真实设备测试作为运行时门禁。当前产品不设置盲人屏幕阅读器门禁；现有 HTML 文件只是可切换视觉预览，不能作为上述行为验收证据。

@@ -13,20 +13,50 @@ pub enum ErrorCode {
     ValidationRfc3339Utc,
     ValidationEffectStatus,
     ValidationSecretLease,
+    ValidationSetupInput,
+    ValidationConfiguration,
+    ValidationStaleReceipt,
+    ValidationSource,
     ConflictEffectAlreadyReported,
     ConflictSecretLeaseConsumed,
+    ConflictSetupRevision,
+    ConflictConfigurationRevision,
+    ConflictSourceRevision,
+    NetworkSource,
+    RateLimitedSource,
+    SourceFormatRssAtom,
+    StorageSetup,
+    StorageConfiguration,
+    StorageSource,
+    MigrationSetup,
+    MigrationSource,
     InternalUnexpected,
 }
 
 impl ErrorCode {
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 23] = [
         Self::ValidationEffectId,
         Self::ValidationIdempotencyKey,
         Self::ValidationRfc3339Utc,
         Self::ValidationEffectStatus,
         Self::ValidationSecretLease,
+        Self::ValidationSetupInput,
+        Self::ValidationConfiguration,
+        Self::ValidationStaleReceipt,
+        Self::ValidationSource,
         Self::ConflictEffectAlreadyReported,
         Self::ConflictSecretLeaseConsumed,
+        Self::ConflictSetupRevision,
+        Self::ConflictConfigurationRevision,
+        Self::ConflictSourceRevision,
+        Self::NetworkSource,
+        Self::RateLimitedSource,
+        Self::SourceFormatRssAtom,
+        Self::StorageSetup,
+        Self::StorageConfiguration,
+        Self::StorageSource,
+        Self::MigrationSetup,
+        Self::MigrationSource,
         Self::InternalUnexpected,
     ];
 
@@ -38,8 +68,23 @@ impl ErrorCode {
             Self::ValidationRfc3339Utc => "validation.rfc3339_utc",
             Self::ValidationEffectStatus => "validation.effect_status",
             Self::ValidationSecretLease => "validation.secret_lease",
+            Self::ValidationSetupInput => "validation.setup_input",
+            Self::ValidationConfiguration => "validation.configuration",
+            Self::ValidationStaleReceipt => "validation.stale_validation_receipt",
+            Self::ValidationSource => "validation.source",
             Self::ConflictEffectAlreadyReported => "conflict.effect_already_reported",
             Self::ConflictSecretLeaseConsumed => "conflict.secret_lease_consumed",
+            Self::ConflictSetupRevision => "conflict.setup_revision",
+            Self::ConflictConfigurationRevision => "conflict.configuration_revision",
+            Self::ConflictSourceRevision => "conflict.source_revision",
+            Self::NetworkSource => "network.source",
+            Self::RateLimitedSource => "rate_limited.source",
+            Self::SourceFormatRssAtom => "source_format.rss_atom",
+            Self::StorageSetup => "storage.setup",
+            Self::StorageConfiguration => "storage.configuration",
+            Self::StorageSource => "storage.source",
+            Self::MigrationSetup => "migration.setup",
+            Self::MigrationSource => "migration.source",
             Self::InternalUnexpected => "internal.unexpected",
         }
     }
@@ -50,10 +95,23 @@ impl ErrorCode {
             | Self::ValidationIdempotencyKey
             | Self::ValidationRfc3339Utc
             | Self::ValidationEffectStatus
-            | Self::ValidationSecretLease => ErrorCategory::Validation,
-            Self::ConflictEffectAlreadyReported | Self::ConflictSecretLeaseConsumed => {
-                ErrorCategory::Conflict
+            | Self::ValidationSecretLease
+            | Self::ValidationSetupInput
+            | Self::ValidationConfiguration
+            | Self::ValidationStaleReceipt
+            | Self::ValidationSource => ErrorCategory::Validation,
+            Self::ConflictEffectAlreadyReported
+            | Self::ConflictSecretLeaseConsumed
+            | Self::ConflictSetupRevision
+            | Self::ConflictConfigurationRevision
+            | Self::ConflictSourceRevision => ErrorCategory::Conflict,
+            Self::NetworkSource => ErrorCategory::Network,
+            Self::RateLimitedSource => ErrorCategory::RateLimited,
+            Self::SourceFormatRssAtom => ErrorCategory::SourceFormat,
+            Self::StorageSetup | Self::StorageConfiguration | Self::StorageSource => {
+                ErrorCategory::Storage
             }
+            Self::MigrationSetup | Self::MigrationSource => ErrorCategory::Migration,
             Self::InternalUnexpected => ErrorCategory::Internal,
         }
     }
@@ -61,6 +119,8 @@ impl ErrorCode {
     const fn retryability(self) -> Retryability {
         match self.category() {
             ErrorCategory::Conflict | ErrorCategory::Internal => Retryability::Manual,
+            ErrorCategory::Network => Retryability::Automatic,
+            ErrorCategory::RateLimited => Retryability::After,
             _ => Retryability::Never,
         }
     }
@@ -69,6 +129,9 @@ impl ErrorCode {
         match self.category() {
             ErrorCategory::Validation => "error.validation",
             ErrorCategory::Conflict => "error.conflict",
+            ErrorCategory::Network => "error.network.source",
+            ErrorCategory::RateLimited => "error.rate_limited.source",
+            ErrorCategory::SourceFormat => "error.source_format.rss_atom",
             _ => "error.internal",
         }
     }
@@ -203,6 +266,51 @@ impl AppError {
             ErrorCode::InternalUnexpected,
             format!("{boundary}-{sequence:016x}"),
         )
+    }
+
+    /// Attaches an already validated opaque source identity without exposing endpoint data.
+    #[must_use]
+    pub fn with_source_id(mut self, source_id: impl Into<String>) -> Self {
+        let value = source_id.into();
+        if !value.is_empty()
+            && value.len() <= 128
+            && value.bytes().all(|byte| {
+                byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b':' | b'.')
+            })
+        {
+            self.source_id = Some(value.into_boxed_str());
+        }
+        self
+    }
+
+    /// Attaches an already validated opaque task identity without exposing request data.
+    #[must_use]
+    pub fn with_task_id(mut self, task_id: impl Into<String>) -> Self {
+        let value = task_id.into();
+        if !value.is_empty()
+            && value.len() <= 128
+            && value.bytes().all(|byte| {
+                byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b':' | b'.')
+            })
+        {
+            self.task_id = Some(value.into_boxed_str());
+        }
+        self
+    }
+
+    /// Attaches a numeric, non-sensitive server retry delay for source scheduling.
+    #[must_use]
+    pub fn with_retry_after_ms(mut self, retry_after_ms: u64) -> Self {
+        self.details_allowlisted = format!("retry_after_ms={retry_after_ms}").into_boxed_str();
+        self
+    }
+
+    #[must_use]
+    pub fn retry_after_ms(&self) -> Option<u64> {
+        self.details_allowlisted
+            .strip_prefix("retry_after_ms=")?
+            .parse()
+            .ok()
     }
 
     #[must_use]

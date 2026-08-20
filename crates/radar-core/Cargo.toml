@@ -10,9 +10,17 @@ name = "radar_core"
 path = "src/lib.rs"
 
 [dependencies]
+getrandom = "=0.3.4"
+ipnet = "=2.12.1"
+quick-xml = "=0.41.0"
+reqwest = { version = "=0.13.4", default-features = false, features = ["rustls-no-provider", "stream"] }
+rustls = { version = "=0.23.43", default-features = false, features = ["ring", "std", "tls12"] }
 rusqlite = { version = "=0.40.1", features = ["bundled"] }
 serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+tokio = { version = "=1.53.1", features = ["net", "time"] }
+url = "=2.5.8"
 zeroize = "=1.9.0"
 
 [lints]

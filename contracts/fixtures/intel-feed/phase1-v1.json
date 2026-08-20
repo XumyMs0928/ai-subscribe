@@ -1,0 +1,59 @@
+{
+  "contract_version": 1,
+  "query": {
+    "contract_version": 1,
+    "stream": "high_value",
+    "filters": {
+      "track_ids": ["ai_agents"],
+      "source_ids": ["source:111111111111111111111111"],
+      "time_window": "last_7d",
+      "importance": ["high"]
+    },
+    "sort": "score_desc",
+    "cursor": null,
+    "limit": 30
+  },
+  "items": {
+    "high_value": {
+      "contract_version": 1,
+      "intel_item_id": "intel:1111111111111111111111111111111111111111111111111111111111111111",
+      "source_id": "source:111111111111111111111111",
+      "source_kind": "rss_atom",
+      "publisher": "publisher.example",
+      "title": "AI agent security release",
+      "source_excerpt": "A bounded source excerpt.",
+      "excerpt_truncated": false,
+      "published_at": "2026-08-20T08:00:00Z",
+      "collected_at": "2026-08-20T08:05:00Z",
+      "importance": "high",
+      "score": 95,
+      "matched_track_ids": ["ai_agents"],
+      "stream_disposition": "high_value",
+      "ai_status": "unavailable"
+    },
+    "ordinary_candidate": {
+      "contract_version": 1,
+      "intel_item_id": "intel:2222222222222222222222222222222222222222222222222222222222222222",
+      "source_id": "source:111111111111111111111111",
+      "source_kind": "rss_atom",
+      "publisher": "publisher.example",
+      "title": "Quarterly community note",
+      "source_excerpt": null,
+      "excerpt_truncated": false,
+      "published_at": null,
+      "collected_at": "2026-08-20T08:05:00Z",
+      "importance": "medium",
+      "score": 50,
+      "matched_track_ids": [],
+      "stream_disposition": "ordinary_candidate",
+      "ai_status": "unavailable"
+    }
+  },
+  "rules": {
+    "cross_dimension": "and",
+    "within_dimension": "or",
+    "sort": "score_desc_item_id_asc",
+    "cursor": "projection_and_filter_bound",
+    "excerpt_max_chars": 280
+  }
+}

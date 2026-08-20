@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "review": "agentic-test-review-post-fix",
+  "scope": {
+    "files": 3,
+    "execution": "static read-only review; tests were not run"
+  },
+  "fixes": [
+    {
+      "file": "crates/radar-core/tests/demo_catalog.rs",
+      "status": "closed",
+      "previous_violations": [
+        "fixed-file-path-race",
+        "shared-database-without-cleanup"
+      ],
+      "evidence": [
+        "ScopedTestDir creates a per-process and per-sequence directory",
+        "create_dir collision retries instead of sharing an existing directory",
+        "Drop removes the scoped directory",
+        "the file-backed test opens ai-subscribe.sqlite3 inside that scoped directory"
+      ]
+    },
+    {
+      "file": "crates/xtask/tests/generated_contract_gate_negative.rs",
+      "status": "closed",
+      "previous_violation": "test-too-long",
+      "function": "xtask_rejects_windows_boundary_mutations",
+      "current_lines": 78,
+      "line_range": "306-383 inclusive",
+      "evidence": [
+        "The test is below the 100-line threshold",
+        "Repeated TempDir/write/check/assert logic is extracted to assert_boundary_rejected at line 64",
+        "The bundled test-source behavior is separated into xtask_rejects_production_imports_of_test_named_sources"
+      ]
+    },
+    {
+      "file": "tests/e2e/story-1-6-demo-intelligence.spec.ts",
+      "status": "closed",
+      "previous_violation": "repeated-navigation-and-list-locator",
+      "evidence": [
+        "openDemoCatalog is defined at line 27",
+        "It is actually reused five times at lines 56, 68, 94, 145, and 181",
+        "Remaining direct navigation is scenario-specific for Given test-step narration or the initial command-error state"
+      ]
+    }
+  ],
+  "remaining_violations": [],
+  "summary": "All three targeted determinism, isolation, and maintainability findings are closed by static evidence. No remaining violation in the requested post-fix scope."
+}

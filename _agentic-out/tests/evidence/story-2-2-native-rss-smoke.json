@@ -1,0 +1,14 @@
+{
+    "passed":  true,
+    "measured_at_utc":  "2026-08-18T06:34:19.1204373Z",
+    "build_kind":  "release-candidate-no-test-transport",
+    "candidate_sha256":  "5AF44FFD9D352A68A4D798D55A738B7AFD75F180C7724E9AD75CBB63DE0CEB19",
+    "data_root":  "target\\story-1-6-benchmark\\rss-smoke-20260818-063411-927",
+    "query_ipc_observed":  true,
+    "rejected_save_ipc_observed":  true,
+    "rejected_code":  "validation.source",
+    "post_rejection_source_count":  0,
+    "database_created":  true,
+    "system_settings_changed":  false,
+    "process_tree_zero":  true
+}

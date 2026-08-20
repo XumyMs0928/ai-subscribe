@@ -1,0 +1,53 @@
+{
+  "dimension": "determinism",
+  "score": 95,
+  "max_score": 100,
+  "grade": "A",
+  "scope": {
+    "files_reviewed": 22,
+    "runtime_tests": 75,
+    "excluded": [
+      "vendor",
+      "node_modules",
+      ".toolchains",
+      "target",
+      "dist",
+      "report artifacts"
+    ],
+    "execution": "static analysis only; tests were not run"
+  },
+  "violations": [
+    {
+      "file": "crates/radar-core/tests/demo_catalog.rs",
+      "line": 112,
+      "severity": "MEDIUM",
+      "category": "fixed-file-path-race",
+      "description": "The file-backed SQLite test always opens the same target/story-1-6-file-backed-test/ai-subscribe.sqlite3 path. Concurrent test processes or a previously interrupted run can share or lock that database, making the outcome depend on external filesystem state.",
+      "suggestion": "Create a per-test directory or filename using a scoped temporary-directory helper, process ID plus atomic sequence, and automatic cleanup; keep the independent in-memory SQLite tests unchanged.",
+      "code_snippet": "join ../../target/story-1-6-file-backed-test/ai-subscribe.sqlite3"
+    }
+  ],
+  "passed_checks": 9,
+  "failed_checks": 1,
+  "total_checks": 10,
+  "violation_summary": {
+    "HIGH": 0,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "determinism_evidence": {
+    "random_sources": "No Math.random, rand, or unseeded random source in the 22-file scope.",
+    "time_dependencies": "No unmocked current-time assertion; demo timestamps are fixed fixtures and are not random.",
+    "hard_waits": "No waitForTimeout or sleep-based synchronization.",
+    "ordering": "SQLite catalog queries under test use explicit ORDER BY clauses.",
+    "concurrency": "The 64-worker FFI test uses a Barrier and joins every handle; assertions depend on uniqueness/prefix rather than scheduling order.",
+    "temporary_paths": "xtask sandboxes combine process ID and an atomic sequence and clean up on Drop; Windows credential targets use process ID plus atomic round. Only the file-backed demo SQLite case uses a cross-run fixed path.",
+    "external_calls": "Browser tests replace Tauri/network behavior with deterministic fixtures and condition-based assertions."
+  },
+  "recommendations": [
+    "Give the file-backed demo database a unique scoped path per test process and remove it through automatic teardown.",
+    "Keep fixed demo values and explicit SQL ordering.",
+    "Retain Barrier plus join synchronization for concurrent correlation-ID assertions."
+  ],
+  "summary": "The suite is strongly deterministic with one medium fixed-path race. Fixed demo values are intentional fixtures; OS time is not used for assertions, temporary test namespaces are otherwise process-scoped, and concurrent workers are explicitly synchronized."
+}

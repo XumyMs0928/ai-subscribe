@@ -5,6 +5,18 @@ use std::fmt::Write as _;
 use radar_core::contracts::dto::HealthStatus;
 use radar_core::contracts::errors::AppError;
 
+pub use radar_core::contracts::dto::configuration_validation::{
+    AttentionConfigurationV1 as AttentionConfigurationWireV1,
+    ConfigurationValidationResultV1 as ConfigurationValidationResultWireV1,
+    ConfigurationViewV1 as ConfigurationViewWireV1,
+    SaveConfigurationInputV1 as SaveConfigurationInputWireV1,
+    ValidateConfigurationInputV1 as ValidateConfigurationInputWireV1,
+};
+pub use radar_core::contracts::dto::source::{
+    SaveSourceInputV1 as SaveSourceInputWireV1, SourcePageV1 as SourcePageWireV1,
+    SourceViewV1 as SourceViewWireV1,
+};
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HealthStatusWire {
     pub contract_version: u32,

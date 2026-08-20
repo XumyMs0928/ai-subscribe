@@ -1,25 +1,31 @@
 {
-  "story": "1.1",
-  "detected_stack": "backend",
-  "execution_mode": "integrated",
-  "worker_mode": "subagent",
-  "generated_tests": 18,
-  "total_suite_tests": 27,
-  "api_tests": 0,
-  "backend_tests": 18,
-  "generated_files": 4,
-  "fixtures_created": 1,
-  "priority_coverage": {
-    "P0": 12,
-    "P1": 6,
-    "P2": 0,
-    "P3": 0
+  "story": "4.3",
+  "detected_stack": "fullstack",
+  "delta_scope": "backend-only-rust-sqlite",
+  "generation": {
+    "total_validation_targets": 0,
+    "new_tests": 0,
+    "enhanced_tests": 0,
+    "api_tests": 0,
+    "e2e_tests": 0,
+    "backend_tests": 0,
+    "fixtures_created": 0,
+    "reason": "Strict deduplication found no independent coverage gap after Story 4.3 implementation and code-review regression tests."
   },
-  "validation": {
-    "rustfmt": "pass",
-    "clippy": "pass",
-    "workspace_tests": "27 passed, 0 failed",
-    "contract_gate": "pass",
-    "burn_in": "5/5 passed"
-  }
+  "targeted_generation_validation": {
+    "passed": 0,
+    "failed": 0,
+    "tests": []
+  },
+  "scope": {
+    "delivery": "windows-first-rss-minimum-loop",
+    "mobile": "deferred",
+    "http_api": "not_applicable",
+    "new_ipc": "not_applicable",
+    "new_ui_or_route": "not_applicable",
+    "native_gui_smoke": "deferred_to_phase_1_final_candidate_by_user",
+    "cold_start_30_sample_p95": "deferred_to_phase_1_final_candidate_by_user"
+  },
+  "execution": "Integrated parallel subagent mode. API, E2E, and backend workers independently returned zero new tests after strict deduplication.",
+  "success": true
 }

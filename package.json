@@ -12,8 +12,10 @@
     "typecheck": "pnpm --filter @ai-subscribe/windows typecheck",
     "test": "pnpm --filter @ai-subscribe/windows test",
     "build": "pnpm --filter @ai-subscribe/windows build",
-    "test:e2e": "set PLAYWRIGHT_BROWSERS_PATH=.toolchains\\playwright-browsers&& playwright test",
-    "test:e2e:install": "set PLAYWRIGHT_BROWSERS_PATH=.toolchains\\playwright-browsers&& playwright install chromium --no-shell"
+    "test:e2e": ".toolchains\\node\\node.exe scripts\\playwright-run.mjs",
+    "test:e2e:p0": ".toolchains\\node\\node.exe scripts\\playwright-run.mjs --grep \"\\[P0\\]\"",
+    "test:e2e:p1": ".toolchains\\node\\node.exe scripts\\playwright-run.mjs --grep \"\\[P0\\]|\\[P1\\]\"",
+    "test:e2e:install": "set NO_COLOR=&& set PLAYWRIGHT_BROWSERS_PATH=.toolchains\\playwright-browsers&& playwright install chromium --no-shell"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"

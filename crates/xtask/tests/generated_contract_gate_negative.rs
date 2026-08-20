@@ -3,7 +3,9 @@ mod contracts_under_test {
 
     #[cfg(test)]
     mod generated_tests {
-        use super::{check_boundaries, check_equal, compact_json, run_from_args};
+        use super::{
+            APPROVED_TAURI_COMMANDS, check_boundaries, check_equal, compact_json, run_from_args,
+        };
         use radar_core::application::demo::validate_demo_fixture;
         use std::fs;
         use std::io;
@@ -59,6 +61,14 @@ mod contracts_under_test {
             }
             fs::write(&path, contents).expect("test file must be written");
             path
+        }
+
+        fn assert_boundary_rejected(relative: &str, contents: &str, expected: &str) {
+            let temp = TempDir::new("windows-mutation");
+            write_file(temp.path(), relative, contents);
+            let error =
+                check_boundaries(temp.path()).expect_err("Windows boundary mutation must fail");
+            assert!(error.contains(expected), "{relative}: {error}");
         }
 
         #[cfg(windows)]
@@ -251,6 +261,21 @@ mod contracts_under_test {
                     ["[dependencies]", &["rus", "qlite = \"0.1\""].concat()].join("\n"),
                     ["rus", "qlite"].concat(),
                 ),
+                (
+                    "crates/radar-core/src/application/unapproved_repository.rs",
+                    ["use ", "rus", "qlite::Connection;"].concat(),
+                    ["rus", "qlite"].concat(),
+                ),
+                (
+                    "crates/radar-core/src/application/intel_feed.rs",
+                    [
+                        "use ",
+                        "rus",
+                        "qlite::Connection;\n#[cfg(test)] mod tests {}",
+                    ]
+                    .concat(),
+                    ["rus", "qlite"].concat(),
+                ),
             ];
             for (relative, contents, expected_pattern) in content_cases {
                 let temp = TempDir::new("scope-content");
@@ -261,10 +286,15 @@ mod contracts_under_test {
             }
         }
 
-        /// [P0] The approved Story 1.6 Windows shell remains allowed.
+        /// [P0] The approved Story 2.1 Windows shell remains allowed.
         #[test]
         fn xtask_allows_the_minimal_windows_shell() {
             let temp = TempDir::new("windows-allowlist");
+            write_file(
+                temp.path(),
+                ".env.example",
+                "TEST_ENV=local\nBASE_URL=http://127.0.0.1:4173\n",
+            );
             write_file(
                 temp.path(),
                 "apps/windows/src/lib/desktop-api/tauri-desktop-api.ts",
@@ -272,18 +302,14 @@ mod contracts_under_test {
             );
             write_file(
                 temp.path(),
-                "apps/windows/src-tauri/src/lib.rs",
-                concat!(
-                    "fn register() { tauri::generate_handler![",
-                    "commands::health_v1,",
-                    "commands::demo_bootstrap_v1,",
-                    "commands::demo_search_v1,",
-                    "commands::demo_list_v1,",
-                    "commands::demo_filter_v1,",
-                    "commands::demo_detail_v1",
-                    "]; }"
-                ),
+                "apps/windows/src/features/configuration-validation/configuration-editor.tsx",
+                "export const ConfigurationEditor = () => null;",
             );
+            let tauri_lib = format!(
+                "fn register() {{ tauri::generate_handler![{}]; }}",
+                APPROVED_TAURI_COMMANDS.trim()
+            );
+            write_file(temp.path(), "apps/windows/src-tauri/src/lib.rs", &tauri_lib);
 
             check_boundaries(temp.path()).expect("approved Windows shell must pass");
         }
@@ -338,6 +364,21 @@ mod contracts_under_test {
                     "raw Tauri invoke",
                 ),
                 (
+                    "apps/windows/src/app/shell/aliased.mts",
+                    "const { invoke: call } = window.__TAURI_INTERNALS__; call(\"health_v1\");",
+                    "raw Tauri invoke",
+                ),
+                (
+                    "apps/windows/src/app/shell/optional.cts",
+                    "window.__TAURI_INTERNALS__.invoke?.(\"health_v1\");",
+                    "raw Tauri invoke",
+                ),
+                (
+                    "apps/windows/src/app/shell/component.jsx",
+                    "window.__TAURI_INTERNALS__[\"invoke\"](\"health_v1\");",
+                    "raw Tauri invoke",
+                ),
+                (
                     "apps/windows/src/gen/hidden.ts",
                     "export const hidden = true;",
                     "out-of-scope Windows surface",
@@ -353,6 +394,11 @@ mod contracts_under_test {
                     "forbidden project artifact",
                 ),
                 (
+                    "apps/windows/src/app/shell/.env.example",
+                    "API_KEY=private-runtime-value",
+                    "forbidden sensitive file",
+                ),
+                (
                     "apps/windows/src/test/fixtures/health_success_v1.json",
                     "{}",
                     "copied contract fixture",
@@ -365,13 +411,13 @@ mod contracts_under_test {
             ];
 
             for (relative, contents, expected) in cases {
-                let temp = TempDir::new("windows-mutation");
-                write_file(temp.path(), relative, contents);
-                let error =
-                    check_boundaries(temp.path()).expect_err("Windows boundary mutation must fail");
-                assert!(error.contains(expected), "{relative}: {error}");
+                assert_boundary_rejected(relative, contents, expected);
             }
+        }
 
+        /// [P0] Production imports cannot make a test-named source module exempt from scanning.
+        #[test]
+        fn xtask_rejects_production_imports_of_test_named_sources() {
             let temp = TempDir::new("bundled-test-source");
             write_file(
                 temp.path(),

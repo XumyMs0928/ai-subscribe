@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "evidence_story": "story-2-2",
+  "run_root": "target\\story-1-6-benchmark\\20260818-064107-362",
+  "observed_sample_directories": 30,
+  "first_sample": "sample-001",
+  "last_sample": "sample-030",
+  "functional_completion_observed": true,
+  "candidate_processes_after_recovery": 0,
+  "timing_summary_available": false,
+  "p50_ms": null,
+  "p95_ms": null,
+  "performance_gate": "not_recoverable",
+  "reason": "All 30 sample directories were completed, but the PowerShell 5.1-incompatible final hash conversion failed after sampling. The previous script retained exact durations only in process memory and wrote neither a run manifest nor per-sample timing records, so exact percentiles cannot be reconstructed without fabricating data.",
+  "candidate_sha256_observed_after_run": "AE1C023AC48F1C97D8D607D9E4EF623CED79A5DE3157CD54529A61153475C2C7",
+  "candidate_provenance_bound": false,
+  "source_provenance_bound": false,
+  "rerun_performed": false,
+  "remediation": "windows-demo-smoke.ps1 now persists a provenance manifest before sampling and one sample-result.json after every clean sample. windows-demo-aggregate.ps1 can aggregate those records offline without launching the application."
+}

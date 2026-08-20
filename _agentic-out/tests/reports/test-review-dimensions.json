@@ -1,0 +1,29 @@
+{
+  "story": "2.1",
+  "reviewed_files": 13,
+  "static_test_cases": 76,
+  "overall_score": 99,
+  "overall_grade": "A",
+  "dimension_scores": {
+    "determinism": 100,
+    "isolation": 100,
+    "maintainability": 95,
+    "performance": 100
+  },
+  "violations_summary": {
+    "total": 1,
+    "HIGH": 0,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "remaining_findings": [
+    {
+      "file": "tests/support/fixtures/demo-app.fixture.ts",
+      "line": 97,
+      "severity": "MEDIUM",
+      "category": "large-setup-block",
+      "disposition": "non_blocking_follow_up_story_2_2"
+    }
+  ],
+  "success": true
+}

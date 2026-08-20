@@ -1,0 +1,44 @@
+{
+  "story": "2.1",
+  "delivery_scope": "windows-first",
+  "generated_at_utc": "2026-08-17T12:32:21Z",
+  "native_configuration_smoke": {
+    "passed": true,
+    "candidate_sha256": "f1792aa6d4fc7d26cacf44a9299a2ae9e0698578b034fd821748a426d48a976e",
+    "raw_evidence": "_agentic-out/tests/evidence/story-2-1-native-configuration.json",
+    "assertions": [
+      "blocking_error_focus",
+      "blocking_does_not_persist",
+      "risk_requires_confirmation",
+      "risk_return_restores_focus",
+      "confirmed_configuration_survives_restart",
+      "owned_process_tree_is_clean"
+    ],
+    "system_theme": "not_measured",
+    "system_scaling": "not_measured",
+    "external_permissions": "not_measured"
+  },
+  "cold_start": {
+    "passed": true,
+    "candidate_sha256": "f1792aa6d4fc7d26cacf44a9299a2ae9e0698578b034fd821748a426d48a976e",
+    "raw_evidence": "_agentic-out/tests/evidence/story-2-1-cold-start.json",
+    "samples": 30,
+    "successful_samples": 30,
+    "p50_ms": 1601.65,
+    "p95_ms": 1736.94,
+    "maximum_ms": 6465.48,
+    "threshold_ms": 5000,
+    "source_fingerprints_recorded": true,
+    "candidate_and_sources_unchanged_during_sampling": true,
+    "data_root_is_project_isolated": true
+  },
+  "toolchains": {
+    "rust": "1.97.1 project-local",
+    "node": "24.18.0 project-local",
+    "pnpm": "11.15.1 project-local",
+    "tauri_cli": "2.11.4",
+    "tauri_core": "2.11.5",
+    "target": "x86_64-pc-windows-msvc",
+    "webview2": "151.0.4129.86"
+  }
+}

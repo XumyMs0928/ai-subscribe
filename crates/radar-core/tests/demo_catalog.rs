@@ -1,6 +1,42 @@
 use radar_core::application::demo::{
     DataOrigin, DemoEffectPorts, DemoSideEffect, DemoStore, dispatch_origin_side_effects,
 };
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+
+static FILE_BACKED_SEQUENCE: AtomicU64 = AtomicU64::new(1);
+
+struct ScopedTestDir {
+    path: PathBuf,
+}
+
+impl ScopedTestDir {
+    fn new(label: &str) -> Self {
+        let parent =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/story-1-6-file-backed-test");
+        fs::create_dir_all(&parent).expect("file-backed test parent");
+        loop {
+            let sequence = FILE_BACKED_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+            let path = parent.join(format!("{label}-{}-{sequence}", std::process::id()));
+            match fs::create_dir(&path) {
+                Ok(()) => return Self { path },
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                Err(error) => panic!("file-backed test directory: {error}"),
+            }
+        }
+    }
+
+    fn path(&self) -> &Path {
+        &self.path
+    }
+}
+
+impl Drop for ScopedTestDir {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.path);
+    }
+}
 
 #[derive(Default)]
 struct Counters([u32; 5]);
@@ -73,7 +109,15 @@ fn shared_demo_fixture_seeds_once_and_is_queryable() {
     assert_eq!(filtered.items[0].track, "本地模型");
 
     let detail = store.detail("demo:openai-agents-sdk-001").expect("detail");
+    assert_eq!(detail.contract_version, 1);
+    assert_eq!(detail.dataset_id, "demo-v1");
     assert_eq!(detail.data_origin, DataOrigin::Demo);
+    assert_eq!(detail.importance.as_str(), "high");
+    assert_eq!(detail.ai_confidence_percent, 88);
+    assert!(!detail.facts.is_empty());
+    assert!(!detail.rule_reasons.is_empty());
+    assert_eq!(detail.provenance.source_kind, "official_release");
+    assert_eq!(detail.provenance.availability_status.as_str(), "available");
 
     let first_page = store.list_page(None, None, 2).expect("first page");
     assert_eq!(first_page.items.len(), 2);
@@ -83,6 +127,12 @@ fn shared_demo_fixture_seeds_once_and_is_queryable() {
     assert_eq!(second_page.items.len(), 1);
     assert!(second_page.next_cursor.is_none());
     assert!(store.list_page(None, Some("invalid"), 2).is_err());
+    assert!(
+        first_page
+            .next_cursor
+            .as_deref()
+            .is_some_and(|cursor| cursor.starts_with("v1:"))
+    );
 }
 
 #[test]
@@ -109,8 +159,8 @@ fn demo_and_real_namespaces_never_share_identity() {
 
 #[test]
 fn file_backed_demo_store_bootstraps_with_the_release_database_contract() {
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../target/story-1-6-file-backed-test/ai-subscribe.sqlite3");
+    let test_dir = ScopedTestDir::new("demo-catalog");
+    let path = test_dir.path().join("ai-subscribe.sqlite3");
     let mut store = DemoStore::open(&path).expect("file-backed demo store");
     assert_eq!(
         store

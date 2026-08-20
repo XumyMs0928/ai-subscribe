@@ -1,0 +1,32 @@
+{
+  "high_value": {
+  "contract_version": 1,
+  "rule_version": "rss-intelligence-value-v1",
+  "fact_revision": 3,
+  "configuration_revision": 7,
+  "configuration_hash": "a1c0f7f8b25e5a599d10c0c55228049697aa9c8a555c1210d9e2a442775d01f7",
+  "evaluated_at_ms": 1767268800000,
+  "score": 100,
+  "importance": "high",
+  "disposition": "high_value",
+  "matched_track_ids": ["foundation_models"],
+  "factors": [
+    { "factor": "track", "points": 25, "reason_codes": ["track.matched"] },
+    { "factor": "source_trust", "points": 25, "reason_codes": ["source_trust.configured"] },
+    { "factor": "freshness", "points": 20, "reason_codes": ["freshness.within_24h"] },
+    { "factor": "technical_impact", "points": 20, "reason_codes": ["technical_impact.model_capability", "technical_impact.technical_selection"] },
+    { "factor": "user_rule", "points": 10, "reason_codes": ["user_rule.include_satisfied"] }
+  ],
+  "filter_reasons": [],
+  "ai_status": "unavailable"
+  },
+  "scenario_expectations": [
+    { "name": "score_below_threshold", "disposition": "ordinary_candidate", "reason": "score_below_threshold" },
+    { "name": "exclude", "disposition": "ordinary_candidate", "reason": "exclude_expression_matched" },
+    { "name": "disabled_source", "disposition": "ordinary_candidate", "reason": "source_disabled" },
+    { "name": "untrusted_source", "disposition": "ordinary_candidate", "reason": "trust_outside_range" },
+    { "name": "no_track", "disposition": "ordinary_candidate", "reason": "track_not_matched" },
+    { "name": "technical_no_evidence", "technical_points": 0, "reason": "technical_impact.no_match" },
+    { "name": "ai_unavailable", "ai_status": "unavailable" }
+  ]
+}

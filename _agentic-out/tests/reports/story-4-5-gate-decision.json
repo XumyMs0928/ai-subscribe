@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "evaluated_at": "2026-08-20T16:38:00+08:00",
+  "repo": "ai-subscribe",
+  "target": { "type": "story", "id": "4.5", "label": "浏览高价值主情报流并组合筛选" },
+  "collection_status": "COLLECTED",
+  "gate_basis": "priority_thresholds",
+  "gate_status": "PASS",
+  "rationale": "P0 coverage is 100%, P1 coverage is 100% (target: 90%), and overall coverage is 100% (minimum: 80%).",
+  "p0_status": "MET",
+  "p1_status": "MET",
+  "overall_status": "MET",
+  "critical_open": 0,
+  "links": { "trace_report_path": "_agentic-out/tests/traceability-matrix.md" }
+}

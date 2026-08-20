@@ -1,0 +1,52 @@
+{
+  "dimension": "isolation",
+  "score": 90,
+  "max_score": 100,
+  "grade": "A-",
+  "scope": {
+    "files_reviewed": 22,
+    "runtime_tests": 75,
+    "excluded": [
+      "vendor",
+      "node_modules",
+      ".toolchains",
+      "target",
+      "dist",
+      "report artifacts"
+    ],
+    "execution": "static analysis only; tests were not run"
+  },
+  "violations": [
+    {
+      "file": "crates/radar-core/tests/demo_catalog.rs",
+      "line": 112,
+      "severity": "HIGH",
+      "category": "shared-database-without-cleanup",
+      "description": "The file-backed demo-store test uses one repository-wide SQLite path and never removes the database. Separate test processes or later runs therefore share persistent records and lock state.",
+      "suggestion": "Create a unique scoped test directory/database per process or test case and remove it in RAII teardown. Do not change the independent in-memory SQLite tests.",
+      "code_snippet": "target/story-1-6-file-backed-test/ai-subscribe.sqlite3"
+    }
+  ],
+  "passed_checks": 7,
+  "failed_checks": 1,
+  "total_checks": 8,
+  "violation_summary": {
+    "HIGH": 1,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "isolation_evidence": {
+    "environment_variables": "Child-test variables are applied with Command.env only; the parent process environment is not mutated and needs no restoration.",
+    "credential_manager": "Targets use a fixed test-only namespace plus process ID and atomic round. CredentialCleanup deletes on scope exit, the child also explicitly deletes, and the parent probes absence before and after.",
+    "playwright_fixture": "Each Playwright test receives its own page/context. addInitScript rebuilds command behaviors, invoke calls, and external-call arrays per page; setResponse/setError mutate only that page. Shared default values are merged into a new behavior object and structured-cloned into the browser.",
+    "vitest": "Testing Library cleanup runs after each test, restoreMocks is enabled, and Tauri invoke mocks reset before each transport test.",
+    "rust_globals": "Atomic correlation and temporary-path sequences are thread-safe, and tests do not assert exact sequence values or depend on prior tests.",
+    "sqlite": "Independent in-memory DemoStore instances are correctly isolated and are not violations; only the fixed file-backed database is shared."
+  },
+  "recommendations": [
+    "Use a scoped unique path and RAII cleanup for the file-backed SQLite contract test.",
+    "Keep child-only environment injection and the CredentialCleanup guard.",
+    "Retain per-test Playwright page state and structured-cloned command behavior maps."
+  ],
+  "summary": "Isolation is strong except for one high-severity shared file-backed SQLite database without cleanup. Environment variables, Credential Manager targets, Vitest cleanup, and Playwright fixture state are isolated per process or test."
+}

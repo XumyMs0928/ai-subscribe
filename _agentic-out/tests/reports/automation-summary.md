@@ -1,51 +1,67 @@
 ---
-stepsCompleted: ['step-01-preflight-and-context', 'step-02-identify-targets', 'step-03c-aggregate', 'step-04-validate-and-summarize']
-lastStep: 'step-04-validate-and-summarize'
-lastSaved: '2026-08-13'
-lastValidated: '2026-08-13T17:12:00+08:00'
+stepsCompleted:
+  - step-01-preflight-and-context
+  - step-02-identify-targets
+  - step-03c-aggregate
+  - step-04-validate-and-summarize
+lastStep: step-04-validate-and-summarize
+lastSaved: 2026-08-20T00:00:00+08:00
 inputDocuments:
-  - '_agentic/config.yaml'
-  - '_agentic-out/implementation/stories/1-1-建立共享核心与版本化契约基线.md'
-  - '_agentic-out/planning/prd.md#FR1,NFR15'
-  - '_agentic-out/planning/architecture.md#contract-boundaries'
-  - 'Cargo.toml'
-  - 'crates/radar-core/tests/'
-  - 'crates/radar-ffi/tests/'
-  - 'crates/xtask/tests/'
+  - _agentic-out/implementation/stories/4-3-用透明规则判断价值并形成主流分流.md
+  - _agentic-out/reviews/2026-08-20-story-4.3-code-review.md
+  - _agentic-out/planning/architecture.md
+  - Cargo.toml
+  - package.json
+  - playwright.config.ts
+  - crates/radar-core/src/domain/rules/intelligence_value.rs
+  - crates/radar-core/src/infrastructure/database/rule_evaluation_repository.rs
+  - crates/radar-core/src/application/demo.rs
+  - crates/radar-core/src/application/sync.rs
+  - crates/radar-core/tests/intelligence_value.rs
+  - crates/radar-core/tests/configuration_validation.rs
 ---
 
-# Story 1.1 测试自动化总结
+# Story 4.3 测试自动化摘要
 
-## 本轮目标
+## Step 1 — Preflight 与上下文
 
-- 模式：Integrated；技术栈：backend-only Rust Cargo workspace。
-- 补齐 AC1.2：为 `apps/**`、`migrations/**`、SQL DDL 与 `rusqlite` 增加独立变异测试。
-- 补齐 AC2.8：验证 RFC3339 UTC 合法变体、日历边界、实际已公告闰秒与 canonical 输出。
-- 避免 HTTP、浏览器、数据库或平台 UI 测试；这些均不属于 Story 1.1。
+- 模式：Integrated；仓库检测为 fullstack，本 Story 增量为 shared Rust core + SQLite backend-only。
+- 框架：Rust unit/integration tests、Vitest 与 Playwright 均已配置；本 Story 未新增 HTTP API、Tauri IPC、DesktopApi、route 或 UI。
+- 权威范围：AC1–AC6，覆盖确定性 V1 规则、v10 迁移/验证、同步事务投影、配置原子重评、golden/manifest/xtask 漂移门。
+- 配置：`test_stack_type=auto` 按现有项目惯例解析为 fullstack；Playwright utils 已启用，但本增量的 HTTP/auth/UI 均 N/A；Pact 不适用。
+- 策略：业务算法用纯领域测试，SQLite/迁移/事务用 Rust integration tests，契约漂移用 manifest/golden/xtask；不为后端逻辑伪造 API 或 E2E 测试。
+- 工具隔离：只使用项目内 `.toolchains` 和 workspace 依赖，不修改全局 Python/Node/Rust、PATH 或系统设置。
 
-## 新增与强化证据
+## Step 2 — 覆盖目标与严格去重
 
-- `xtask_rejects_each_out_of_scope_workspace_surface`：独立验证越界目录、SQL 文件、SQL DDL 空格/换行/制表符/多空格变体及 `rusqlite`。
-- `xtask_rejects_sensitive_files_and_contents`：补齐 `.env.*`、`id_ed25519`、`.db`、`.sqlite`、`.key` 与 `private_key`。
-- `platform_effect_rfc3339_utc_boundaries_are_complete_and_canonical`：接受 `T/t`、`Z/z`、`+00:00`、fraction、四位年份与实际已公告闰秒；拒绝非法日期、未公告闰秒、非零/未知偏移及超限 canonical 值；输出统一为 uppercase `T...Z`。
-- 真实 RED/GREEN：首次新增 `.sql` 变异测试暴露 scanner 未读取 `.sql`；修复后通过。审查又发现 SQL 关键字可用空白变化绕过，现已归一化空白并补回归用例。
+- AC1/AC2：10 个 `intelligence_value` 领域测试已直接覆盖五维规则、稳定 reason 顺序、AI unavailable、权重/等级/阈值边界、freshness fallback/future 以及无效配置/上下文拒绝；不重复生成。
+- AC3/AC4：已有 RSS alias/canonical source、自定义 track、trust 上下界、include/exclude/Unicode、六类技术影响、硬门控和 ordinary reason 的直接证据；配置验证另有19个生产路径测试；不重复生成。
+- AC5：已有 new/changed/unchanged、来源事务回滚、配置原子重评回滚、多来源隔离、零重复写与 fact/provenance 不变直接 SQLite 测试；不重复生成。
+- AC6：已有 fresh/v1–v9→v10、部分 schema、JSON/伪造投影/缺 provenance、回滚/重启 verifier，以及生产 evaluator 执行 golden 的 xtask 门；不重复生成。
+- API：无 HTTP/OpenAPI/Pact 产品面，N/A。E2E/UI：无新 route/command/交互，N/A。
+- 严格去重结论：当前 code review 修复已连同回归测试落地，未找到需要新增的独立行为缺口。计划生成 API=0、backend=0、E2E=0；只做聚合与定向验证。
 
-## 验证结果
+## Step 3 — 并行生成结果聚合
 
-- `scripts/rust-env.cmd fmt --all --check`：PASS。
-- `scripts/rust-env.cmd clippy --workspace --all-targets --all-features -- -D warnings`：PASS。
-- `scripts/rust-env.cmd test --workspace --all-targets`：32 passed，0 failed，0 ignored。
-- `scripts/rust-env.cmd run -p xtask -- contracts`：PASS。
-- 完整 suite burn-in：5/5 PASS，无不稳定失败。
+- 执行模式：SUBAGENT（API/E2E/backend 三路并行）。
+- API worker：0 tests / 0 files，N/A（无 HTTP/OpenAPI/Pact 或新 IPC表面）。
+- E2E worker：0 tests / 0 files，N/A（无新 UI、route 或用户旅程）。
+- Backend worker：严格去重后 0 tests / 0 files；既有领域、SQLite 事务、v10 迁移/verifier 与 golden/xtask 证据已覆盖目标。
+- Fixtures/helpers：0；不新建无消费者的测试基础设施。
+- 聚合计数：total=0，P0/P1/P2/P3=0。这表示“无新独立缺口”，不表示 Story 没有既有测试。
 
-## 覆盖与质量
+## Step 4 — 验证与结论
 
-- 当前测试：32 个，分布于 9 个含测试文件。
-- Story trace items：12 个；补证后 AC1.2、AC2.8、AC2.10 均具备完整直接证据。
-- Endpoint/Auth/UI：N/A；Error paths：适用且覆盖充分。
-- 框架级 skipped/fixme/pending：0/0/0。
-- Windows 当前宿主无符号链接创建特权时，symlink 用例会条件性提前返回；这不影响本轮 AC1.2 的 apps/migrations/DDL/rusqlite 补证，但不应把该宿主描述为执行了链接拒绝断言。
+### 验证结果
 
-## 结论
+- 三份 worker JSON 均存在、可解析、`success=true`，且 API/E2E/backend 计数均为 0。
+- 本轮没有生成或修改测试源码，因此无需重跑前端、Playwright 或完整 workspace 套件；最近 code-review 后的影响门仍是当前证据：`radar-core --lib` 65/65、configuration 19/19、intelligence value 10/10、contracts、rustfmt 和 workspace all-target Clippy 全部 PASS。
+- 未启动浏览器/GUI/HTTP server，无 CLI session 或孤儿进程；最终产物位于 `_agentic-out/tests/reports/`，worker 交接 JSON 仅位于用户临时目录。
+- 无 fixture/factory/helper、healing、Pact/provider scrutiny 需求；这些检查项均按 Story 边界标记 N/A，未生成无消费者代码。
 
-测试自动化增量完成并验证稳定。下一步由 `agentic-test-traceability` 重新生成 12/12 FULL 的矩阵与质量门结论。
+### 自动化结论
+
+- AC1–AC6 的自动化证据面已齐全，本 workflow 新增测试 0、增强 0。
+- 关键假设：Story 4.3 不公开新产品边界；4.5/4.6 才消费 rule projection 并提供用户可达 UI。
+- 风险：本阶段不宣称 native GUI、30 次冻结候选采样或移动端证据；它们继续留给 Phase 1 RC / Story 9.4。
+- 下一步：运行 `agentic-test-review`，然后生成 Story 4.3 traceability 与 gate decision。

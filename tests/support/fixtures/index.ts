@@ -4,7 +4,7 @@ import { test as demoAppTest } from "./demo-app.fixture";
 
 export const test = mergeTests(demoAppTest);
 
-export { expect } from "./demo-app.fixture";
+export { expect, response } from "./demo-app.fixture";
 export type {
     DemoAppFixture,
     ExternalCall,

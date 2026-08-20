@@ -1,0 +1,20 @@
+{
+  "fixture_id": "configuration-narrowing-cases-v1",
+  "base_fixture": "../valid/basic-v1.json",
+  "cases": [
+    {
+      "name": "all_sources_disabled",
+      "mutation": "disable_all_sources",
+      "real_candidates": [],
+      "expected_code": "all_sources_disabled"
+    },
+    {
+      "name": "all_high_trust_candidates_filtered",
+      "mutation": "exclude_rust",
+      "real_candidates": [
+        { "source_kind": "rss", "searchable_text": "Rust release notes" }
+      ],
+      "expected_code": "all_high_trust_candidates_filtered"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "dimension": "maintainability",
+  "score": 76,
+  "max_score": 100,
+  "grade": "C",
+  "violations": [
+    {
+      "file": "apps/windows/src-tauri/tests/release_surface.rs",
+      "line": 24,
+      "severity": "HIGH",
+      "category": "duplicate-test-logic",
+      "description": "The complete approved Tauri command allowlist is maintained here as one long string and duplicated in crates/xtask/tests/generated_contract_gate_negative.rs:309-329. Adding or renaming a command requires synchronized edits in two differently formatted fixtures, so drift can make one gate stale or produce unrelated failures.",
+      "suggestion": "Define the approved command names once in a shared test fixture or helper and have both the release-surface assertion and xtask sandbox source generation consume that canonical list.",
+      "code_snippet": "assert_eq!(handler.trim(), \"commands::health_v1,...,commands::query_intel_feed_v1\");"
+    },
+    {
+      "file": "crates/radar-core/src/application/intel_feed.rs",
+      "line": 352,
+      "severity": "MEDIUM",
+      "category": "large-setup-block",
+      "description": "seed_fixed_feed spans about 110 lines and constructs four related database projections plus a canonical hash in one setup helper. The inline SQL and repeated row-derived values make fixture changes difficult to review and couple unrelated projection details.",
+      "suggestion": "Split the seed manifest into focused builders for fact, content, provenance, and rule-evaluation rows, while keeping a small orchestration helper for dataset generation.",
+      "code_snippet": "fn seed_fixed_feed(store: &mut DemoStore, dataset_size: usize) -> String {"
+    },
+    {
+      "file": "crates/radar-core/tests/sync_tasks.rs",
+      "line": 1142,
+      "severity": "MEDIUM",
+      "category": "complex-test-missing-structure-comments",
+      "description": "This 97-line test combines successful four-dimensional filtering, multiple mismatch cases, cursor pagination, query-identity rejection, and cursor tampering without phase labels. Its name cannot identify which sub-scenario failed, and future edits must reason about several state mutations in one body.",
+      "suggestion": "Split filtering, pagination identity, and tamper rejection into focused tests sharing a small feed setup helper; if kept together, add explicit Given/When/Then phase comments around each scenario.",
+      "code_snippet": "fn feed_filters_and_cursor_are_bound_to_the_query_identity() {"
+    },
+    {
+      "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx",
+      "line": 233,
+      "severity": "LOW",
+      "category": "could-benefit-from-helper",
+      "description": "The valid-page, projection-drift, and stale-cursor tests repeat the same opaque cursor construction, first-page response, and second-item fixture mutations. The repeated setup obscures the behavioral difference among the three pagination cases.",
+      "suggestion": "Introduce a local pagination scenario factory that returns the cursor, first page, and a customizable continuation page or error.",
+      "code_snippet": "const cursor = `feed-v1:aa:${\"1\".repeat(64)}`;"
+    },
+    {
+      "file": "tests/e2e/story-4-5-intel-feed.spec.ts",
+      "line": 56,
+      "severity": "LOW",
+      "category": "could-benefit-from-helper",
+      "description": "The filter journey repeats the same invoke-call polling and findLast command lookup before and after reload. The duplicated callback makes the expected query payload harder to scan and invites inconsistent changes to the two checkpoints.",
+      "suggestion": "Extract a small latestIntelFeedArgs helper for the fixture and keep the two expected payload assertions visible in the test body.",
+      "code_snippet": "const calls = await demoApp.invokeCalls(); return calls.findLast((call) => call.command === \"query_intel_feed_v1\")?.args;"
+    }
+  ],
+  "passed_checks": 7,
+  "failed_checks": 5,
+  "violation_summary": {
+    "HIGH": 1,
+    "MEDIUM": 2,
+    "LOW": 2
+  },
+  "recommendations": [
+    "Centralize the approved Tauri command allowlist used by release and xtask boundary tests.",
+    "Decompose the large fixed-feed database seeder into projection-focused builders.",
+    "Split the combined Core filter/cursor test into focused behavioral cases with shared setup.",
+    "Extract pagination fixture and latest-invoke lookup helpers while keeping assertions explicit in test bodies."
+  ],
+  "summary": "Story 4.5 tests are generally well grouped and descriptively named, but have 5 maintainability violations (1 HIGH, 2 MEDIUM, 2 LOW), led by a duplicated cross-file command allowlist."
+}

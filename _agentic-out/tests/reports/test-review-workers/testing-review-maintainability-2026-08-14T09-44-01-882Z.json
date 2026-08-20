@@ -1,0 +1,56 @@
+{
+  "dimension": "maintainability",
+  "score": 88,
+  "max_score": 100,
+  "grade": "B",
+  "scope": {
+    "files_reviewed": 22,
+    "runtime_tests": 75,
+    "excluded": [
+      "vendor",
+      "node_modules",
+      ".toolchains",
+      "target",
+      "dist",
+      "report artifacts"
+    ],
+    "execution": "static review only; tests were not run"
+  },
+  "violations": [
+    {
+      "file": "crates/xtask/tests/generated_contract_gate_negative.rs",
+      "line": 298,
+      "severity": "HIGH",
+      "category": "test-too-long",
+      "description": "xtask_rejects_windows_boundary_mutations is a 101-line test case (function boundary only), exceeding the 100-line maintainability threshold.",
+      "suggestion": "Move the boundary mutation table to a named constant or case builder and extract the repeated TempDir/write/check/assert sequence into a focused helper; keep the bundled-test-source assertion as a separate test.",
+      "code_snippet": "fn xtask_rejects_windows_boundary_mutations() { let cases = [14 boundary cases]; loop plus bundled source case }"
+    },
+    {
+      "file": "tests/e2e/story-1-6-demo-intelligence.spec.ts",
+      "line": 27,
+      "severity": "LOW",
+      "category": "repeated-navigation-and-list-locator",
+      "description": "Multiple cases repeat page.goto and the same accessible demo-list locator/setup sequence, increasing change cost if the page entry point or list label changes.",
+      "suggestion": "Extract a small openDemoCatalog(page) helper (or a focused fixture capability) that navigates and returns the accessible list locator; keep command-specific behavior in each test.",
+      "code_snippet": "page.goto root; getByRole region named 演示情报列表"
+    }
+  ],
+  "passed_checks": 8,
+  "failed_checks": 2,
+  "violation_summary": {
+    "HIGH": 1,
+    "MEDIUM": 0,
+    "LOW": 1
+  },
+  "priority_labels": {
+    "required_scope": "Only newly generated tests and tests intended for risk-based/selective execution need priority labels.",
+    "assessment": "The current E2E expansion is labeled [P0]/[P1], and generated Rust risk tests use priority doc markers. Missing labels on unchanged legacy tests are not a maintainability violation. If CI must select Rust tests by priority, doc comments alone are not executable tags and a supported filtering convention would be needed."
+  },
+  "recommendations": [
+    "Refactor the 101-line Windows boundary mutation test without splitting its behavioral intent across unrelated files.",
+    "Centralize repeated E2E demo-page navigation/list lookup in one focused helper.",
+    "Keep priority labels mandatory for newly generated or risk-selectable tests; do not require retroactive labels on every legacy test solely for maintainability."
+  ],
+  "summary": "Maintainability is good overall: 2 violations (1 HIGH, 1 LOW). Test-case boundaries, not containing Rust source-file lengths, were used for the >100-line rule."
+}

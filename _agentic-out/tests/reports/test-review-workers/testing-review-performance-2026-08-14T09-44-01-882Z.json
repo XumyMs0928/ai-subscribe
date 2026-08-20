@@ -1,0 +1,66 @@
+{
+  "dimension": "performance",
+  "score": 100,
+  "max_score": 100,
+  "grade": "A",
+  "scope": {
+    "files_reviewed": 22,
+    "runtime_tests": 75,
+    "excluded": [
+      "vendor",
+      "node_modules",
+      ".toolchains",
+      "target",
+      "dist",
+      "report artifacts"
+    ],
+    "execution": "static review informed by existing run evidence; tests were not run"
+  },
+  "violations": [],
+  "passed_checks": 9,
+  "failed_checks": 0,
+  "violation_summary": {
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "performance_metrics": {
+    "rust_workspace": "49/49 passed",
+    "vitest": "19/19 passed",
+    "playwright": "7/7 passed",
+    "playwright_burn_in": "3 rounds, 21/21, approximately 26 seconds total",
+    "playwright_parallelism": "fullyParallel enabled; 4 local workers; 1 CI worker",
+    "parallelizable_tests": 75,
+    "serial_tests": 0,
+    "hard_waits_over_2_seconds": 0,
+    "slow_tests": []
+  },
+  "observations": [
+    {
+      "category": "browser-navigation",
+      "assessment": "Seven E2E cases each navigate once. This is expected per-test browser isolation, and the measured three-round wall time does not indicate excessive reload cost."
+    },
+    {
+      "category": "sqlite-initialization",
+      "assessment": "Fresh in-memory DemoStore instances use a tiny fixed fixture and preserve test isolation. They are necessary independent SQLite state and are not reported as slow setup."
+    },
+    {
+      "category": "thread-overhead",
+      "assessment": "The concurrency contract test creates 64 bounded short-lived threads once to exercise simultaneous correlation-ID allocation. With the existing Rust suite pass evidence and no repeated setup loop, this is not a performance violation."
+    },
+    {
+      "category": "process-overhead",
+      "assessment": "Two tests launch one child test process each to capture redacted stderr/output or isolate Windows Credential Manager behavior. Process boundaries are required by those assertions and are bounded."
+    },
+    {
+      "category": "ci-workers",
+      "assessment": "CI uses one Playwright worker while local runs use four. This is a conservative stability setting, not a violation on current evidence; increase only after CI resource and flake data support it."
+    }
+  ],
+  "recommendations": [
+    "Keep the current four-worker local Playwright setting and fullyParallel mode.",
+    "Retain per-test in-memory SQLite isolation; optimize only if future timing evidence identifies database setup as a bottleneck.",
+    "Track CI Playwright duration over time and cautiously raise CI workers only when runner capacity and flake history justify it."
+  ],
+  "summary": "No performance violations found. The suite uses parallel execution where supported, has no hard waits or unnecessary serial groups, and existing 49/49 Rust, 19/19 Vitest, 7/7 Playwright plus 21/21 burn-in evidence supports the current bounded setup costs."
+}

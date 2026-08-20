@@ -1,0 +1,13 @@
+{
+  "dimension": "determinism",
+  "score": 100,
+  "max_score": 100,
+  "grade": "A",
+  "violations": [],
+  "passed_checks": 40,
+  "failed_checks": 0,
+  "total_checks": 40,
+  "violation_summary": { "HIGH": 0, "MEDIUM": 0, "LOW": 0 },
+  "recommendations": [],
+  "summary": "Fixed-as-of/AllTime functional paths, semantic locators, and an explicit isolated AC7 runner remove the prior time, selector, and wall-clock-suite reliability findings."
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>OpenAI News</title>
+  <entry><id>tag:openai.com,2026:one</id><title>Local-first update</title><link rel="alternate" href="https://openai.com/news/local-first"/><author><name>OpenAI</name></author><summary>Deterministic Atom fixture.</summary><published>2026-08-03T09:30:00Z</published><updated>2026-08-03T10:00:00Z</updated></entry>
+</feed>

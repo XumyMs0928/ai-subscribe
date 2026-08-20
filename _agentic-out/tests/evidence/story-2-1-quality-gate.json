@@ -1,0 +1,26 @@
+{
+  "story": "2.1",
+  "delivery_scope": "windows-first",
+  "completed_at_utc": "2026-08-17T12:09:00Z",
+  "passed": true,
+  "project_isolated_toolchains": true,
+  "system_settings_modified": false,
+  "gates": {
+    "pnpm_frozen_install": "PASS",
+    "prettier": "PASS",
+    "eslint": "PASS",
+    "typescript": "PASS",
+    "vite_build": "PASS",
+    "vitest": { "status": "PASS", "tests": 73 },
+    "playwright": { "status": "PASS", "tests": 21 },
+    "rustfmt_1_97_1": "PASS",
+    "clippy_all_targets_deny_warnings": "PASS",
+    "cargo_workspace_all_targets": { "status": "PASS", "tests": 95 },
+    "xtask_contracts": "PASS",
+    "msvc_release_benchmark_instrumentation": "PASS",
+    "native_configuration_smoke": "PASS",
+    "cold_start_30_samples": "PASS"
+  },
+  "candidate_sha256": "f1792aa6d4fc7d26cacf44a9299a2ae9e0698578b034fd821748a426d48a976e",
+  "runtime_summary": "_agentic-out/tests/evidence/story-2-1-windows-runtime-summary.json"
+}

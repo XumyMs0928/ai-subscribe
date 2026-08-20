@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Rust Updates</title>
+  <item><guid>rust-1</guid><title>Rust 1.97 released</title><link>https://blog.rust-lang.org/2026/08/01/rust-1.97/</link><description>Updated release details.</description><pubDate>Sat, 01 Aug 2026 08:00:00 GMT</pubDate></item>
+  <item><guid>rust-3</guid><title>New item</title><link>https://blog.rust-lang.org/2026/08/04/new/</link></item>
+</channel></rss>

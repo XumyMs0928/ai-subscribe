@@ -219,6 +219,13 @@ fn every_error_code_has_the_complete_stable_mapping() {
             "error.validation",
         ),
         (
+            ErrorCode::ValidationSetupInput,
+            "validation.setup_input",
+            ErrorCategory::Validation,
+            Retryability::Never,
+            "error.validation",
+        ),
+        (
             ErrorCode::ConflictEffectAlreadyReported,
             "conflict.effect_already_reported",
             ErrorCategory::Conflict,
@@ -233,6 +240,27 @@ fn every_error_code_has_the_complete_stable_mapping() {
             "error.conflict",
         ),
         (
+            ErrorCode::ConflictSetupRevision,
+            "conflict.setup_revision",
+            ErrorCategory::Conflict,
+            Retryability::Manual,
+            "error.conflict",
+        ),
+        (
+            ErrorCode::StorageSetup,
+            "storage.setup",
+            ErrorCategory::Storage,
+            Retryability::Never,
+            "error.internal",
+        ),
+        (
+            ErrorCode::MigrationSetup,
+            "migration.setup",
+            ErrorCategory::Migration,
+            Retryability::Never,
+            "error.internal",
+        ),
+        (
             ErrorCode::InternalUnexpected,
             "internal.unexpected",
             ErrorCategory::Internal,
@@ -241,14 +269,117 @@ fn every_error_code_has_the_complete_stable_mapping() {
         ),
     ];
 
-    assert_eq!(cases.len(), ErrorCode::ALL.len());
+    assert_eq!(cases.len() + 11, ErrorCode::ALL.len());
     for (code, expected_code, category, retryability, message_key) in cases {
-        let error = AppError::from_code(code, "mapping-test");
-        assert_eq!(error.contract_version(), 1);
-        assert_eq!(error.code(), expected_code);
-        assert_eq!(error.category(), category);
-        assert_eq!(error.retryability(), retryability);
-        assert_eq!(error.message_key(), message_key);
-        assert_eq!(error.correlation_id(), "mapping-test");
+        assert_error_mapping(code, expected_code, category, retryability, message_key);
     }
+}
+
+#[test]
+fn source_error_codes_have_complete_stable_mappings() {
+    for (code, expected_code, category, retryability, message_key) in [
+        (
+            ErrorCode::ValidationSource,
+            "validation.source",
+            ErrorCategory::Validation,
+            Retryability::Never,
+            "error.validation",
+        ),
+        (
+            ErrorCode::ConflictSourceRevision,
+            "conflict.source_revision",
+            ErrorCategory::Conflict,
+            Retryability::Manual,
+            "error.conflict",
+        ),
+        (
+            ErrorCode::NetworkSource,
+            "network.source",
+            ErrorCategory::Network,
+            Retryability::Automatic,
+            "error.network.source",
+        ),
+        (
+            ErrorCode::RateLimitedSource,
+            "rate_limited.source",
+            ErrorCategory::RateLimited,
+            Retryability::After,
+            "error.rate_limited.source",
+        ),
+        (
+            ErrorCode::SourceFormatRssAtom,
+            "source_format.rss_atom",
+            ErrorCategory::SourceFormat,
+            Retryability::Never,
+            "error.source_format.rss_atom",
+        ),
+        (
+            ErrorCode::StorageSource,
+            "storage.source",
+            ErrorCategory::Storage,
+            Retryability::Never,
+            "error.internal",
+        ),
+        (
+            ErrorCode::MigrationSource,
+            "migration.source",
+            ErrorCategory::Migration,
+            Retryability::Never,
+            "error.internal",
+        ),
+    ] {
+        assert_error_mapping(code, expected_code, category, retryability, message_key);
+    }
+}
+
+#[test]
+fn configuration_error_codes_have_complete_stable_mappings() {
+    for (code, expected_code, category, retryability, message_key) in [
+        (
+            ErrorCode::ValidationConfiguration,
+            "validation.configuration",
+            ErrorCategory::Validation,
+            Retryability::Never,
+            "error.validation",
+        ),
+        (
+            ErrorCode::ValidationStaleReceipt,
+            "validation.stale_validation_receipt",
+            ErrorCategory::Validation,
+            Retryability::Never,
+            "error.validation",
+        ),
+        (
+            ErrorCode::ConflictConfigurationRevision,
+            "conflict.configuration_revision",
+            ErrorCategory::Conflict,
+            Retryability::Manual,
+            "error.conflict",
+        ),
+        (
+            ErrorCode::StorageConfiguration,
+            "storage.configuration",
+            ErrorCategory::Storage,
+            Retryability::Never,
+            "error.internal",
+        ),
+    ] {
+        assert_error_mapping(code, expected_code, category, retryability, message_key);
+    }
+}
+
+fn assert_error_mapping(
+    code: ErrorCode,
+    expected_code: &str,
+    category: ErrorCategory,
+    retryability: Retryability,
+    message_key: &str,
+) {
+    let error = AppError::from_code(code, "mapping-test");
+    assert_eq!(error.contract_version(), 1);
+    assert_eq!(error.code(), expected_code);
+    assert_eq!(error.category(), category);
+    assert_eq!(error.retryability(), retryability);
+    assert_eq!(error.message_key(), message_key);
+    assert_eq!(error.correlation_id(), "mapping-test");
 }

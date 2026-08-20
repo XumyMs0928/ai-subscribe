@@ -1,0 +1,133 @@
+{
+  "contract_version": 1,
+  "description": "Deterministic RSS/Atom HTTP scenarios. These scripts are consumed only by the injected test transport and never relax production SSRF policy.",
+  "cases": [
+    {
+      "id": "rss2-first-200",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": { "etag": "\"rss-v1\"", "last-modified": "Sat, 01 Aug 2026 08:00:00 GMT" },
+      "body_fixture": "rss2-v1.xml",
+      "expected": "success"
+    },
+    {
+      "id": "atom-first-200",
+      "request_url": "https://feeds.example.test/atom.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": { "etag": "\"atom-v1\"" },
+      "body_fixture": "atom-v1.xml",
+      "expected": "success"
+    },
+    {
+      "id": "conditional-304",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "request_headers": { "if-none-match": "\"rss-v1\"" },
+      "status": 304,
+      "headers": {},
+      "expected": "not_modified"
+    },
+    {
+      "id": "rss2-updated-200",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "request_headers": { "if-none-match": "\"rss-v1\"" },
+      "status": 200,
+      "headers": { "etag": "\"rss-v2\"" },
+      "body_fixture": "rss2-updated.xml",
+      "expected": "success"
+    },
+    {
+      "id": "missing-optional-fields",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": {},
+      "body_fixture": "rss2-v1.xml",
+      "expected": "success_with_missing_optional_fields"
+    },
+    {
+      "id": "invalid-optional-time",
+      "request_url": "https://feeds.example.test/invalid-time.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": {},
+      "body_fixture": "rss2-invalid-time.xml",
+      "expected": "success_with_time_omitted"
+    },
+    {
+      "id": "rate-limit-seconds",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 429,
+      "headers": { "retry-after": "120" },
+      "expected": "rate_limited.source"
+    },
+    {
+      "id": "rate-limit-date",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "now_epoch_seconds": 1787047200,
+      "status": 429,
+      "headers": { "retry-after": "Tue, 18 Aug 2026 10:02:00 GMT" },
+      "expected": "rate_limited.source"
+    },
+    {
+      "id": "server-error",
+      "request_url": "https://feeds.example.test/rss.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 503,
+      "headers": {},
+      "expected": "network.source"
+    },
+    {
+      "id": "malformed-xml",
+      "request_url": "https://feeds.example.test/malformed.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": {},
+      "body_fixture": "malformed.xml",
+      "expected": "source_format.rss_atom"
+    },
+    {
+      "id": "oversized-stream",
+      "request_url": "https://feeds.example.test/large.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": {},
+      "generated_body_bytes": 10000001,
+      "chunk_bytes": 65536,
+      "expected": "network.source"
+    },
+    {
+      "id": "slow-stream",
+      "request_url": "https://feeds.example.test/slow.xml",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 200,
+      "headers": {},
+      "elapsed_ms": 30001,
+      "body_fixture": "rss2-v1.xml",
+      "expected": "network.source"
+    },
+    {
+      "id": "public-redirect-chain",
+      "request_url": "https://feeds.example.test/start",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 302,
+      "headers": { "location": "https://cdn.example.test/final.xml" },
+      "redirect_case": "rss2-first-200",
+      "expected": "success"
+    },
+    {
+      "id": "private-redirect-rejected",
+      "request_url": "https://feeds.example.test/start",
+      "resolved_ips": ["93.184.216.34"],
+      "status": 302,
+      "headers": { "location": "https://private.example.test/feed.xml" },
+      "redirect_resolved_ips": ["127.0.0.1"],
+      "expected": "validation.source"
+    }
+  ]
+}

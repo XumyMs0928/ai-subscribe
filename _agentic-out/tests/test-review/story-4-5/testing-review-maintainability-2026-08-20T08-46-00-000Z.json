@@ -1,0 +1,17 @@
+{
+  "dimension": "maintainability",
+  "score": 83,
+  "max_score": 100,
+  "grade": "B",
+  "violations": [
+    { "file": "crates/radar-core/tests/sync_tasks.rs", "line": 1142, "severity": "MEDIUM", "category": "multi-scenario-test", "description": "One integration test combines filtering, pagination, identity mismatch, and tampering.", "suggestion": "Split into focused tests around a shared seeded fixture." },
+    { "file": "crates/radar-core/src/application/intel_feed.rs", "line": 356, "severity": "MEDIUM", "category": "large-test-helper", "description": "The performance seeder maintains several related SQLite projections.", "suggestion": "Extract typed projection insertion helpers in a future cleanup." },
+    { "file": "apps/windows/src/lib/desktop-api/intel-feed-transport.test.ts", "line": 131, "severity": "MEDIUM", "category": "multi-scenario-test", "description": "One transport test combines four contract mutations.", "suggestion": "Use a mutation table and separate the async over-limit case." },
+    { "file": "tests/e2e/story-4-5-intel-feed.spec.ts", "line": 56, "severity": "LOW", "category": "duplicate-test-logic", "description": "Latest query command polling is repeated around reload.", "suggestion": "Extract a local latestIntelFeedArgs helper." }
+  ],
+  "passed_checks": 8,
+  "failed_checks": 4,
+  "violation_summary": { "HIGH": 0, "MEDIUM": 3, "LOW": 1 },
+  "recommendations": ["Split broad test scenarios when next edited.", "Keep expected payloads local while extracting only repeated plumbing."],
+  "summary": "The runner contract now has named values and one validation helper. Three medium and one low non-blocking cleanup opportunities remain."
+}

@@ -1,0 +1,30 @@
+{
+  "fixture_id": "configuration-blocking-cases-v1",
+  "base_fixture": "../valid/basic-v1.json",
+  "cases": [
+    {
+      "name": "unclosed_group",
+      "field_path": "include_expression",
+      "value": "Rust AND (",
+      "expected_code": "expression_unparseable"
+    },
+    {
+      "name": "refresh_below_minimum",
+      "field_path": "refresh_interval_minutes",
+      "value": 14,
+      "expected_code": "value_out_of_range"
+    },
+    {
+      "name": "trust_bounds_inverted",
+      "field_path": "minimum_trust",
+      "value": 101,
+      "expected_code": "lower_bound_above_upper_bound"
+    },
+    {
+      "name": "unsupported_local_file_source",
+      "field_path": "source_preferences[0].identifier",
+      "value": "file:///private/feed.xml",
+      "expected_code": "invalid_source_or_unsupported_protocol"
+    }
+  ]
+}

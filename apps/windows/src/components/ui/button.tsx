@@ -26,17 +26,18 @@ export interface ButtonProps
     readonly asChild?: boolean;
 }
 
-export function Button({
-    asChild = false,
-    className,
-    variant,
-    ...props
-}: ButtonProps) {
-    const Component = asChild ? Slot : "button";
-    return (
-        <Component
-            className={cn(buttonVariants({ variant }), className)}
-            {...props}
-        />
-    );
-}
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+    function Button(
+        { asChild = false, className, variant, ...props },
+        forwardedRef,
+    ) {
+        const Component = asChild ? Slot : "button";
+        return (
+            <Component
+                ref={forwardedRef}
+                className={cn(buttonVariants({ variant }), className)}
+                {...props}
+            />
+        );
+    },
+);
