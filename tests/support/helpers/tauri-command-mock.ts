@@ -17,6 +17,8 @@ export const TAURI_COMMANDS = [
     "sync_health_v1",
     "get_sync_result_v1",
     "query_intel_feed_v1",
+    "query_intel_evidence_detail_v1",
+    "open_intel_original_v1",
 ] as const;
 
 export type TauriCommand = (typeof TAURI_COMMANDS)[number];
@@ -41,6 +43,7 @@ export interface ExternalCall {
         | "websocket"
         | "sendBeacon"
         | "notification"
+        | "system_browser"
         | "browser_resource";
     readonly target: string;
     readonly method: string | null;

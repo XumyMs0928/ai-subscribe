@@ -48,7 +48,10 @@ export function IntelligenceFeedItem({
             className="feed-item"
             aria-pressed={selected}
             tabIndex={tabIndex}
-            onClick={onSelect}
+            onClick={() => {
+                onSelect();
+                onActivate(item.intel_item_id);
+            }}
             onKeyDown={onKeyDown}
         >
             <span className="feed-status">{dispositionLabel}</span>

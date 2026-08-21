@@ -87,6 +87,8 @@ function api(overrides: Partial<DesktopApi> = {}): DesktopApi {
         demoDetail: vi.fn().mockResolvedValue(detail),
         getSyncResult: vi.fn(),
         queryIntelFeed: vi.fn(),
+        queryIntelEvidenceDetail: vi.fn(),
+        openIntelOriginal: vi.fn(),
         setupProgress: vi.fn(),
         saveSetupStep: vi.fn(),
         configuration: vi.fn(),

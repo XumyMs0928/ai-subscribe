@@ -629,7 +629,7 @@ fn is_lower_hex_64(value: &str) -> bool {
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
-fn parse_rfc3339_ms(value: &str) -> Option<u64> {
+pub(crate) fn parse_rfc3339_ms(value: &str) -> Option<u64> {
     if normalize_rfc3339_utc(value).as_deref() != Some(value) {
         return None;
     }

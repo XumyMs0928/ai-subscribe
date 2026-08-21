@@ -11,7 +11,10 @@ import { IntelFeed } from "../../features/intel-feed/intel-feed";
 
 export function AppRouter() {
     const location = useLocation();
-    const isFeed = location.pathname === "/" || location.pathname === "/intel";
+    const isFeed =
+        location.pathname === "/" ||
+        location.pathname === "/intel" ||
+        /^\/intel\/intel:[0-9a-f]{64}$/.test(location.pathname);
     const [feedMounted, setFeedMounted] = useState(isFeed);
 
     useEffect(() => {
@@ -64,6 +67,10 @@ export function AppRouter() {
             <Routes>
                 <Route path="/" element={null} />
                 <Route path="/intel" element={null} />
+                <Route
+                    path="/intel/:intelItemId"
+                    element={isFeed ? null : <Navigate replace to="/intel" />}
+                />
                 <Route path="/demo" element={<DemoIntelligence />} />
                 <Route path="/settings" element={<SettingsRoot />} />
                 <Route path="/rules" element={<ConfigurationEditor />} />

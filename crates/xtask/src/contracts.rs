@@ -11,6 +11,7 @@ use radar_core::contracts::dto::configuration_validation::{
     AttentionConfigurationV1, AttentionTrackV1, ConfigurationCandidateContext,
     ConfigurationValidationResultV1, NotificationFrequencyV1, QuietHoursV1, SourcePreferenceV1,
 };
+use radar_core::contracts::dto::intel_detail::IntelEvidenceDetailV1;
 use radar_core::contracts::dto::intel_feed::{IntelFeedItemV1, QueryIntelFeedInputV1};
 use radar_core::contracts::dto::source::{SaveSourceInputV1, SourceViewV1};
 use radar_core::contracts::effects::{EffectLedger, EffectStatus, PlatformEffect, ReportResult};
@@ -300,6 +301,8 @@ fn check_required_fixtures(root: &Path) -> Result<(), String> {
         "contracts/fixtures/golden/setup_progress_v1.json",
         "contracts/fixtures/golden/source_view_v1.json",
         "contracts/fixtures/intel-feed/phase1-v1.json",
+        "contracts/fixtures/intel-detail/phase1-v1.json",
+        "contracts/fixtures/intel-detail/phase1-local-states-v1.json",
         "contracts/fixtures/configuration-validation/blocking/cases-v1.json",
         "contracts/fixtures/configuration-validation/narrowing/cases-v1.json",
         "contracts/fixtures/configuration-validation/valid/basic-v1.json",
@@ -351,6 +354,45 @@ fn check_required_fixtures(root: &Path) -> Result<(), String> {
         })
     {
         return Err("intel-feed fixture rule contract drift".to_owned());
+    }
+
+    let detail_fixture_path = root.join("contracts/fixtures/intel-detail/phase1-v1.json");
+    serde_json::from_str::<IntelEvidenceDetailV1>(
+        &fs::read_to_string(&detail_fixture_path)
+            .map_err(|error| format!("{}: {error}", detail_fixture_path.display()))?,
+    )
+    .map_err(|error| format!("intel-detail fixture: {error}"))?;
+
+    let detail_base: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(&detail_fixture_path)
+            .map_err(|error| format!("{}: {error}", detail_fixture_path.display()))?,
+    )
+    .map_err(|error| format!("{}: {error}", detail_fixture_path.display()))?;
+    let local_states_path =
+        root.join("contracts/fixtures/intel-detail/phase1-local-states-v1.json");
+    let local_states: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(&local_states_path)
+            .map_err(|error| format!("{}: {error}", local_states_path.display()))?,
+    )
+    .map_err(|error| format!("{}: {error}", local_states_path.display()))?;
+    if local_states["contract_version"] != 1 || local_states["base_fixture"] != "phase1-v1.json" {
+        return Err("intel-detail local-state fixture metadata drift".to_owned());
+    }
+    let cases = local_states["cases"]
+        .as_array()
+        .ok_or_else(|| "intel-detail local-state cases must be an array".to_owned())?;
+    if cases.len() != 2 {
+        return Err("intel-detail local-state fixture must cover unavailable and stale".to_owned());
+    }
+    for case in cases {
+        let mut candidate = detail_base.clone();
+        candidate["facts"]["source_summary"] = case["source_summary"].clone();
+        candidate["rule_status"] = case["rule_status"].clone();
+        candidate["rule_issue_code"] = case["rule_issue_code"].clone();
+        candidate["rule"] = serde_json::Value::Null;
+        serde_json::from_value::<IntelEvidenceDetailV1>(candidate).map_err(|error| {
+            format!("intel-detail local-state fixture {}: {error}", case["name"])
+        })?;
     }
 
     let source_golden_path = root.join("contracts/fixtures/golden/source_view_v1.json");
@@ -813,6 +855,12 @@ fn check_forbidden_content(
             && lower
                 .split_once("#[cfg(test)]")
                 .is_some_and(|(production, _)| !production.contains(&forbidden));
+        let approved_intel_detail_test_only = !normalize_whitespace
+            && forbidden == ["rus", "qlite"].concat()
+            && path_lower.ends_with("crates/radar-core/src/application/intel_detail.rs")
+            && lower
+                .split_once("#[cfg(test)]")
+                .is_some_and(|(production, _)| !production.contains(&forbidden));
         let approved_demo_database_surface = (normalize_whitespace
             && (path_lower.ends_with("crates/radar-core/src/application/demo.rs")
                 || path_lower.contains("/vendor/libsqlite3-sys/")))
@@ -834,10 +882,14 @@ fn check_forbidden_content(
                     || path_lower.ends_with(
                         "crates/radar-core/src/infrastructure/database/intel_feed_repository.rs",
                     )
+                    || path_lower.ends_with(
+                        "crates/radar-core/src/infrastructure/database/intel_detail_repository.rs",
+                    )
                     || path_lower.ends_with("crates/radar-core/cargo.toml")
                     || path_lower.ends_with("cargo.lock")
                     || path_lower.contains("/vendor/libsqlite3-sys/")))
-            || approved_intel_feed_test_only;
+            || approved_intel_feed_test_only
+            || approved_intel_detail_test_only;
         if approved_demo_database_surface {
             continue;
         }
@@ -934,6 +986,7 @@ fn is_allowed_windows_shell_path(relative: &str) -> bool {
         "apps/windows/src/app/router/",
         "apps/windows/src/app/shell/",
         "apps/windows/src/features/demo-intelligence/",
+        "apps/windows/src/features/intel-detail/",
         "apps/windows/src/features/intel-feed/",
         "apps/windows/src/features/configuration-validation/",
         "apps/windows/src/features/settings/",

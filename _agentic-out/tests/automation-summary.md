@@ -17,6 +17,48 @@ inputDocuments:
   - 'target/story-4-5/intel-feed-performance-35400-0.json'
 ---
 
+# Story 4.6 Test Automation Refresh
+
+## Step 1 — Preflight and context
+
+- Mode: integrated create refresh；detected stack 为 fullstack（React/Vite/Vitest/Playwright + Rust/Tauri/SQLite）。
+- Framework readiness: PASS；Playwright、Vitest、Rust/MSVC harness、authoritative fixtures 与 project-local toolchains 均存在。
+- Inputs: Story 4.6 AC1–AC7、Architecture/UX Phase 1 overlay、当前实现、三层 code-review findings、Playwright/Vitest/Rust 测试结构与 `_agentic/config.yaml`。
+- Configuration: Playwright Utils enabled；browser automation auto；Pact/Pact MCP disabled；无 inbound HTTP/OpenAPI/Auth provider，provider scrutiny 不适用。
+- Browser exploration: 复用刚完成的 Story 4.6 7/7 与完整 42/42 Playwright 真实执行证据，不另启探索会话。
+- Knowledge applied: test levels、P0–P3 priorities、deterministic factories、selective execution、burn-in discipline、fixture composition、network isolation 与无 hard-wait 原则。
+
+## Step 2 — Coverage targets
+
+| AC | 最低适当层的直接证据 | 优先级 | 结果 |
+| --- | --- | --- | --- |
+| AC1 判断→证据、AI deferred、操作 | core rule projection + component semantics + E2E journey | P0 | covered |
+| AC2 独立来源、完整溯源、确定性关联 | SQLite/core integration + exact transport + component | P0 | covered |
+| AC3 stable-ID HTTPS system-browser effect | core URL policy + Tauri typed adapter/panic containment + E2E fake effect | P0 | covered |
+| AC4 失效/离线/局部损坏可恢复 | core local degradation + transport guards + component states | P0 | covered |
+| AC5 Windows 原位/窄宽上下文与焦点 | component focus/late response/item disappearance + Playwright narrow layout | P1 | covered |
+| AC6 规则解释真实性 | core semantic revalidation + ordinary candidate/component labels | P1 | covered |
+| AC7 Phase 1 边界与零隐式外联 | release surface/contracts + external-call recorder + full E2E baseline | P0 | covered |
+
+- Code-review 修复已补齐 timeout indeterminate、not-found、malformed route、ordinary candidate、late/out-of-order、item disappearance、fixture family 与 platform-effect observation 等独立缺口。
+- Strict duplicate guard 结果：0 个新增自动化目标；继续生成 API/E2E/backend tests 只会重复更低层或刚新增的直接证据。
+
+## Step 3 — Agent-team generation aggregation
+
+- Execution mode: agent-team；API、E2E、backend 三个 worker 均 `success=true`。
+- API: 0 tests / 0 files / 0 fixture needs；provider scrutiny `not_applicable`。
+- E2E: 0 tests / 0 files / 0 fixture needs；现有 7 个 Story journey 已覆盖独立浏览器 seam。
+- Backend: 0 tests / 0 files / 0 fixture needs；现有 Rust/SQLite/Tauri 证据已覆盖独立后端风险。
+- Aggregate: PASS；没有生成重复测试或支持文件，产品文件未由 generation workers 修改。
+
+## Step 4 — Validation and result
+
+- Framework/config/context/coverage mapping: PASS；AC1–AC7 均有最低适当层直接证据。
+- Generated files/fixtures/helpers: N/A（严格重复覆盖守卫生成 0 项）；worker 临时 JSON 已汇总为 test-artifacts 内机器摘要。
+- Quality: PASS；无 hard wait、随机数据、真实公网/系统浏览器调用或跨测试共享状态；selectors 使用可访问 role/name/label。
+- Reused fresh execution evidence: rustfmt、workspace Clippy `-D warnings`、workspace all-target Rust/Tauri tests、contracts、Prettier、ESLint、typecheck、build、Vitest 143/143、Story Playwright 7/7、完整 Playwright 42/42 全部 PASS。
+- Workflow result: PASS；下一门禁为 `agentic-test-review`，随后 `agentic-test-traceability`。
+
 # Story 2.6 Test Automation Summary
 
 ## Step 1 — Preflight and context

@@ -22,6 +22,7 @@ fn benchmark_database_path() -> Option<std::path::PathBuf> {
 /// Panics when Tauri cannot initialize or run the application event loop.
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             use tauri::Manager;
             let database_path = app
@@ -54,7 +55,9 @@ pub fn run() {
             commands::task_v1,
             commands::sync_health_v1,
             commands::get_sync_result_v1,
-            commands::query_intel_feed_v1
+            commands::query_intel_feed_v1,
+            commands::query_intel_evidence_detail_v1,
+            commands::open_intel_original_v1
         ])
         .run(tauri::generate_context!())
         .expect("Tauri application failed to run");

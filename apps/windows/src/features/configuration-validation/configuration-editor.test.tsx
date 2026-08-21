@@ -97,6 +97,8 @@ function api(validation: ConfigurationValidationResultV1) {
         syncHealth: vi.fn(),
         getSyncResult: vi.fn(),
         queryIntelFeed: vi.fn(),
+        queryIntelEvidenceDetail: vi.fn(),
+        openIntelOriginal: vi.fn(),
     };
     return {
         desktopApi,

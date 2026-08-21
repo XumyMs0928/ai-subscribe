@@ -43,6 +43,13 @@ export interface DesktopApi {
     syncHealth(): Promise<SyncHealthSummaryV1>;
     getSyncResult(input: GetSyncResultInputV1): Promise<SyncResultPageV1>;
     queryIntelFeed(input: QueryIntelFeedInputV1): Promise<IntelFeedPageV1>;
+    queryIntelEvidenceDetail(
+        intelItemId: string,
+    ): Promise<IntelEvidenceDetailV1>;
+    openIntelOriginal(
+        intelItemId: string,
+        provenanceId: string,
+    ): Promise<OpenOriginalReceiptV1>;
 }
 
 export type IntelFeedStreamV1 = "high_value" | "ordinary_candidate";
@@ -95,6 +102,109 @@ export interface IntelFeedPageV1 {
     readonly as_of_ms: number;
     readonly items: readonly IntelFeedItemV1[];
     readonly next_cursor: string | null;
+}
+
+export type RuleEvidenceStatusV1 = "current" | "unavailable" | "stale";
+export type AiEvidenceStatusV1 = "unavailable";
+export type ProvenanceRoleV1 = "primary" | "associated";
+export type AssociationEvidenceStatusV1 = "complete" | "incomplete";
+
+export interface QueryIntelEvidenceDetailInputV1 {
+    readonly contract_version: 1;
+    readonly intel_item_id: string;
+}
+
+export interface OpenIntelOriginalInputV1 extends QueryIntelEvidenceDetailInputV1 {
+    readonly provenance_id: string;
+}
+
+export interface SourceFactsV1 {
+    readonly intel_item_id: string;
+    readonly fact_revision: number;
+    readonly content_hash: string;
+    readonly content_state: "metadata_only";
+    readonly publisher: string;
+    readonly title: string;
+    readonly source_summary: string | null;
+    readonly published_at: string | null;
+    readonly collected_at: string;
+}
+
+export interface RuleFactorV1 {
+    readonly factor:
+        | "track"
+        | "source_trust"
+        | "freshness"
+        | "technical_impact"
+        | "user_rule";
+    readonly points: number;
+    readonly reason_codes: readonly string[];
+}
+
+export interface FilterReasonV1 {
+    readonly code: string;
+    readonly actual: number | null;
+    readonly threshold: number | null;
+}
+
+export interface RuleExplanationV1 {
+    readonly rule_version: "rss-intelligence-value-v1";
+    readonly configuration_revision: number;
+    readonly configuration_hash: string;
+    readonly evaluated_at_ms: number;
+    readonly score: number;
+    readonly importance: "low" | "medium" | "high";
+    readonly disposition: IntelFeedStreamV1;
+    readonly matched_track_ids: readonly string[];
+    readonly factors: readonly RuleFactorV1[];
+    readonly filter_reasons: readonly FilterReasonV1[];
+}
+
+export interface IntelProvenanceV1 {
+    readonly provenance_id: string;
+    readonly intel_item_id: string;
+    readonly role: ProvenanceRoleV1;
+    readonly source_id: string;
+    readonly source_kind: "rss_atom";
+    readonly publisher: string;
+    readonly author: string | null;
+    readonly author_availability:
+        "available" | "unavailable" | "unknown_legacy";
+    readonly original_title: string;
+    readonly display_url: string;
+    readonly published_at: string | null;
+    readonly collected_at: string;
+    readonly first_discovered_at: string;
+    readonly last_updated_at: string;
+    readonly availability_status:
+        "available" | "unavailable" | "unknown_legacy";
+    readonly can_open_original: boolean;
+}
+
+export interface AssociationEvidenceV1 {
+    readonly status: AssociationEvidenceStatusV1;
+    readonly issue_code: string | null;
+    readonly relation_type: "same_event" | null;
+    readonly evidence_basis: "normalized_original_url" | null;
+    readonly basis_version: 1 | null;
+}
+
+export interface IntelEvidenceDetailV1 {
+    readonly contract_version: 1;
+    readonly facts: SourceFactsV1;
+    readonly rule_status: RuleEvidenceStatusV1;
+    readonly rule_issue_code: string | null;
+    readonly rule: RuleExplanationV1 | null;
+    readonly ai_status: AiEvidenceStatusV1;
+    readonly provenance: readonly IntelProvenanceV1[];
+    readonly association: AssociationEvidenceV1;
+}
+
+export interface OpenOriginalReceiptV1 {
+    readonly contract_version: 1;
+    readonly intel_item_id: string;
+    readonly provenance_id: string;
+    readonly status: "requested";
 }
 
 export interface SaveSourceInputV1 {
@@ -694,6 +804,7 @@ export function isDesktopApiError(value: unknown): value is DesktopApiError {
             "never",
         ],
         "validation.source": ["validation", "error.validation", "never"],
+        "not_found.intel_detail": ["not_found", "error.not_found", "never"],
         "conflict.effect_already_reported": [
             "conflict",
             "error.conflict",
@@ -1858,6 +1969,323 @@ export function isIntelFeedPageV1(value: unknown): value is IntelFeedPageV1 {
                     previous.intel_item_id < item.intel_item_id)
             );
         })
+    );
+}
+
+function isIntelItemId(value: unknown): value is string {
+    return typeof value === "string" && /^intel:[0-9a-f]{64}$/.test(value);
+}
+
+function isProvenanceId(value: unknown): value is string {
+    return typeof value === "string" && /^[A-Za-z0-9_.:-]{1,128}$/.test(value);
+}
+
+export function isQueryIntelEvidenceDetailInputV1(
+    value: unknown,
+): value is QueryIntelEvidenceDetailInputV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, ["contract_version", "intel_item_id"]) &&
+        value.contract_version === 1 &&
+        isIntelItemId(value.intel_item_id)
+    );
+}
+
+export function isOpenIntelOriginalInputV1(
+    value: unknown,
+): value is OpenIntelOriginalInputV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "contract_version",
+            "intel_item_id",
+            "provenance_id",
+        ]) &&
+        value.contract_version === 1 &&
+        isIntelItemId(value.intel_item_id) &&
+        isProvenanceId(value.provenance_id)
+    );
+}
+
+function isSourceFactsV1(value: unknown): value is SourceFactsV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "intel_item_id",
+            "fact_revision",
+            "content_hash",
+            "content_state",
+            "publisher",
+            "title",
+            "source_summary",
+            "published_at",
+            "collected_at",
+        ]) &&
+        isIntelItemId(value.intel_item_id) &&
+        Number.isSafeInteger(value.fact_revision) &&
+        Number(value.fact_revision) >= 1 &&
+        typeof value.content_hash === "string" &&
+        /^[0-9a-f]{64}$/.test(value.content_hash) &&
+        value.content_state === "metadata_only" &&
+        isBoundedText(value.publisher, 2_048, false) &&
+        isBoundedText(value.title, 2_048, false) &&
+        (value.source_summary === null ||
+            isBoundedText(value.source_summary, 16_384, true)) &&
+        isOptionalUtc(value.published_at) &&
+        typeof value.collected_at === "string" &&
+        isRfc3339Utc(value.collected_at)
+    );
+}
+
+function isRuleFactorV1(value: unknown): value is RuleFactorV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, ["factor", "points", "reason_codes"]) &&
+        [
+            "track",
+            "source_trust",
+            "freshness",
+            "technical_impact",
+            "user_rule",
+        ].includes(String(value.factor)) &&
+        isSafePercent(value.points) &&
+        isCanonicalStringSet(value.reason_codes, 16, (reason) =>
+            /^[A-Za-z0-9_.:-]{1,128}$/.test(reason),
+        )
+    );
+}
+
+function isFilterReasonV1(value: unknown): value is FilterReasonV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, ["code", "actual", "threshold"]) &&
+        typeof value.code === "string" &&
+        /^[A-Za-z0-9_.:-]{1,128}$/.test(value.code) &&
+        (value.actual === null || isSafePercent(value.actual)) &&
+        (value.threshold === null || isSafePercent(value.threshold))
+    );
+}
+
+function isRuleExplanationV1(value: unknown): value is RuleExplanationV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "rule_version",
+            "configuration_revision",
+            "configuration_hash",
+            "evaluated_at_ms",
+            "score",
+            "importance",
+            "disposition",
+            "matched_track_ids",
+            "factors",
+            "filter_reasons",
+        ]) &&
+        value.rule_version === "rss-intelligence-value-v1" &&
+        Number.isSafeInteger(value.configuration_revision) &&
+        Number(value.configuration_revision) >= 1 &&
+        typeof value.configuration_hash === "string" &&
+        /^[0-9a-f]{64}$/.test(value.configuration_hash) &&
+        Number.isSafeInteger(value.evaluated_at_ms) &&
+        Number(value.evaluated_at_ms) >= 1 &&
+        isSafePercent(value.score) &&
+        ["low", "medium", "high"].includes(String(value.importance)) &&
+        isIntelFeedStreamV1(value.disposition) &&
+        isCanonicalStringSet(value.matched_track_ids, 32, isOpaqueTrackId) &&
+        Array.isArray(value.factors) &&
+        value.factors.length <= 16 &&
+        value.factors.every(isRuleFactorV1) &&
+        Array.isArray(value.filter_reasons) &&
+        value.filter_reasons.length <= 32 &&
+        value.filter_reasons.every(isFilterReasonV1)
+    );
+}
+
+function isIntelProvenanceV1(value: unknown): value is IntelProvenanceV1 {
+    if (!(
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "provenance_id",
+            "intel_item_id",
+            "role",
+            "source_id",
+            "source_kind",
+            "publisher",
+            "author",
+            "author_availability",
+            "original_title",
+            "display_url",
+            "published_at",
+            "collected_at",
+            "first_discovered_at",
+            "last_updated_at",
+            "availability_status",
+            "can_open_original",
+        ]) &&
+        isProvenanceId(value.provenance_id) &&
+        isIntelItemId(value.intel_item_id) &&
+        (value.role === "primary" || value.role === "associated") &&
+        isSourceId(value.source_id) &&
+        value.source_kind === "rss_atom" &&
+        isBoundedText(value.publisher, 2_048, false) &&
+        (value.author === null || isBoundedText(value.author, 2_048, false)) &&
+        ["available", "unavailable"].includes(
+            String(value.author_availability),
+        ) &&
+        isBoundedText(value.original_title, 2_048, false) &&
+        (isSafeDisplayUrl(value.display_url) ||
+            value.display_url === "原文地址不可用") &&
+        isOptionalUtc(value.published_at) &&
+        typeof value.collected_at === "string" &&
+        isRfc3339Utc(value.collected_at) &&
+        typeof value.first_discovered_at === "string" &&
+        isRfc3339Utc(value.first_discovered_at) &&
+        typeof value.last_updated_at === "string" &&
+        isRfc3339Utc(value.last_updated_at) &&
+        ["available", "unavailable"].includes(
+            String(value.availability_status),
+        ) &&
+        typeof value.can_open_original === "boolean"
+    ))
+        return false;
+    return (
+        (!value.can_open_original ||
+            (value.availability_status === "available" &&
+                isSafeDisplayUrl(value.display_url))) &&
+        (value.display_url !== "原文地址不可用" || !value.can_open_original)
+    );
+}
+
+function isAssociationEvidenceV1(
+    value: unknown,
+): value is AssociationEvidenceV1 {
+    if (!(
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "status",
+            "issue_code",
+            "relation_type",
+            "evidence_basis",
+            "basis_version",
+        ]) &&
+        (value.status === "complete" || value.status === "incomplete") &&
+        (value.issue_code === null ||
+            isBoundedText(value.issue_code, 128, false))
+    ))
+        return false;
+    const noAssociation =
+        value.relation_type === null &&
+        value.evidence_basis === null &&
+        value.basis_version === null;
+    const deterministicAssociation =
+        value.relation_type === "same_event" &&
+        value.evidence_basis === "normalized_original_url" &&
+        value.basis_version === 1;
+    return (
+        (noAssociation || deterministicAssociation) &&
+        (value.status === "incomplete"
+            ? value.issue_code !== null && deterministicAssociation
+            : value.issue_code === null)
+    );
+}
+
+export function isIntelEvidenceDetailV1(
+    value: unknown,
+): value is IntelEvidenceDetailV1 {
+    if (!(
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "contract_version",
+            "facts",
+            "rule_status",
+            "rule_issue_code",
+            "rule",
+            "ai_status",
+            "provenance",
+            "association",
+        ]) &&
+        value.contract_version === 1 &&
+        isSourceFactsV1(value.facts) &&
+        ["current", "unavailable", "stale"].includes(
+            String(value.rule_status),
+        ) &&
+        (value.rule_issue_code === null ||
+            isBoundedText(value.rule_issue_code, 128, false)) &&
+        (value.rule === null || isRuleExplanationV1(value.rule)) &&
+        value.ai_status === "unavailable" &&
+        Array.isArray(value.provenance) &&
+        value.provenance.length >= 1 &&
+        value.provenance.length <= 64 &&
+        value.provenance.every(isIntelProvenanceV1) &&
+        isAssociationEvidenceV1(value.association)
+    ))
+        return false;
+    const provenance = value.provenance as readonly IntelProvenanceV1[];
+    const ruleIsConsistent =
+        value.rule_status === "current"
+            ? value.rule !== null && value.rule_issue_code === null
+            : value.rule === null && value.rule_issue_code !== null;
+    return (
+        ruleIsConsistent &&
+        provenance[0].role === "primary" &&
+        provenance[0].intel_item_id === value.facts.intel_item_id &&
+        provenance[0].publisher === value.facts.publisher &&
+        provenance[0].original_title === value.facts.title &&
+        provenance[0].published_at === value.facts.published_at &&
+        provenance[0].collected_at === value.facts.collected_at &&
+        provenance.slice(1).every((entry) => entry.role === "associated") &&
+        new Set(provenance.map((entry) => entry.provenance_id)).size ===
+            provenance.length &&
+        new Set(provenance.map((entry) => entry.intel_item_id)).size ===
+            provenance.length &&
+        provenance
+            .slice(2)
+            .every(
+                (entry, index) =>
+                    provenance[index + 1].intel_item_id < entry.intel_item_id,
+            )
+    );
+}
+
+export function isOpenOriginalReceiptV1(
+    value: unknown,
+): value is OpenOriginalReceiptV1 {
+    return (
+        isRecord(value) &&
+        hasExactKeys(value, [
+            "contract_version",
+            "intel_item_id",
+            "provenance_id",
+            "status",
+        ]) &&
+        value.contract_version === 1 &&
+        isIntelItemId(value.intel_item_id) &&
+        isProvenanceId(value.provenance_id) &&
+        value.status === "requested"
+    );
+}
+
+function isBoundedText(
+    value: unknown,
+    maximum: number,
+    allowEmpty: boolean,
+): value is string {
+    return (
+        typeof value === "string" &&
+        value.trim() === value &&
+        (allowEmpty || value.length > 0) &&
+        [...value].length <= maximum
+    );
+}
+
+function isSafeDisplayUrl(value: unknown): value is string {
+    if (!isHttpsUrl(value)) return false;
+    const parsed = new URL(value);
+    return (
+        parsed.username === "" &&
+        parsed.password === "" &&
+        parsed.search === "" &&
+        parsed.hash === ""
     );
 }
 

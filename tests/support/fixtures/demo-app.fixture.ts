@@ -30,6 +30,7 @@ import {
 interface DemoAppFixture {
     invokeCalls(): Promise<TauriInvokeCall[]>;
     externalCalls(): Promise<ExternalCall[]>;
+    settledDetailIds(): Promise<string[]>;
     setResponse(command: TauriCommand, value: unknown): Promise<void>;
     setError(command: TauriCommand, error: unknown): Promise<void>;
 }
@@ -40,6 +41,15 @@ interface DemoAppFixtures {
 }
 
 const defaultCatalog = createDemoCatalog();
+const defaultIntelEvidenceDetail = JSON.parse(
+    readFileSync(
+        resolve(
+            process.cwd(),
+            "contracts/fixtures/intel-detail/phase1-v1.json",
+        ),
+        "utf8",
+    ),
+) as Record<string, unknown>;
 const defaultDetailsById = Object.fromEntries(
     defaultCatalog.items.map((item) => [
         item.id,
@@ -124,6 +134,14 @@ const defaultBehaviors: Record<TauriCommand, TauriCommandBehavior> = {
             ],
         }),
     }),
+    query_intel_evidence_detail_v1: response({
+        __intelDetailState: "read",
+        initialDetail: defaultIntelEvidenceDetail,
+    }),
+    open_intel_original_v1: response({
+        __intelDetailState: "open",
+        initialDetail: defaultIntelEvidenceDetail,
+    }),
 };
 
 async function readInvokeCalls(page: Page): Promise<TauriInvokeCall[]> {
@@ -191,7 +209,8 @@ export const test = base.extend<DemoAppFixtures>({
                         | "xhr"
                         | "websocket"
                         | "sendBeacon"
-                        | "notification";
+                        | "notification"
+                        | "system_browser";
                     target: string;
                     method: string | null;
                 };
@@ -201,6 +220,7 @@ export const test = base.extend<DemoAppFixtures>({
                         __TEST_TAURI_BEHAVIORS__: Record<string, Behavior>;
                         __TEST_TAURI_CALLS__: InvokeCall[];
                         __TEST_EXTERNAL_CALLS__: OutboundCall[];
+                        __TEST_SETTLED_DETAIL_IDS__: string[];
                     };
 
                 type Configuration = {
@@ -354,6 +374,7 @@ export const test = base.extend<DemoAppFixtures>({
                 const testWindow = window as TestWindow;
                 testWindow.__TEST_TAURI_BEHAVIORS__ = initialBehaviors;
                 testWindow.__TEST_TAURI_CALLS__ = [];
+                testWindow.__TEST_SETTLED_DETAIL_IDS__ = [];
                 const persistedExternalCalls = localStorage.getItem(
                     externalCallsStorageKey,
                 );
@@ -403,6 +424,7 @@ export const test = base.extend<DemoAppFixtures>({
                                       __syncState?: string;
                                       __syncResultState?: string;
                                       __intelFeedState?: string;
+                                      __intelDetailState?: string;
                                       initialView?: ConfigurationView;
                                       initialResult?: Record<string, unknown>;
                                       initialSource?: Record<string, unknown>;
@@ -410,6 +432,11 @@ export const test = base.extend<DemoAppFixtures>({
                                       initialTask?: Record<string, unknown>;
                                       initialHealth?: Record<string, unknown>;
                                       initialPages?: Record<string, unknown>[];
+                                      initialDetail?: Record<string, unknown>;
+                                      detailDelayFramesById?: Record<
+                                          string,
+                                          number
+                                      >;
                                   })
                                 : null;
                         if (
@@ -691,6 +718,152 @@ export const test = base.extend<DemoAppFixtures>({
                                 );
                             }
                             return structuredClone(page);
+                        }
+                        if (
+                            command === "query_intel_evidence_detail_v1" &&
+                            marker?.__intelDetailState === "read" &&
+                            marker.initialDetail
+                        ) {
+                            const input = args?.input as
+                                | {
+                                      contract_version?: number;
+                                      intel_item_id?: string;
+                                  }
+                                | undefined;
+                            if (
+                                input?.contract_version !== 1 ||
+                                typeof input.intel_item_id !== "string" ||
+                                !/^intel:[0-9a-f]{64}$/.test(
+                                    input.intel_item_id,
+                                ) ||
+                                Object.keys(input).sort().join("|") !==
+                                    "contract_version|intel_item_id"
+                            ) {
+                                throw new Error(
+                                    "query_intel_evidence_detail_v1 requires exact stable identity",
+                                );
+                            }
+                            const detail = structuredClone(
+                                marker.initialDetail,
+                            );
+                            const knownIds = new Set([
+                                `intel:${"1".repeat(64)}`,
+                                `intel:${"2".repeat(64)}`,
+                            ]);
+                            if (!knownIds.has(input.intel_item_id)) {
+                                throw {
+                                    contract_version: 1,
+                                    code: "not_found.intel_detail",
+                                    category: "not_found",
+                                    message_key: "error.not_found",
+                                    retryability: "never",
+                                    source_id: null,
+                                    task_id: null,
+                                    details_allowlisted: "{}",
+                                    correlation_id: "test-not-found",
+                                };
+                            }
+                            const delayFrames = Math.max(
+                                0,
+                                Math.min(
+                                    30,
+                                    marker.detailDelayFramesById?.[
+                                        input.intel_item_id
+                                    ] ?? 0,
+                                ),
+                            );
+                            for (
+                                let frame = 0;
+                                frame < delayFrames;
+                                frame += 1
+                            ) {
+                                await new Promise<void>((resolve) =>
+                                    requestAnimationFrame(() => resolve()),
+                                );
+                            }
+                            const facts = detail.facts as Record<
+                                string,
+                                unknown
+                            >;
+                            facts.intel_item_id = input.intel_item_id;
+                            const provenance = detail.provenance as Record<
+                                string,
+                                unknown
+                            >[];
+                            provenance[0].intel_item_id = input.intel_item_id;
+                            if (
+                                input.intel_item_id ===
+                                `intel:${"2".repeat(64)}`
+                            ) {
+                                facts.title = "Quarterly community note";
+                                const rule = detail.rule as Record<
+                                    string,
+                                    unknown
+                                >;
+                                rule.score = 50;
+                                rule.importance = "medium";
+                                rule.disposition = "ordinary_candidate";
+                                rule.matched_track_ids = [];
+                                rule.filter_reasons = [
+                                    {
+                                        code: "score_below_threshold",
+                                        actual: 50,
+                                        threshold: 80,
+                                    },
+                                ];
+                                provenance[0].original_title = facts.title;
+                            }
+                            testWindow.__TEST_SETTLED_DETAIL_IDS__.push(
+                                input.intel_item_id,
+                            );
+                            return detail;
+                        }
+                        if (
+                            command === "open_intel_original_v1" &&
+                            marker?.__intelDetailState === "open" &&
+                            marker.initialDetail
+                        ) {
+                            const input = args?.input as
+                                | {
+                                      contract_version?: number;
+                                      intel_item_id?: string;
+                                      provenance_id?: string;
+                                  }
+                                | undefined;
+                            const provenance = marker.initialDetail
+                                .provenance as Record<string, unknown>[];
+                            const allowed = provenance.some(
+                                (source) =>
+                                    source.provenance_id ===
+                                        input?.provenance_id &&
+                                    source.can_open_original === true,
+                            );
+                            if (
+                                input?.contract_version !== 1 ||
+                                typeof input.intel_item_id !== "string" ||
+                                !/^intel:[0-9a-f]{64}$/.test(
+                                    input.intel_item_id,
+                                ) ||
+                                typeof input.provenance_id !== "string" ||
+                                !allowed ||
+                                Object.keys(input).sort().join("|") !==
+                                    "contract_version|intel_item_id|provenance_id"
+                            ) {
+                                throw new Error(
+                                    "open_intel_original_v1 requires exact stable identities",
+                                );
+                            }
+                            recordExternal(
+                                "system_browser",
+                                `${input.intel_item_id}|${input.provenance_id}`,
+                                null,
+                            );
+                            return {
+                                contract_version: 1,
+                                intel_item_id: input.intel_item_id,
+                                provenance_id: input.provenance_id,
+                                status: "requested",
+                            };
                         }
                         if (
                             command === "query_intel_feed_v1" &&
@@ -1126,6 +1299,16 @@ export const test = base.extend<DemoAppFixtures>({
                     ...(await readExternalCalls(page)),
                     ...browserResourceCalls,
                 ],
+                settledDetailIds: () =>
+                    page.evaluate(() =>
+                        structuredClone(
+                            (
+                                window as Window & {
+                                    __TEST_SETTLED_DETAIL_IDS__?: string[];
+                                }
+                            ).__TEST_SETTLED_DETAIL_IDS__ ?? [],
+                        ),
+                    ),
                 setResponse: async (command, value) => {
                     const behavior = { kind: "response" as const, value };
                     await page.addInitScript(
@@ -1230,3 +1413,5 @@ export type {
     TauriCommandOverrides,
     TauriInvokeCall,
 };
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";

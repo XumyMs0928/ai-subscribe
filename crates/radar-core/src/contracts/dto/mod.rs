@@ -1,6 +1,7 @@
 //! Stable data-transfer objects.
 
 pub mod configuration_validation;
+pub mod intel_detail;
 pub mod intel_feed;
 pub mod source;
 pub mod sync;

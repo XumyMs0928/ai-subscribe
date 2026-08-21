@@ -17,6 +17,7 @@ pub enum ErrorCode {
     ValidationConfiguration,
     ValidationStaleReceipt,
     ValidationSource,
+    NotFoundIntelDetail,
     ConflictEffectAlreadyReported,
     ConflictSecretLeaseConsumed,
     ConflictSetupRevision,
@@ -34,7 +35,7 @@ pub enum ErrorCode {
 }
 
 impl ErrorCode {
-    pub const ALL: [Self; 23] = [
+    pub const ALL: [Self; 24] = [
         Self::ValidationEffectId,
         Self::ValidationIdempotencyKey,
         Self::ValidationRfc3339Utc,
@@ -44,6 +45,7 @@ impl ErrorCode {
         Self::ValidationConfiguration,
         Self::ValidationStaleReceipt,
         Self::ValidationSource,
+        Self::NotFoundIntelDetail,
         Self::ConflictEffectAlreadyReported,
         Self::ConflictSecretLeaseConsumed,
         Self::ConflictSetupRevision,
@@ -72,6 +74,7 @@ impl ErrorCode {
             Self::ValidationConfiguration => "validation.configuration",
             Self::ValidationStaleReceipt => "validation.stale_validation_receipt",
             Self::ValidationSource => "validation.source",
+            Self::NotFoundIntelDetail => "not_found.intel_detail",
             Self::ConflictEffectAlreadyReported => "conflict.effect_already_reported",
             Self::ConflictSecretLeaseConsumed => "conflict.secret_lease_consumed",
             Self::ConflictSetupRevision => "conflict.setup_revision",
@@ -100,6 +103,7 @@ impl ErrorCode {
             | Self::ValidationConfiguration
             | Self::ValidationStaleReceipt
             | Self::ValidationSource => ErrorCategory::Validation,
+            Self::NotFoundIntelDetail => ErrorCategory::NotFound,
             Self::ConflictEffectAlreadyReported
             | Self::ConflictSecretLeaseConsumed
             | Self::ConflictSetupRevision
@@ -128,6 +132,7 @@ impl ErrorCode {
     const fn message_key(self) -> &'static str {
         match self.category() {
             ErrorCategory::Validation => "error.validation",
+            ErrorCategory::NotFound => "error.not_found",
             ErrorCategory::Conflict => "error.conflict",
             ErrorCategory::Network => "error.network.source",
             ErrorCategory::RateLimited => "error.rate_limited.source",

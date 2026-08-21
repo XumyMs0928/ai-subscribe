@@ -58,6 +58,8 @@ function api(overrides: Partial<DesktopApi> = {}): DesktopApi {
         ),
         getSyncResult: vi.fn(),
         queryIntelFeed: vi.fn(),
+        queryIntelEvidenceDetail: vi.fn(),
+        openIntelOriginal: vi.fn(),
         ...overrides,
     };
 }

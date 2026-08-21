@@ -1,0 +1,18 @@
+{
+  "contract_version": 1,
+  "base_fixture": "phase1-v1.json",
+  "cases": [
+    {
+      "name": "rule_unavailable_summary_missing",
+      "source_summary": null,
+      "rule_status": "unavailable",
+      "rule_issue_code": "rule.unavailable"
+    },
+    {
+      "name": "rule_stale_summary_retained",
+      "source_summary": "The locally retained summary remains readable while rule evidence is stale.",
+      "rule_status": "stale",
+      "rule_issue_code": "rule.stale"
+    }
+  ]
+}

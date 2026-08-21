@@ -73,7 +73,15 @@ pub fn contract_manifest_json() -> String {
             "\"intel_feed_filters\":[\"track_ids\",\"source_ids\",\"time_window\",\"importance\"],",
             "\"query_intel_feed_input\":[\"contract_version\",\"stream\",\"filters\",\"sort\",\"cursor\",\"limit\"],",
             "\"intel_feed_item\":[\"contract_version\",\"intel_item_id\",\"source_id\",\"source_kind\",\"publisher\",\"title\",\"source_excerpt\",\"excerpt_truncated\",\"published_at\",\"collected_at\",\"importance\",\"score\",\"matched_track_ids\",\"stream_disposition\",\"ai_status\"],",
-            "\"intel_feed_page\":[\"contract_version\",\"stream\",\"filters\",\"sort\",\"rule_version\",\"configuration_revision\",\"configuration_hash\",\"as_of_ms\",\"items\",\"next_cursor\"]},",
+            "\"intel_feed_page\":[\"contract_version\",\"stream\",\"filters\",\"sort\",\"rule_version\",\"configuration_revision\",\"configuration_hash\",\"as_of_ms\",\"items\",\"next_cursor\"],",
+            "\"query_intel_evidence_detail_input\":[\"contract_version\",\"intel_item_id\"],",
+            "\"source_facts\":[\"intel_item_id\",\"fact_revision\",\"content_hash\",\"content_state\",\"publisher\",\"title\",\"source_summary\",\"published_at\",\"collected_at\"],",
+            "\"rule_explanation\":[\"rule_version\",\"configuration_revision\",\"configuration_hash\",\"evaluated_at_ms\",\"score\",\"importance\",\"disposition\",\"matched_track_ids\",\"factors\",\"filter_reasons\"],",
+            "\"intel_provenance\":[\"provenance_id\",\"intel_item_id\",\"role\",\"source_id\",\"source_kind\",\"publisher\",\"author\",\"author_availability\",\"original_title\",\"display_url\",\"published_at\",\"collected_at\",\"first_discovered_at\",\"last_updated_at\",\"availability_status\",\"can_open_original\"],",
+            "\"association_evidence\":[\"status\",\"issue_code\",\"relation_type\",\"evidence_basis\",\"basis_version\"],",
+            "\"intel_evidence_detail\":[\"contract_version\",\"facts\",\"rule_status\",\"rule_issue_code\",\"rule\",\"ai_status\",\"provenance\",\"association\"],",
+            "\"open_intel_original_input\":[\"contract_version\",\"intel_item_id\",\"provenance_id\"],",
+            "\"open_original_receipt\":[\"contract_version\",\"intel_item_id\",\"provenance_id\",\"status\"]},",
         "\"demo_fixture\":{\"dataset_id\":\"demo-v1\",\"item_count\":3,\"fingerprint\":\"__DEMO_HASH__\"},",
             "\"effect_kind\":[\"contract_probe\"],",
             "\"effect_status\":{\"all\":[\"pending\",\"delivered\",\"denied\",\"expired\",\"failed\"],",
@@ -102,7 +110,8 @@ pub fn contract_manifest_json() -> String {
             "\"hash\":\"sha256_lowercase_hex\",\"receipt\":\"base64url_no_pad_32_bytes_ttl___RECEIPT_TTL__ms_capacity___RECEIPT_CAPACITY__\"},",
             "\"sync_rules\":{\"kind\":\"rss_atom_sync\",\"required_source_kinds\":[\"rss_atom\"],\"task_id\":\"task_colon_24_lower_hex\",\"sync_run_id\":\"run_colon_24_lower_hex\",\"legacy_result_ref\":\"explicit_null\",\"result_cursor\":\"run_bound_existing_boundary\",\"foreground_budget_ms\":30000,\"task_states\":[\"queued\",\"running\",\"retry_wait\",\"succeeded\",\"partially_succeeded\",\"failed\",\"cancelled\"],\"result_outcomes\":[\"succeeded_with_results\",\"succeeded_zero_results\",\"partially_succeeded\",\"failed\"]},",
             "\"intelligence_value_rules\":{\"rule_version\":\"__RULE_VERSION__\",\"weights\":{\"track\":__TRACK_WEIGHT__,\"source_trust\":__SOURCE_TRUST_WEIGHT__,\"freshness\":__FRESHNESS_WEIGHT__,\"technical_impact\":__TECHNICAL_IMPACT_WEIGHT__,\"user_rule\":__USER_RULE_WEIGHT__},\"importance\":{\"low\":[0,__IMPORTANCE_LOW_MAX__],\"medium\":[__IMPORTANCE_MEDIUM_MIN__,__IMPORTANCE_MEDIUM_MAX__],\"high\":[__IMPORTANCE_HIGH_MIN__,__IMPORTANCE_HIGH_MAX__]},\"dispositions\":[\"high_value\",\"ordinary_candidate\"],\"threshold_field\":\"alert_threshold\",\"ai_status\":\"unavailable\"},",
-            "\"intel_feed_rules\":{\"streams\":[\"high_value\",\"ordinary_candidate\"],\"time_windows\":[\"all_time\",\"last_24h\",\"last_7d\",\"last_30d\"],\"sort\":\"score_desc_item_id_asc\",\"limit\":{\"default\":30,\"max\":100},\"track_filter_max\":32,\"source_filter_max\":64,\"cursor_max_bytes\":1024,\"excerpt_max_chars\":280,\"data_origin\":\"real\",\"source_kind\":\"rss_atom\"}}"
+            "\"intel_feed_rules\":{\"streams\":[\"high_value\",\"ordinary_candidate\"],\"time_windows\":[\"all_time\",\"last_24h\",\"last_7d\",\"last_30d\"],\"sort\":\"score_desc_item_id_asc\",\"limit\":{\"default\":30,\"max\":100},\"track_filter_max\":32,\"source_filter_max\":64,\"cursor_max_bytes\":1024,\"excerpt_max_chars\":280,\"data_origin\":\"real\",\"source_kind\":\"rss_atom\"},",
+            "\"intel_detail_rules\":{\"provenance_max\":64,\"summary_max_chars\":16384,\"text_max_chars\":2048,\"ai_status\":\"unavailable\",\"open_input\":\"stable_item_and_provenance_ids_only\"}}"
     )
     .replace("__DEMO_HASH__", &demo_fingerprint)
     .replace("__VALIDATOR_VERSION__", VALIDATOR_VERSION)

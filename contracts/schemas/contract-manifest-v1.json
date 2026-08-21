@@ -108,12 +108,20 @@
     "intel_feed_filters": ["track_ids", "source_ids", "time_window", "importance"],
     "query_intel_feed_input": ["contract_version", "stream", "filters", "sort", "cursor", "limit"],
     "intel_feed_item": ["contract_version", "intel_item_id", "source_id", "source_kind", "publisher", "title", "source_excerpt", "excerpt_truncated", "published_at", "collected_at", "importance", "score", "matched_track_ids", "stream_disposition", "ai_status"],
-    "intel_feed_page": ["contract_version", "stream", "filters", "sort", "rule_version", "configuration_revision", "configuration_hash", "as_of_ms", "items", "next_cursor"]
+    "intel_feed_page": ["contract_version", "stream", "filters", "sort", "rule_version", "configuration_revision", "configuration_hash", "as_of_ms", "items", "next_cursor"],
+    "query_intel_evidence_detail_input": ["contract_version", "intel_item_id"],
+    "source_facts": ["intel_item_id", "fact_revision", "content_hash", "content_state", "publisher", "title", "source_summary", "published_at", "collected_at"],
+    "rule_explanation": ["rule_version", "configuration_revision", "configuration_hash", "evaluated_at_ms", "score", "importance", "disposition", "matched_track_ids", "factors", "filter_reasons"],
+    "intel_provenance": ["provenance_id", "intel_item_id", "role", "source_id", "source_kind", "publisher", "author", "author_availability", "original_title", "display_url", "published_at", "collected_at", "first_discovered_at", "last_updated_at", "availability_status", "can_open_original"],
+    "association_evidence": ["status", "issue_code", "relation_type", "evidence_basis", "basis_version"],
+    "intel_evidence_detail": ["contract_version", "facts", "rule_status", "rule_issue_code", "rule", "ai_status", "provenance", "association"],
+    "open_intel_original_input": ["contract_version", "intel_item_id", "provenance_id"],
+    "open_original_receipt": ["contract_version", "intel_item_id", "provenance_id", "status"]
   },
   "demo_fixture": {
     "dataset_id": "demo-v1",
     "item_count": 3,
-    "fingerprint": "22d7c17a4fb8ebbf"
+    "fingerprint": "3e210d84f59c3649"
   },
   "effect_kind": ["contract_probe"],
   "effect_status": {
@@ -177,5 +185,12 @@
     "excerpt_max_chars": 280,
     "data_origin": "real",
     "source_kind": "rss_atom"
+  },
+  "intel_detail_rules": {
+    "provenance_max": 64,
+    "summary_max_chars": 16384,
+    "text_max_chars": 2048,
+    "ai_status": "unavailable",
+    "open_input": "stable_item_and_provenance_ids_only"
   }
 }

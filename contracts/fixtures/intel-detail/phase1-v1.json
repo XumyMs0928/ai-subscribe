@@ -1,0 +1,76 @@
+{
+  "contract_version": 1,
+  "facts": {
+    "intel_item_id": "intel:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "fact_revision": 2,
+    "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "content_state": "metadata_only",
+    "publisher": "Example Engineering",
+    "title": "Agent runtime security release",
+    "source_summary": "The publisher describes a security-focused runtime release.",
+    "published_at": "2026-08-20T08:00:00Z",
+    "collected_at": "2026-08-20T08:05:00Z"
+  },
+  "rule_status": "current",
+  "rule_issue_code": null,
+  "rule": {
+    "rule_version": "rss-intelligence-value-v1",
+    "configuration_revision": 3,
+    "configuration_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "evaluated_at_ms": 1787213160000,
+    "score": 90,
+    "importance": "high",
+    "disposition": "high_value",
+    "matched_track_ids": ["ai_agents"],
+    "factors": [
+      { "factor": "track", "points": 25, "reason_codes": ["track.matched"] }
+    ],
+    "filter_reasons": []
+  },
+  "ai_status": "unavailable",
+  "provenance": [
+    {
+      "provenance_id": "prov:primary:aaaaaaaaaaaaaaaaaaaaaaaa",
+      "intel_item_id": "intel:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "role": "primary",
+      "source_id": "source:aaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_kind": "rss_atom",
+      "publisher": "Example Engineering",
+      "author": "Release Team",
+      "author_availability": "available",
+      "original_title": "Agent runtime security release",
+      "display_url": "https://example.com/releases/runtime-security",
+      "published_at": "2026-08-20T08:00:00Z",
+      "collected_at": "2026-08-20T08:05:00Z",
+      "first_discovered_at": "2026-08-20T08:05:00Z",
+      "last_updated_at": "2026-08-20T08:05:00Z",
+      "availability_status": "available",
+      "can_open_original": true
+    },
+    {
+      "provenance_id": "prov:associated:bbbbbbbbbbbbbbbbbbbb",
+      "intel_item_id": "intel:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "role": "associated",
+      "source_id": "source:bbbbbbbbbbbbbbbbbbbbbbbb",
+      "source_kind": "rss_atom",
+      "publisher": "Example Security",
+      "author": null,
+      "author_availability": "unavailable",
+      "original_title": "Runtime security update",
+      "display_url": "https://security.example.org/runtime-update",
+      "published_at": null,
+      "collected_at": "2026-08-20T08:06:00Z",
+      "first_discovered_at": "2026-08-20T08:06:00Z",
+      "last_updated_at": "2026-08-20T08:06:00Z",
+      "availability_status": "unavailable",
+      "can_open_original": false
+    }
+  ],
+  "association": {
+    "status": "complete",
+    "issue_code": null,
+    "relation_type": "same_event",
+    "evidence_basis": "normalized_original_url",
+    "basis_version": 1
+  }
+}

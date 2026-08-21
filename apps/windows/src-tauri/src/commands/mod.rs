@@ -6,6 +6,10 @@ use radar_core::contracts::dto::configuration_validation::{
     ConfigurationValidationResultV1, ConfigurationViewV1, SaveConfigurationInputV1,
     ValidateConfigurationInputV1,
 };
+use radar_core::contracts::dto::intel_detail::{
+    IntelEvidenceDetailV1, OpenIntelOriginalInputV1, OpenOriginalReceiptV1,
+    QueryIntelEvidenceDetailInputV1,
+};
 use radar_core::contracts::dto::intel_feed::{IntelFeedPageV1, QueryIntelFeedInputV1};
 use radar_core::contracts::dto::source::{SaveSourceInputV1, SourcePageV1, SourceViewV1};
 use radar_core::contracts::dto::sync::{
@@ -657,6 +661,75 @@ pub async fn query_intel_feed_v1(
     intel_feed_from_state(&state, input).await
 }
 
+/// Returns one bounded real RSS evidence detail by stable item identity.
+///
+/// # Errors
+/// Returns a stable validation or storage error without leaking database details.
+#[allow(clippy::needless_pass_by_value)]
+#[tauri::command]
+pub async fn query_intel_evidence_detail_v1(
+    input: QueryIntelEvidenceDetailInputV1,
+    state: tauri::State<'_, DemoState>,
+) -> Result<IntelEvidenceDetailV1, Box<CommandErrorV1>> {
+    query_intel_evidence_detail_from_state(&state, input).await
+}
+
+async fn query_intel_evidence_detail_from_state(
+    state: &DemoState,
+    input: QueryIntelEvidenceDetailInputV1,
+) -> Result<IntelEvidenceDetailV1, Box<CommandErrorV1>> {
+    state
+        .with_store_blocking(move |store| store.query_intel_evidence_detail(&input))
+        .await
+}
+
+/// Resolves one stable provenance intent and opens it with the system browser.
+///
+/// # Errors
+/// Returns a stable validation/storage/platform error; neither response nor error contains a URL.
+#[allow(clippy::needless_pass_by_value)]
+#[tauri::command]
+pub async fn open_intel_original_v1(
+    input: OpenIntelOriginalInputV1,
+    state: tauri::State<'_, DemoState>,
+    app: tauri::AppHandle,
+) -> Result<OpenOriginalReceiptV1, Box<CommandErrorV1>> {
+    open_intel_original_from_state(&state, input, |link| {
+        crate::platform::windows::external_links::open_validated_link(&app, link)
+    })
+    .await
+}
+
+async fn open_intel_original_from_state(
+    state: &DemoState,
+    input: OpenIntelOriginalInputV1,
+    opener: impl FnOnce(
+        &radar_core::application::intel_detail::ValidatedOriginalLink,
+    ) -> Result<(), AppError>,
+) -> Result<OpenOriginalReceiptV1, Box<CommandErrorV1>> {
+    let resolve_input = input.clone();
+    let link = state
+        .with_store_blocking(move |store| store.resolve_intel_original(&resolve_input))
+        .await?;
+    catch_unwind(AssertUnwindSafe(|| opener(&link)))
+        .map_err(|_| {
+            Box::new(CommandErrorV1::from(AppError::internal_generated(
+                "external-link-panic",
+            )))
+        })?
+        .map_err(|_| {
+            Box::new(CommandErrorV1::from(AppError::internal_generated(
+                "external-link-open",
+            )))
+        })?;
+    Ok(OpenOriginalReceiptV1 {
+        contract_version: 1,
+        intel_item_id: link.intel_item_id().to_owned(),
+        provenance_id: link.provenance_id().to_owned(),
+        status: "requested".to_owned(),
+    })
+}
+
 async fn intel_feed_from_state(
     state: &DemoState,
     input: QueryIntelFeedInputV1,
@@ -1010,6 +1083,88 @@ mod tests {
     }
 
     #[test]
+    fn real_detail_and_original_helpers_keep_the_effect_narrow_and_redacted() {
+        let state = DemoState::from_store(DemoStore::open_in_memory().expect("memory store"));
+        tauri::async_runtime::block_on(async {
+            let (intel_item_id, provenance_id) = seed_real_detail(&state).await;
+            let detail = query_intel_evidence_detail_from_state(
+                &state,
+                QueryIntelEvidenceDetailInputV1 {
+                    contract_version: 1,
+                    intel_item_id: intel_item_id.clone(),
+                },
+            )
+            .await
+            .expect("detail command helper");
+            assert_eq!(detail.facts.intel_item_id, intel_item_id);
+            assert_eq!(detail.ai_status.as_str(), "unavailable");
+
+            let captured = Arc::new(Mutex::new(Vec::new()));
+            let capture = Arc::clone(&captured);
+            let receipt = open_intel_original_from_state(
+                &state,
+                OpenIntelOriginalInputV1 {
+                    contract_version: 1,
+                    intel_item_id: intel_item_id.clone(),
+                    provenance_id: provenance_id.clone(),
+                },
+                move |link| {
+                    capture
+                        .lock()
+                        .expect("capture lock")
+                        .push(link.url().to_owned());
+                    Ok(())
+                },
+            )
+            .await
+            .expect("open helper");
+            assert_eq!(receipt.intel_item_id, intel_item_id);
+            assert_eq!(receipt.provenance_id, provenance_id);
+            assert_eq!(receipt.status, "requested");
+            assert_eq!(captured.lock().expect("capture").len(), 1);
+
+            let private_canary = "private-platform-error-canary";
+            let error = open_intel_original_from_state(
+                &state,
+                OpenIntelOriginalInputV1 {
+                    contract_version: 1,
+                    intel_item_id,
+                    provenance_id,
+                },
+                |_| Err(AppError::internal_generated(private_canary)),
+            )
+            .await
+            .expect_err("platform failure");
+            assert_eq!(error.code, "internal.unexpected");
+            assert!(!format!("{error:?}").contains(private_canary));
+
+            let panic_error = open_intel_original_from_state(
+                &state,
+                OpenIntelOriginalInputV1 {
+                    contract_version: 1,
+                    intel_item_id: receipt.intel_item_id.clone(),
+                    provenance_id: receipt.provenance_id.clone(),
+                },
+                |_| panic!("private-opener-panic-canary"),
+            )
+            .await
+            .expect_err("platform panic");
+            assert_eq!(panic_error.code, "internal.unexpected");
+            assert!(!format!("{panic_error:?}").contains("private-opener-panic-canary"));
+            let recovered = query_intel_evidence_detail_from_state(
+                &state,
+                QueryIntelEvidenceDetailInputV1 {
+                    contract_version: 1,
+                    intel_item_id: receipt.intel_item_id,
+                },
+            )
+            .await
+            .expect("store recovers after opener panic");
+            assert_eq!(recovered.rule_status.as_str(), "current");
+        });
+    }
+
+    #[test]
     fn budget_race_is_deterministic_without_wall_clock_waits() {
         tauri::async_runtime::block_on(async {
             assert_eq!(
@@ -1062,6 +1217,70 @@ mod tests {
             .expect("query helper");
         assert_eq!(page.items, vec![saved]);
         page
+    }
+
+    async fn seed_real_detail(state: &DemoState) -> (String, String) {
+        let page = saved_source_page(state).await;
+        let task = queued_sync_task(state, &page.items[0].source_id).await;
+        let task_id = task.task_id.clone();
+        let plan = state
+            .with_store_blocking(move |store| store.claim_sync_task(&task_id, task.revision))
+            .await
+            .expect("claim detail task");
+        let request = plan.sources.into_iter().next().expect("detail source");
+        let completed = commit_sync_outcome(
+            state,
+            plan.task.task_id,
+            plan.task.revision,
+            request,
+            Ok(FetchIncrementalResult {
+                candidates: vec![RawSourceCandidate {
+                    stable_external_id: "tauri-detail-item".to_owned(),
+                    title: Some("Tauri evidence detail item".to_owned()),
+                    original_url: Some(["https:", "//example.com/items/tauri-detail"].concat()),
+                    author: None,
+                    summary: Some("Locally persisted evidence summary".to_owned()),
+                    published_at: Some("2026-08-20T08:00:00Z".to_owned()),
+                    updated_at: None,
+                    content_hash: "d".repeat(64),
+                    warnings: Vec::new(),
+                }],
+                etag: None,
+                last_modified: None,
+                adapter_cursor: None,
+                not_modified: false,
+            }),
+        )
+        .await
+        .expect("commit detail item");
+        let snapshot = task_from_state(state, completed.task_id)
+            .await
+            .expect("detail snapshot");
+        let result = sync_result_from_state(
+            state,
+            GetSyncResultInputV1 {
+                contract_version: 1,
+                sync_run_id: snapshot.result_ref.expect("detail result"),
+                cursor: None,
+                limit: 25,
+            },
+        )
+        .await
+        .expect("detail result page");
+        let intel_item_id = result.items[0]
+            .intel_item_id
+            .clone()
+            .expect("normalized detail item id");
+        let detail = query_intel_evidence_detail_from_state(
+            state,
+            QueryIntelEvidenceDetailInputV1 {
+                contract_version: 1,
+                intel_item_id: intel_item_id.clone(),
+            },
+        )
+        .await
+        .expect("seeded detail");
+        (intel_item_id, detail.provenance[0].provenance_id.clone())
     }
 
     async fn queued_sync_task(state: &DemoState, source_id: &str) -> TaskRefV1 {

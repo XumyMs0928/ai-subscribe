@@ -56,6 +56,11 @@ export const intelFeedKeys = {
         ["intel-feed", apiKey, "pages", input] as const,
 };
 
+export const intelDetailKeys = {
+    detail: (apiKey: number, intelItemId: string) =>
+        ["intel", "detail", apiKey, intelItemId] as const,
+};
+
 export function createAppQueryClient() {
     return new QueryClient({
         defaultOptions: {

@@ -1,0 +1,33 @@
+{
+  "overall_score": 90,
+  "overall_grade": "A",
+  "quality_assessment": "Good",
+  "dimension_scores": {
+    "determinism": 90,
+    "isolation": 100,
+    "maintainability": 76,
+    "performance": 90
+  },
+  "dimension_grades": {
+    "determinism": "A",
+    "isolation": "A+",
+    "maintainability": "C",
+    "performance": "A-"
+  },
+  "weights": {
+    "determinism": 0.3,
+    "isolation": 0.3,
+    "maintainability": 0.25,
+    "performance": 0.15
+  },
+  "violations_summary": {
+    "total": 9,
+    "HIGH": 1,
+    "MEDIUM": 6,
+    "LOW": 2
+  },
+  "blocking_violations": 0,
+  "recommendation": "Approve with comments",
+  "coverage_boundary": "Coverage is excluded from agentic-test-review scoring; use traceability for coverage gates.",
+  "timestamp": "2026-08-20T12:43:35.814Z"
+}

@@ -1,0 +1,13 @@
+{
+  "story": "4.6",
+  "detected_stack": "fullstack",
+  "execution_mode": "agent-team",
+  "success": true,
+  "total_tests_generated": 0,
+  "api_tests": 0,
+  "e2e_tests": 0,
+  "backend_tests": 0,
+  "fixtures_created": 0,
+  "duplicate_guard": "pass",
+  "provider_scrutiny": "not_applicable"
+}

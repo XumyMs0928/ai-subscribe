@@ -35,6 +35,8 @@ function api(getSyncResult: DesktopApi["getSyncResult"]): DesktopApi {
         syncHealth: vi.fn(),
         getSyncResult,
         queryIntelFeed: vi.fn(),
+        queryIntelEvidenceDetail: vi.fn(),
+        openIntelOriginal: vi.fn(),
     };
 }
 

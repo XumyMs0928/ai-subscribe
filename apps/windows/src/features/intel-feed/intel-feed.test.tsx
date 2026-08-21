@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -7,6 +10,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { DesktopApiProvider } from "../../app/providers/desktop-api-provider";
 import type {
     DesktopApi,
+    IntelEvidenceDetailV1,
     IntelFeedPageV1,
     QueryIntelFeedInputV1,
 } from "../../lib/desktop-api/desktop-api";
@@ -30,6 +34,17 @@ const item = {
     stream_disposition: "high_value",
     ai_status: "unavailable",
 } as const;
+
+const evidenceDetail = () =>
+    JSON.parse(
+        readFileSync(
+            resolve(
+                process.cwd(),
+                "../../contracts/fixtures/intel-detail/phase1-v1.json",
+            ),
+            "utf8",
+        ),
+    ) as IntelEvidenceDetailV1;
 
 afterEach(() => {
     vi.restoreAllMocks();
@@ -58,9 +73,36 @@ function page(stream: "high_value" | "ordinary_candidate"): IntelFeedPageV1 {
 function renderFeed(
     queryIntelFeed: DesktopApi["queryIntelFeed"],
     initialEntries: readonly string[] = ["/"],
+    queryDetailOverride?: DesktopApi["queryIntelEvidenceDetail"],
 ) {
+    const detail = evidenceDetail();
+    const queryIntelEvidenceDetail = vi.fn().mockImplementation(
+        queryDetailOverride ??
+            ((intelItemId: string) =>
+                Promise.resolve({
+                    ...detail,
+                    facts: { ...detail.facts, intel_item_id: intelItemId },
+                    provenance: detail.provenance.map((source, index) => ({
+                        ...source,
+                        intel_item_id:
+                            index === 0 ? intelItemId : source.intel_item_id,
+                    })),
+                })),
+    );
+    const openIntelOriginal = vi
+        .fn()
+        .mockImplementation((intelItemId: string, provenanceId: string) =>
+            Promise.resolve({
+                contract_version: 1 as const,
+                intel_item_id: intelItemId,
+                provenance_id: provenanceId,
+                status: "requested" as const,
+            }),
+        );
     const desktopApi = {
         queryIntelFeed,
+        queryIntelEvidenceDetail,
+        openIntelOriginal,
         syncHealth: vi.fn().mockResolvedValue({
             contract_version: 1,
             readiness: {
@@ -94,6 +136,7 @@ function renderFeed(
             </DesktopApiProvider>
         </QueryClientProvider>,
     );
+    return { queryIntelEvidenceDetail, openIntelOriginal };
 }
 
 describe("IntelFeed", () => {
@@ -339,24 +382,47 @@ describe("IntelFeed", () => {
         expect(query).toHaveBeenCalledTimes(1);
     });
 
-    test("Enter 传递稳定 identity seam，Esc 清除提示并恢复焦点", async () => {
-        renderFeed(vi.fn().mockResolvedValue(page("high_value")));
+    test("点击或 Enter 以稳定 ID 原位打开详情，Esc 返回并恢复焦点", async () => {
+        const { queryIntelEvidenceDetail } = renderFeed(
+            vi.fn().mockResolvedValue(page("high_value")),
+        );
         const row = await screen.findByRole("button", {
             name: /AI agent security release/,
         });
         row.focus();
 
         await userEvent.keyboard("{Enter}");
-        expect(screen.getByText(/证据详情将在下一阶段开放/)).toBeVisible();
+        expect(
+            await screen.findByRole("heading", {
+                name: "Agent runtime security release",
+            }),
+        ).toHaveFocus();
+        expect(queryIntelEvidenceDetail).toHaveBeenCalledWith(
+            item.intel_item_id,
+        );
 
         await userEvent.keyboard("{Escape}");
-        expect(
-            screen.queryByText(/证据详情将在下一阶段开放/),
-        ).not.toBeInTheDocument();
         expect(row).toHaveFocus();
     });
 
-    test("显式刷新移除选中项时恢复最近相邻项与焦点", async () => {
+    test("直接打开详情深链时不读取列表，只查询稳定详情 ID", async () => {
+        const query = vi.fn().mockResolvedValue(page("high_value"));
+        const { queryIntelEvidenceDetail } = renderFeed(query, [
+            `/intel/${item.intel_item_id}`,
+        ]);
+
+        expect(
+            await screen.findByRole("heading", {
+                name: "Agent runtime security release",
+            }),
+        ).toBeVisible();
+        expect(query).not.toHaveBeenCalled();
+        expect(queryIntelEvidenceDetail).toHaveBeenCalledWith(
+            item.intel_item_id,
+        );
+    });
+
+    test("显式刷新移除已打开项时路由到最近相邻项并聚焦详情", async () => {
         const second = {
             ...item,
             intel_item_id: `intel:${"2".repeat(64)}`,
@@ -392,7 +458,221 @@ describe("IntelFeed", () => {
             name: /Third RSS item/,
         });
         expect(replacement).toHaveAttribute("aria-pressed", "true");
-        expect(replacement).toHaveFocus();
+        expect(
+            await screen.findByRole("heading", {
+                name: "Agent runtime security release",
+            }),
+        ).toHaveFocus();
         expect(screen.getByText(/原选中项已不在/)).toBeVisible();
+    });
+
+    test("详情刷新完成不会把焦点从用户当前控件抢回标题", async () => {
+        renderFeed(vi.fn().mockResolvedValue(page("high_value")));
+        const row = await screen.findByRole("button", {
+            name: /AI agent security release/,
+        });
+        await userEvent.click(row);
+        await screen.findByRole("heading", {
+            name: "Agent runtime security release",
+        });
+        const refresh = screen.getByRole("button", { name: "刷新详情" });
+
+        await userEvent.click(refresh);
+
+        expect(refresh).toHaveFocus();
+    });
+
+    test("详情首载显示 busy 状态且不依赖列表查询", async () => {
+        const query = vi.fn().mockResolvedValue(page("high_value"));
+        renderFeed(
+            query,
+            [`/intel/${item.intel_item_id}`],
+            vi.fn(() => new Promise<IntelEvidenceDetailV1>(() => undefined)),
+        );
+
+        expect(
+            await screen.findByRole("status", {
+                name: "正在加载证据详情",
+            }),
+        ).toHaveAttribute("aria-busy", "true");
+        expect(query).not.toHaveBeenCalled();
+    });
+
+    test("详情刷新失败保留旧数据并提供局部恢复状态", async () => {
+        const detailQuery = vi
+            .fn()
+            .mockResolvedValueOnce(evidenceDetail())
+            .mockRejectedValueOnce(new Error("refresh failed"));
+        renderFeed(
+            vi.fn().mockResolvedValue(page("high_value")),
+            ["/"],
+            detailQuery,
+        );
+        await userEvent.click(
+            await screen.findByRole("button", {
+                name: /AI agent security release/,
+            }),
+        );
+        const heading = await screen.findByRole("heading", {
+            name: "Agent runtime security release",
+        });
+
+        await userEvent.click(screen.getByRole("button", { name: "刷新详情" }));
+
+        expect(
+            await screen.findByText("刷新失败，继续显示上次可用详情。"),
+        ).toBeVisible();
+        expect(heading).toBeVisible();
+    });
+
+    test("阻断详情错误可重试且列表保持可用", async () => {
+        const detailQuery = vi
+            .fn()
+            .mockRejectedValueOnce(new Error("detail unavailable"))
+            .mockResolvedValueOnce(evidenceDetail());
+        renderFeed(
+            vi.fn().mockResolvedValue(page("high_value")),
+            [`/intel/${item.intel_item_id}`],
+            detailQuery,
+        );
+        expect(
+            await screen.findByRole("heading", {
+                name: "证据详情暂时无法读取",
+            }),
+        ).toBeVisible();
+
+        await userEvent.click(screen.getByRole("button", { name: "重试详情" }));
+
+        expect(
+            await screen.findByRole("heading", {
+                name: "Agent runtime security release",
+            }),
+        ).toBeVisible();
+        expect(detailQuery).toHaveBeenCalledTimes(2);
+    });
+
+    test("详情打开时条目消失会路由到相邻项而不是保留幽灵详情", async () => {
+        const second = {
+            ...item,
+            intel_item_id: `intel:${"2".repeat(64)}`,
+            title: "Second RSS item",
+            score: 90,
+        };
+        const query = vi
+            .fn()
+            .mockResolvedValueOnce({
+                ...page("high_value"),
+                items: [item, second],
+            })
+            .mockResolvedValue({ ...page("high_value"), items: [item] });
+        renderFeed(query);
+        await userEvent.click(
+            await screen.findByRole("button", { name: /Second RSS item/ }),
+        );
+        await screen.findByRole("heading", {
+            name: "Agent runtime security release",
+        });
+
+        await userEvent.click(screen.getByRole("button", { name: "刷新情报" }));
+
+        expect(
+            await screen.findByRole("button", {
+                name: /AI agent security release/,
+            }),
+        ).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByText(/原选中项已不在/)).toBeVisible();
+    });
+
+    test("晚到的旧详情响应不会覆盖后来选择的详情", async () => {
+        const second = {
+            ...item,
+            intel_item_id: `intel:${"2".repeat(64)}`,
+            title: "Second RSS item",
+            score: 90,
+        };
+        const deferred = new Map<
+            string,
+            {
+                resolve: (detail: IntelEvidenceDetailV1) => void;
+                settled: Promise<void>;
+            }
+        >();
+        const detailQuery = vi.fn((id: string) => {
+            let release!: (detail: IntelEvidenceDetailV1) => void;
+            const promise = new Promise<IntelEvidenceDetailV1>((resolve) => {
+                release = resolve;
+            });
+            deferred.set(id, {
+                resolve: release,
+                settled: promise.then(() => undefined),
+            });
+            return promise;
+        });
+        renderFeed(
+            vi.fn().mockResolvedValue({
+                ...page("high_value"),
+                items: [item, second],
+            }),
+            ["/"],
+            detailQuery,
+        );
+        await userEvent.click(
+            await screen.findByRole("button", {
+                name: /AI agent security release/,
+            }),
+        );
+        await waitFor(() =>
+            expect(deferred.has(item.intel_item_id)).toBe(true),
+        );
+        await userEvent.click(
+            screen.getByRole("button", { name: /Second RSS item/ }),
+        );
+        await waitFor(() =>
+            expect(deferred.has(second.intel_item_id)).toBe(true),
+        );
+        const base = evidenceDetail();
+        const makeDetail = (
+            id: string,
+            title: string,
+        ): IntelEvidenceDetailV1 => ({
+            ...base,
+            facts: { ...base.facts, intel_item_id: id, title },
+            provenance: base.provenance.map((source, index) => ({
+                ...source,
+                intel_item_id: index === 0 ? id : source.intel_item_id,
+                original_title: index === 0 ? title : source.original_title,
+            })),
+        });
+        const secondRequest = deferred.get(second.intel_item_id);
+        expect(secondRequest).toBeDefined();
+        await act(async () => {
+            secondRequest!.resolve(
+                makeDetail(second.intel_item_id, second.title),
+            );
+            await secondRequest!.settled;
+        });
+        expect(
+            await screen.findByRole("heading", { name: second.title }),
+        ).toBeVisible();
+
+        const firstRequest = deferred.get(item.intel_item_id);
+        expect(firstRequest).toBeDefined();
+        await act(async () => {
+            firstRequest!.resolve(makeDetail(item.intel_item_id, item.title));
+            await firstRequest!.settled;
+        });
+
+        await waitFor(() =>
+            expect(
+                screen.queryByRole("heading", { name: item.title }),
+            ).not.toBeInTheDocument(),
+        );
+
+        expect(
+            screen.getByRole("heading", { name: second.title }),
+        ).toBeVisible();
+        expect(
+            screen.queryByRole("heading", { name: item.title }),
+        ).not.toBeInTheDocument();
     });
 });

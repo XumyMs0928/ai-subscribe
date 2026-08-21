@@ -1,7 +1,45 @@
 {
   "generator": "radar-core-contracts-v1",
   "contract_version": 1,
-  "categories": ["validation", "not_found", "conflict", "permission", "network", "rate_limited", "source_format", "provider", "storage", "migration", "cancelled", "internal"],
+  "categories": [
+    "validation",
+    "not_found",
+    "conflict",
+    "permission",
+    "network",
+    "rate_limited",
+    "source_format",
+    "provider",
+    "storage",
+    "migration",
+    "cancelled",
+    "internal"
+  ],
   "retryability": ["never", "manual", "automatic", "after"],
-  "codes": ["validation.effect_id", "validation.idempotency_key", "validation.rfc3339_utc", "validation.effect_status", "validation.secret_lease", "validation.setup_input", "validation.configuration", "validation.stale_validation_receipt", "validation.source", "conflict.effect_already_reported", "conflict.secret_lease_consumed", "conflict.setup_revision", "conflict.configuration_revision", "conflict.source_revision", "network.source", "rate_limited.source", "source_format.rss_atom", "storage.setup", "storage.configuration", "storage.source", "migration.setup", "migration.source", "internal.unexpected"]
+  "codes": [
+    "validation.effect_id",
+    "validation.idempotency_key",
+    "validation.rfc3339_utc",
+    "validation.effect_status",
+    "validation.secret_lease",
+    "validation.setup_input",
+    "validation.configuration",
+    "validation.stale_validation_receipt",
+    "validation.source",
+    "not_found.intel_detail",
+    "conflict.effect_already_reported",
+    "conflict.secret_lease_consumed",
+    "conflict.setup_revision",
+    "conflict.configuration_revision",
+    "conflict.source_revision",
+    "network.source",
+    "rate_limited.source",
+    "source_format.rss_atom",
+    "storage.setup",
+    "storage.configuration",
+    "storage.source",
+    "migration.setup",
+    "migration.source",
+    "internal.unexpected"
+  ]
 }

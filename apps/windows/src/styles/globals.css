@@ -686,6 +686,66 @@ h1 {
     border: var(--border-default-token);
     background: var(--color-surface-token);
 }
+.intel-feed-workspace {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-4-token);
+}
+.has-detail .intel-feed-workspace {
+    grid-template-columns: minmax(20rem, 0.9fr) minmax(28rem, 1.1fr);
+    align-items: start;
+}
+.intel-detail-panel {
+    min-width: 0;
+    padding: var(--space-5-token);
+    border: var(--border-default-token);
+    background: var(--color-surface-token);
+}
+.intel-evidence-detail,
+.intel-evidence-detail > section,
+.provenance-record,
+.detail-actions {
+    display: grid;
+    gap: var(--space-3-token);
+}
+.intel-evidence-detail h2,
+.intel-evidence-detail h3,
+.provenance-record dl {
+    margin-block: 0;
+}
+.evidence-summary,
+.evidence-fields {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, max-content) minmax(0, 1fr);
+    gap: var(--space-2-token) var(--space-4-token);
+    margin: 0;
+}
+.evidence-summary dt,
+.evidence-fields dt {
+    color: var(--color-muted-foreground-token);
+}
+.evidence-summary dd,
+.evidence-fields dd {
+    min-width: 0;
+    margin: 0;
+}
+.provenance-record {
+    padding-block: var(--space-4-token);
+    border-top: var(--border-default-token);
+}
+.provenance-url {
+    overflow-wrap: anywhere;
+}
+.associated-sources,
+.detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3-token);
+}
+.associated-sources > div {
+    flex-basis: 100%;
+}
 .feed-list ul {
     margin: 0;
     padding: 0;
@@ -732,6 +792,19 @@ h1 {
 .feed-item:focus-visible {
     outline: var(--focus-width-token) solid var(--color-focus-ring-token);
     outline-offset: var(--focus-offset-token);
+}
+
+@media (max-width: 63.9375rem) {
+    .has-detail .intel-feed-workspace {
+        display: block;
+    }
+    .has-detail .feed-list {
+        display: none;
+    }
+    .evidence-summary,
+    .evidence-fields {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 79.9375rem) and (min-width: 64rem) {

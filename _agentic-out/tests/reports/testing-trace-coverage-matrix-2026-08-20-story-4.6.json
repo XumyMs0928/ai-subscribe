@@ -1,0 +1,124 @@
+{
+  "phase": "PHASE_1_COMPLETE",
+  "generated_at": "2026-08-20T12:53:07.318Z",
+  "trace_target": { "type": "story", "id": "4.6", "label": "查看证据详情并打开原文核验" },
+  "collection_mode": "agent-team",
+  "allow_gate": true,
+  "coverage_basis": "acceptance_criteria",
+  "summary_confidence": "high",
+  "oracle": {
+    "resolution_mode": "formal_requirements",
+    "confidence": "high",
+    "sources": ["_agentic-out/implementation/stories/4-6-查看证据详情并打开原文核验.md"],
+    "external_pointer_status": "not_used",
+    "synthetic": false
+  },
+  "requirements": [
+    {
+      "id": "AC1", "priority": "P0", "coverage": "FULL",
+      "title": "Core-owned 详情合同与事实/规则/AI 分区",
+      "tests": [
+        { "id": "T46-U01", "title": "returns current rule and independent provenance without writes", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 508, "level": "unit", "status": "active" },
+        { "id": "T46-U02", "title": "stale or malformed rule never blocks reliable facts", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 533, "level": "unit", "status": "active" },
+        { "id": "T46-C01", "title": "phase1 fixture is the exact versioned detail contract", "file": "crates/radar-core/tests/intel_detail_contract.rs", "line": 10, "level": "unit", "status": "active" },
+        { "id": "T46-P01", "title": "以判断、事实、AI 与独立溯源展示规范详情", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 44, "level": "component", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC2", "priority": "P0", "coverage": "FULL",
+      "title": "独立溯源记录与确定性关联来源",
+      "tests": [
+        { "id": "T46-U03", "title": "missing optional facts and damaged association remain local", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 580, "level": "unit", "status": "active" },
+        { "id": "T46-U04", "title": "legacy provenance is excluded without poisoning primary evidence", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 608, "level": "unit", "status": "active" },
+        { "id": "T46-U05", "title": "malformed or single member association is incomplete", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 698, "level": "unit", "status": "active" },
+        { "id": "T46-E01", "title": "opens in-place detail and exposes independent associated source", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 23, "level": "e2e", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC3", "priority": "P0", "coverage": "FULL",
+      "title": "稳定意图驱动的系统浏览器安全原文入口",
+      "tests": [
+        { "id": "T46-U06", "title": "original link resolves by membership and revalidates without network", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 754, "level": "unit", "status": "active" },
+        { "id": "T46-U07", "title": "original URL policy rejects unsafe targets", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 805, "level": "unit", "status": "active" },
+        { "id": "T46-I01", "title": "real detail and original helpers keep effect narrow and redacted", "file": "apps/windows/src-tauri/src/commands/mod.rs", "line": 1086, "level": "unit", "status": "active" },
+        { "id": "T46-T01", "title": "queries and opens by stable identities", "file": "apps/windows/src/lib/desktop-api/intel-detail-transport.test.ts", "line": 26, "level": "component", "status": "active" },
+        { "id": "T46-E01", "title": "opens in-place detail and sends only stable IDs", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 23, "level": "e2e", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC4", "priority": "P0", "coverage": "FULL",
+      "title": "原文失效、离线与打开失败的可信局部恢复",
+      "tests": [
+        { "id": "T46-U08", "title": "unsafe display URL is redacted and locally disabled", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 638, "level": "unit", "status": "active" },
+        { "id": "T46-P02", "title": "原文 adapter 失败只显示来源局部错误", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 135, "level": "component", "status": "active" },
+        { "id": "T46-P03", "title": "打开超时后保持不确定状态并禁用重试", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 166, "level": "component", "status": "active" },
+        { "id": "T46-P04", "title": "原文不可用时禁用对应动作并保留本地证据", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 118, "level": "component", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC5", "priority": "P1", "coverage": "FULL",
+      "title": "Windows 原位列表—详情与上下文保持",
+      "tests": [
+        { "id": "T46-F01", "title": "详情首载显示 busy 状态且不依赖列表查询", "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx", "line": 485, "level": "component", "status": "active" },
+        { "id": "T46-F02", "title": "详情刷新失败保留旧数据并提供局部恢复状态", "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx", "line": 500, "level": "component", "status": "active" },
+        { "id": "T46-F03", "title": "阻断详情错误可重试且列表保持可用", "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx", "line": 528, "level": "component", "status": "active" },
+        { "id": "T46-F04", "title": "晚到旧详情结算后不会覆盖后来选择的详情", "file": "apps/windows/src/features/intel-feed/intel-feed.test.tsx", "line": 584, "level": "component", "status": "active" },
+        { "id": "T46-E02", "title": "Escape returns to preserved selection and query context", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 76, "level": "e2e", "status": "active" },
+        { "id": "T46-E03", "title": "cold detail deep link avoids feed query", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 95, "level": "e2e", "status": "active" },
+        { "id": "T46-E04", "title": "unknown and malformed IDs recover", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 139, "level": "e2e", "status": "active" },
+        { "id": "T46-E05", "title": "late response is explicitly observed settled and cannot replace selection", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 172, "level": "e2e", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC6", "priority": "P1", "coverage": "FULL",
+      "title": "键盘、语义层级和非颜色核验",
+      "tests": [
+        { "id": "T46-P01", "title": "semantic sections and aria-expanded associated sources", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 44, "level": "component", "status": "active" },
+        { "id": "T46-E02", "title": "keyboard Escape restores focus", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 76, "level": "e2e", "status": "active" },
+        { "id": "T46-E06", "title": "narrow Windows layout restores focus after list visible", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 153, "level": "e2e", "status": "active" }
+      ]
+    },
+    {
+      "id": "AC7", "priority": "P0", "coverage": "FULL",
+      "title": "有界、只读、无隐式副作用的证据门",
+      "tests": [
+        { "id": "T46-U01", "title": "detail query returns without writes", "file": "crates/radar-core/src/application/intel_detail.rs", "line": 508, "level": "unit", "status": "active" },
+        { "id": "T46-T02", "title": "transport rejects malformed identities and receipt drift", "file": "apps/windows/src/lib/desktop-api/intel-detail-transport.test.ts", "line": 135, "level": "component", "status": "active" },
+        { "id": "T46-P05", "title": "one source opening synchronously disables all others", "file": "apps/windows/src/features/intel-detail/evidence-detail-panel.test.tsx", "line": 183, "level": "component", "status": "active" },
+        { "id": "T46-E01", "title": "WebView stays local and fake platform effect contains stable IDs only", "file": "tests/e2e/story-4-6-intel-detail.spec.ts", "line": 23, "level": "e2e", "status": "active" }
+      ]
+    }
+  ],
+  "coverage_statistics": {
+    "total_requirements": 7, "fully_covered": 7, "partially_covered": 0, "uncovered": 0, "overall_coverage_percentage": 100,
+    "priority_breakdown": {
+      "P0": { "total": 5, "covered": 5, "percentage": 100 },
+      "P1": { "total": 2, "covered": 2, "percentage": 100 },
+      "P2": { "total": 0, "covered": 0, "percentage": 100, "display": "N/A" },
+      "P3": { "total": 0, "covered": 0, "percentage": 100, "display": "N/A" }
+    }
+  },
+  "gap_analysis": { "critical_gaps": [], "high_gaps": [], "medium_gaps": [], "low_gaps": [], "partial_coverage_items": [], "unit_only_items": [] },
+  "coverage_heuristics": {
+    "endpoint_gaps": [], "auth_negative_path_gaps": [], "happy_path_only_gaps": [], "ui_journey_gaps": [], "ui_state_gaps": [],
+    "counts": { "endpoints_without_tests": 0, "auth_missing_negative_paths": 0, "happy_path_only_criteria": 0, "ui_journeys_without_e2e": 0, "ui_states_missing_coverage": 0 },
+    "notes": ["No inbound HTTP/OpenAPI/Auth surface exists; exact local Tauri IPC is covered at core, command and transport levels.", "Late-response tests now explicitly await the stale request settlement.", "Loading, refreshing-with-data failure, blocking retry, rule unavailable and original unavailable states have direct component evidence."]
+  },
+  "test_inventory": {
+    "summary": {
+      "files": 8, "cases": 45, "skipped_cases": 0, "fixme_cases": 0, "pending_cases": 0,
+      "by_level": {
+        "e2e": { "tests": 7, "criteria_covered": 5 },
+        "api": { "tests": 0, "criteria_covered": 0 },
+        "component": { "tests": 20, "criteria_covered": 7 },
+        "unit": { "tests": 18, "criteria_covered": 5 },
+        "other": { "tests": 0, "criteria_covered": 0 }
+      }
+    },
+    "blockers": []
+  },
+  "blockers": [],
+  "recommendations": [
+    { "priority": "LOW", "action": "Track the non-blocking maintainability and test setup performance recommendations from test-review/story-4-6/test-review.md", "requirements": [] }
+  ]
+}

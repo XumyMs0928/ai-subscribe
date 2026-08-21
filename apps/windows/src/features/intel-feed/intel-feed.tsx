@@ -5,7 +5,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 
 import { useDesktopApi } from "../../app/providers/use-desktop-api";
 import { Button } from "../../components/ui/button";
@@ -18,8 +18,10 @@ import { DesktopContractError } from "../../lib/desktop-api/desktop-api";
 import {
     desktopApiQueryKey,
     intelFeedKeys,
+    intelDetailKeys,
     syncKeys,
 } from "../../lib/query-client";
+import { EvidenceDetailPanel } from "../intel-detail/evidence-detail-panel";
 import { FeedFilters } from "./feed-filters";
 import { IntelligenceFeedItem } from "./intelligence-feed-item";
 
@@ -89,8 +91,15 @@ export function IntelFeed() {
     const desktopApi = useDesktopApi();
     const queryClient = useQueryClient();
     const location = useLocation();
+    const navigate = useNavigate();
     const apiKey = desktopApiQueryKey(desktopApi);
     const [searchParams, setSearchParams] = useSearchParams();
+    const detailId =
+        /^\/intel\/(intel:[0-9a-f]{64})$/.exec(location.pathname)?.[1] ?? null;
+    const isBaseFeedRoute =
+        location.pathname === "/" || location.pathname === "/intel";
+    const feedVisited = useRef(isBaseFeedRoute);
+    if (isBaseFeedRoute) feedVisited.current = true;
     const stream: IntelFeedStreamV1 =
         searchParams.get("stream") === "ordinary_candidate"
             ? "ordinary_candidate"
@@ -132,16 +141,15 @@ export function IntelFeed() {
     );
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
-    const [activationNotice, setActivationNotice] = useState<string | null>(
-        null,
-    );
     const itemRefs = useRef(new Map<string, HTMLButtonElement>());
     const previousItems = useRef<readonly string[]>([]);
     const visibleAnchor = useRef<{ id: string; top: number } | null>(null);
     const feedScrollOffset = useRef(0);
-    const previousFeedRoute = useRef(
-        location.pathname === "/" || location.pathname === "/intel",
-    );
+    const previousFeedRoute = useRef(isBaseFeedRoute || detailId !== null);
+    const detailHeadingRef = useRef<HTMLHeadingElement>(null);
+    const focusedDetailId = useRef<string | null>(null);
+    const pendingReturnFocusId = useRef<string | null>(null);
+    const pendingSelectionFocusId = useRef<string | null>(null);
 
     useEffect(() => {
         // URL state is authoritative when navigation/reload restores the feed.
@@ -154,8 +162,7 @@ export function IntelFeed() {
         });
     }, [filters]);
 
-    const isFeedRoute =
-        location.pathname === "/" || location.pathname === "/intel";
+    const isFeedRoute = isBaseFeedRoute || detailId !== null;
     useEffect(() => {
         if (previousFeedRoute.current && !isFeedRoute) {
             feedScrollOffset.current = window.scrollY;
@@ -208,10 +215,19 @@ export function IntelFeed() {
             return page;
         },
         getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
+        enabled: feedVisited.current,
     });
     const health = useQuery({
         queryKey: syncKeys.health(apiKey),
         queryFn: () => desktopApi.syncHealth(),
+        enabled: feedVisited.current,
+    });
+    const detail = useQuery({
+        queryKey: detailId
+            ? intelDetailKeys.detail(apiKey, detailId)
+            : ["intel", "detail", apiKey, null],
+        queryFn: () => desktopApi.queryIntelEvidenceDetail(detailId!),
+        enabled: detailId !== null,
     });
     const items = useMemo(
         () => feed.data?.pages.flatMap((page) => page.items) ?? [],
@@ -233,12 +249,39 @@ export function IntelFeed() {
                 setSelectionNotice(
                     "原选中项已不在当前结果中，已选择相邻可用情报。",
                 );
+                pendingSelectionFocusId.current = replacement;
                 setSelectedId(replacement);
-                if (replacement) itemRefs.current.get(replacement)?.focus();
+                if (detailId === selectedId) {
+                    const query = searchParams.toString();
+                    const destination = replacement
+                        ? `/intel/${replacement}`
+                        : "/intel";
+                    void navigate(`${destination}${query ? `?${query}` : ""}`, {
+                        replace: true,
+                    });
+                }
             });
         }
         previousItems.current = items.map((item) => item.intel_item_id);
-    }, [effectiveSelectedId, items, selectedId]);
+    }, [
+        detailId,
+        effectiveSelectedId,
+        items,
+        navigate,
+        searchParams,
+        selectedId,
+    ]);
+
+    useEffect(() => {
+        if (
+            effectiveSelectedId !== null &&
+            pendingSelectionFocusId.current === effectiveSelectedId &&
+            detailId === null
+        ) {
+            pendingSelectionFocusId.current = null;
+            itemRefs.current.get(effectiveSelectedId)?.focus();
+        }
+    }, [detailId, effectiveSelectedId]);
 
     useEffect(() => {
         const rememberAnchor = () => {
@@ -268,6 +311,34 @@ export function IntelFeed() {
             window.removeEventListener("resize", restoreAfterResize);
         };
     }, [effectiveSelectedId]);
+
+    useEffect(() => {
+        if (
+            detailId &&
+            detail.data?.facts.intel_item_id === detailId &&
+            focusedDetailId.current !== detailId
+        ) {
+            focusedDetailId.current = detailId;
+            queueMicrotask(() => {
+                detailHeadingRef.current?.focus();
+                if (
+                    typeof detailHeadingRef.current?.scrollIntoView ===
+                    "function"
+                ) {
+                    detailHeadingRef.current.scrollIntoView({ block: "start" });
+                }
+            });
+        } else if (!detailId) {
+            focusedDetailId.current = null;
+        }
+    }, [detail.data, detailId]);
+
+    useEffect(() => {
+        if (!isBaseFeedRoute || pendingReturnFocusId.current === null) return;
+        const target = pendingReturnFocusId.current;
+        pendingReturnFocusId.current = null;
+        queueMicrotask(() => itemRefs.current.get(target)?.focus());
+    }, [isBaseFeedRoute]);
 
     function selectAndFocus(index: number) {
         if (!items.length) return;
@@ -348,9 +419,27 @@ export function IntelFeed() {
         restoreSelectedOffset(anchor);
     }
 
+    function openDetail(intelItemId: string) {
+        setSelectedId(intelItemId);
+        const query = searchParams.toString();
+        void navigate(`/intel/${intelItemId}${query ? `?${query}` : ""}`);
+    }
+
+    function returnToList() {
+        const query = searchParams.toString();
+        pendingReturnFocusId.current = selectedId ?? detailId;
+        void navigate(`/intel${query ? `?${query}` : ""}`);
+    }
+
     const blockingError = feed.isError && !feed.data;
+    const detailNotFound =
+        detail.isError &&
+        !detail.data &&
+        stableErrorCode(detail.error) === "not_found.intel_detail";
     return (
-        <main className="app-shell intel-feed-shell">
+        <main
+            className={`app-shell intel-feed-shell${detailId ? " has-detail" : ""}`}
+        >
             <header className="shell-header">
                 <div>
                     <p className="eyebrow">AI SUBSCRIBE · WINDOWS</p>
@@ -554,116 +643,196 @@ export function IntelFeed() {
                     <Link to="/sources">前往来源同步</Link>
                 </div>
             )}
-            {feed.data && items.length > 0 && (
-                <section
-                    className="feed-list"
-                    aria-label="真实 RSS 情报列表"
-                    aria-busy={feed.isFetching}
-                >
-                    {feed.isRefetching && !feed.isFetchingNextPage && (
-                        <p className="demo-inline-status" aria-live="polite">
-                            正在刷新，当前内容保持可用。
-                        </p>
-                    )}
-                    {selectionNotice && (
-                        <p className="demo-inline-status" aria-live="polite">
-                            {selectionNotice}
-                        </p>
-                    )}
-                    {activationNotice && (
-                        <p className="demo-inline-status" aria-live="polite">
-                            {activationNotice}
-                        </p>
-                    )}
-                    {feed.isError && !feed.isFetchNextPageError && (
-                        <div role="alert" className="demo-inline-error">
-                            刷新失败，继续显示上次可用内容。
-                            <Button
-                                variant="secondary"
-                                onClick={() => void refreshFromFirstPage()}
+            <div className="intel-feed-workspace">
+                {feed.data && items.length > 0 && (
+                    <section
+                        className="feed-list"
+                        aria-label="真实 RSS 情报列表"
+                        aria-busy={feed.isFetching}
+                    >
+                        {feed.isRefetching && !feed.isFetchingNextPage && (
+                            <p
+                                className="demo-inline-status"
+                                aria-live="polite"
                             >
-                                重试刷新
-                            </Button>
-                        </div>
-                    )}
-                    <ul>
-                        {items.map((item, index) => (
-                            <li key={item.intel_item_id}>
-                                <IntelligenceFeedItem
-                                    item={item}
-                                    selected={
-                                        item.intel_item_id ===
-                                        effectiveSelectedId
-                                    }
-                                    tabIndex={
-                                        item.intel_item_id ===
-                                        effectiveSelectedId
-                                            ? 0
-                                            : -1
-                                    }
-                                    onSelect={() => {
-                                        setSelectionNotice(null);
-                                        setSelectedId(item.intel_item_id);
-                                    }}
-                                    onNavigate={(offset) =>
-                                        selectAndFocus(index + offset)
-                                    }
-                                    onActivate={(intelItemId) =>
-                                        setActivationNotice(
-                                            `已选择 ${intelItemId}；证据详情将在下一阶段开放。`,
-                                        )
-                                    }
-                                    onEscape={() => {
-                                        setActivationNotice(null);
-                                        itemRefs.current
-                                            .get(item.intel_item_id)
-                                            ?.focus();
-                                    }}
-                                    itemRef={(node) => {
-                                        if (node)
-                                            itemRefs.current.set(
-                                                item.intel_item_id,
-                                                node,
-                                            );
-                                        else
-                                            itemRefs.current.delete(
-                                                item.intel_item_id,
-                                            );
-                                    }}
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                    {feed.hasNextPage && (
-                        <Button
-                            variant="secondary"
-                            disabled={feed.isFetchingNextPage}
-                            onClick={() => void feed.fetchNextPage()}
-                        >
-                            {feed.isFetchingNextPage ? "正在加载…" : "加载更多"}
-                        </Button>
-                    )}
-                    {feed.isFetchNextPageError && (
-                        <div role="alert">
-                            下一页加载失败，已显示内容保持可用。
-                            {stableErrorCode(feed.error) ===
-                            "validation.source" ? (
+                                正在刷新，当前内容保持可用。
+                            </p>
+                        )}
+                        {selectionNotice && (
+                            <p
+                                className="demo-inline-status"
+                                aria-live="polite"
+                            >
+                                {selectionNotice}
+                            </p>
+                        )}
+                        {feed.isError && !feed.isFetchNextPageError && (
+                            <div role="alert" className="demo-inline-error">
+                                刷新失败，继续显示上次可用内容。
                                 <Button
+                                    variant="secondary"
                                     onClick={() => void refreshFromFirstPage()}
                                 >
-                                    游标已失效，重新加载首屏
+                                    重试刷新
                                 </Button>
-                            ) : (
-                                <Button
-                                    onClick={() => void feed.fetchNextPage()}
-                                >
-                                    重试下一页
-                                </Button>
-                            )}
+                            </div>
+                        )}
+                        <ul>
+                            {items.map((item, index) => (
+                                <li key={item.intel_item_id}>
+                                    <IntelligenceFeedItem
+                                        item={item}
+                                        selected={
+                                            item.intel_item_id ===
+                                            effectiveSelectedId
+                                        }
+                                        tabIndex={
+                                            item.intel_item_id ===
+                                            effectiveSelectedId
+                                                ? 0
+                                                : -1
+                                        }
+                                        onSelect={() => {
+                                            setSelectionNotice(null);
+                                            setSelectedId(item.intel_item_id);
+                                        }}
+                                        onNavigate={(offset) =>
+                                            selectAndFocus(index + offset)
+                                        }
+                                        onActivate={openDetail}
+                                        onEscape={() => {
+                                            itemRefs.current
+                                                .get(item.intel_item_id)
+                                                ?.focus();
+                                        }}
+                                        itemRef={(node) => {
+                                            if (node)
+                                                itemRefs.current.set(
+                                                    item.intel_item_id,
+                                                    node,
+                                                );
+                                            else
+                                                itemRefs.current.delete(
+                                                    item.intel_item_id,
+                                                );
+                                        }}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                        {feed.hasNextPage && (
+                            <Button
+                                variant="secondary"
+                                disabled={feed.isFetchingNextPage}
+                                onClick={() => void feed.fetchNextPage()}
+                            >
+                                {feed.isFetchingNextPage
+                                    ? "正在加载…"
+                                    : "加载更多"}
+                            </Button>
+                        )}
+                        {feed.isFetchNextPageError && (
+                            <div role="alert">
+                                下一页加载失败，已显示内容保持可用。
+                                {stableErrorCode(feed.error) ===
+                                "validation.source" ? (
+                                    <Button
+                                        onClick={() =>
+                                            void refreshFromFirstPage()
+                                        }
+                                    >
+                                        游标已失效，重新加载首屏
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        onClick={() =>
+                                            void feed.fetchNextPage()
+                                        }
+                                    >
+                                        重试下一页
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </section>
+                )}
+                {detailId && detail.isPending && (
+                    <section
+                        className="intel-detail-panel feed-skeleton"
+                        role="status"
+                        aria-busy="true"
+                        aria-label="正在加载证据详情"
+                    >
+                        <div className="feed-skeleton-row">
+                            <span />
+                            <strong />
+                            <span />
                         </div>
+                        <div className="feed-skeleton-row">
+                            <span />
+                            <strong />
+                            <span />
+                        </div>
+                    </section>
+                )}
+                {detailId && detailNotFound && (
+                    <section
+                        className="intel-detail-panel demo-message"
+                        role="status"
+                    >
+                        <h2>该情报已不存在</h2>
+                        <p>
+                            它可能已在刷新后移出本地结果；列表与其他本地数据未被修改。
+                        </p>
+                        <code>not_found.intel_detail</code>
+                        <Button variant="secondary" onClick={returnToList}>
+                            返回列表
+                        </Button>
+                    </section>
+                )}
+                {detailId &&
+                    detail.isError &&
+                    !detail.data &&
+                    !detailNotFound && (
+                        <section
+                            className="intel-detail-panel demo-message demo-error"
+                            role="alert"
+                        >
+                            <h2>证据详情暂时无法读取</h2>
+                            <p>列表与本地数据未被修改，也没有执行外部请求。</p>
+                            <code>{stableErrorCode(detail.error)}</code>
+                            <Button onClick={() => void detail.refetch()}>
+                                重试详情
+                            </Button>
+                            <Button variant="secondary" onClick={returnToList}>
+                                返回列表
+                            </Button>
+                        </section>
                     )}
-                </section>
-            )}
+                {detailId && detail.data && (
+                    <section
+                        className="intel-detail-panel"
+                        aria-label="证据详情"
+                    >
+                        <EvidenceDetailPanel
+                            ref={detailHeadingRef}
+                            detail={detail.data}
+                            refreshing={detail.isFetching}
+                            refreshError={detail.isError}
+                            onRefresh={() => void detail.refetch()}
+                            onReturnToList={returnToList}
+                            onOpenOriginal={(source) =>
+                                desktopApi
+                                    .openIntelOriginal(
+                                        detail.data.facts.intel_item_id,
+                                        source.provenance_id,
+                                    )
+                                    .then(() => undefined)
+                            }
+                        />
+                    </section>
+                )}
+            </div>
         </main>
     );
 }

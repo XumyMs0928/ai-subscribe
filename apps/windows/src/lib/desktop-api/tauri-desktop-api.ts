@@ -23,6 +23,10 @@ import {
     isTaskSnapshotV1,
     isIntelFeedPageV1,
     isQueryIntelFeedInputV1,
+    isIntelEvidenceDetailV1,
+    isOpenIntelOriginalInputV1,
+    isOpenOriginalReceiptV1,
+    isQueryIntelEvidenceDetailInputV1,
 } from "./desktop-api";
 
 type ScheduleDesktopTimeout = (
@@ -388,6 +392,46 @@ export function createTauriDesktopApi(
                 throw new DesktopContractError();
             }
             return page;
+        },
+        async queryIntelEvidenceDetail(intelItemId) {
+            const input = {
+                contract_version: 1,
+                intel_item_id: intelItemId,
+            } as const;
+            if (!isQueryIntelEvidenceDetailInputV1(input)) {
+                throw new DesktopContractError();
+            }
+            const detail = await invokeChecked(
+                "query_intel_evidence_detail_v1",
+                { input },
+                isIntelEvidenceDetailV1,
+            );
+            if (detail.facts.intel_item_id !== intelItemId) {
+                throw new DesktopContractError();
+            }
+            return detail;
+        },
+        async openIntelOriginal(intelItemId, provenanceId) {
+            const input = {
+                contract_version: 1,
+                intel_item_id: intelItemId,
+                provenance_id: provenanceId,
+            } as const;
+            if (!isOpenIntelOriginalInputV1(input)) {
+                throw new DesktopContractError();
+            }
+            const receipt = await invokeChecked(
+                "open_intel_original_v1",
+                { input },
+                isOpenOriginalReceiptV1,
+            );
+            if (
+                receipt.intel_item_id !== intelItemId ||
+                receipt.provenance_id !== provenanceId
+            ) {
+                throw new DesktopContractError();
+            }
+            return receipt;
         },
     };
 }

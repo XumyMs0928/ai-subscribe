@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "evaluated_at": "2026-08-20T13:02:00.000Z",
+  "repo": "TEST1",
+  "target": { "type": "story", "id": "4.6", "label": "查看证据详情并打开原文核验" },
+  "collection_status": "COLLECTED",
+  "gate_basis": "priority_thresholds",
+  "gate_status": "PASS",
+  "rationale": "P0 coverage is 100%, P1 coverage is 100% (target: 90%), and overall coverage is 100% (minimum: 80%).",
+  "p0_status": "MET",
+  "p1_status": "MET",
+  "overall_status": "MET",
+  "critical_open": 0,
+  "links": { "trace_report_path": "_agentic-out/tests/story-4.6-traceability-matrix.md" }
+}

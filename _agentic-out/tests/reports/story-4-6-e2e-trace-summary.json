@@ -1,0 +1,69 @@
+{
+  "schema_version": "0.1.0",
+  "snapshot_at": "2026-08-20T13:02:00.000Z",
+  "repo": "TEST1",
+  "collection_mode": "agent-team",
+  "collection_status": "COLLECTED",
+  "inventory_basis": "acceptance_criteria",
+  "gate_basis": "priority_thresholds",
+  "source_sha": "",
+  "target": { "type": "story", "id": "4.6", "label": "查看证据详情并打开原文核验" },
+  "decision_mode": "deterministic",
+  "evaluator": "Testing Workflow",
+  "confidence": "high",
+  "oracle": {
+    "resolution_mode": "formal_requirements",
+    "confidence": "high",
+    "sources": ["_agentic-out/implementation/stories/4-6-查看证据详情并打开原文核验.md"],
+    "external_pointer_status": "not_used",
+    "synthetic": false
+  },
+  "coverage": {
+    "inventory": { "covered": 7, "total": 7, "pct": 100 },
+    "priority_breakdown": {
+      "P0": { "total": 5, "covered": 5, "pct": 100 },
+      "P1": { "total": 2, "covered": 2, "pct": 100 },
+      "P2": { "total": 0, "covered": 0, "pct": 100 },
+      "P3": { "total": 0, "covered": 0, "pct": 100 }
+    },
+    "by_level": {
+      "e2e": { "tests": 7, "criteria_covered": 5 },
+      "api": { "tests": 0, "criteria_covered": 0 },
+      "component": { "tests": 20, "criteria_covered": 7 },
+      "unit": { "tests": 18, "criteria_covered": 5 },
+      "other": { "tests": 0, "criteria_covered": 0 }
+    }
+  },
+  "tests": { "files": 8, "cases": 45, "skipped_cases": 0, "fixme_cases": 0, "pending_cases": 0 },
+  "risk_summary": { "critical_open": 0, "high_open": 0, "medium_open": 0, "low_open": 0 },
+  "heuristics": {
+    "endpoint_gaps": 0,
+    "auth_negative_path_status": "present",
+    "error_path_status": "present",
+    "ui_journey_status": "not_applicable",
+    "ui_state_status": "not_applicable"
+  },
+  "blockers": [],
+  "recommendations": [
+    { "priority": "LOW", "action": "Track non-blocking maintainability and test setup performance recommendations", "requirements": [] }
+  ],
+  "links": {
+    "trace_report_path": "_agentic-out/tests/story-4.6-traceability-matrix.md",
+    "trace_report_url": "",
+    "artifact_url": "",
+    "journey_evidence_url": ""
+  },
+  "gate_status": "PASS",
+  "gate_criteria": {
+    "p0_coverage_required": "100%",
+    "p0_coverage_actual": "100%",
+    "p0_status": "MET",
+    "p1_coverage_target": "90%",
+    "p1_coverage_minimum": "80%",
+    "p1_coverage_actual": "100%",
+    "p1_status": "MET",
+    "overall_coverage_minimum": "80%",
+    "overall_coverage_actual": "100%",
+    "overall_status": "MET"
+  }
+}

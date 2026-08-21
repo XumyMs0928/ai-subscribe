@@ -233,6 +233,13 @@ fn every_error_code_has_the_complete_stable_mapping() {
             "error.conflict",
         ),
         (
+            ErrorCode::NotFoundIntelDetail,
+            "not_found.intel_detail",
+            ErrorCategory::NotFound,
+            Retryability::Never,
+            "error.not_found",
+        ),
+        (
             ErrorCode::ConflictSecretLeaseConsumed,
             "conflict.secret_lease_consumed",
             ErrorCategory::Conflict,
